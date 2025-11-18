@@ -19,41 +19,53 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             line-height: 1.6;
-            background-color: #f0f8ff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
             color: #333;
-            padding: 20px;
+            padding: 16px;
+            min-height: 100vh;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
         .page-title {
             text-align: center;
-            color: #2c3e50;
-            margin: 20px 0 40px;
+            color: #ffffff;
+            margin: 0 0 32px;
             font-size: 2.5rem;
-            font-weight: 700;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: -0.5px;
         }
 
         .form-container {
             background-color: white;
             padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin: 20px auto;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            margin: 0 auto 24px;
             max-width: 1200px;
+            transition: transform 0.2s ease;
+        }
+
+        .form-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
         }
 
         .form-container h2 {
-            color: #2c3e50;
+            color: #1a202c;
             margin-bottom: 1.5rem;
-            font-size: 1.5rem;
-            border-bottom: 2px solid #4CAF50;
-            padding-bottom: 0.5rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 0.75rem;
+            letter-spacing: -0.3px;
         }
 
         .pickup-form {
@@ -75,25 +87,29 @@
 
         .form-group label {
             font-weight: 600;
-            color: #2c3e50;
-            font-size: 0.9rem;
+            color: #374151;
+            font-size: 0.875rem;
+            letter-spacing: 0.3px;
         }
 
         .form-group input,
         .form-group select {
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
             font-size: 1rem;
-            transition: border-color 0.3s, box-shadow 0.3s;
+            transition: all 0.3s ease;
             width: 100%;
+            background-color: #f9fafb;
         }
 
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: #4CAF50;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+            background-color: #ffffff;
+            transform: translateY(-1px);
         }
 
         .phone-input-container {
@@ -103,20 +119,23 @@
         }
 
         .phone-prefix {
-            background-color: #f5f5f5;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            color: #666;
+            background-color: #e5e7eb;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            color: #6b7280;
             font-size: 1rem;
+            font-weight: 600;
         }
 
         #map {
-            height: 500px;
+            height: 350px;
             width: 100%;
-            border-radius: 12px;
-            margin: 20px 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            margin: 24px 0;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            border: 4px solid white;
         }
 
         .button-group {
@@ -125,29 +144,46 @@
         }
 
         .button-group button {
-            background-color: #4CAF50;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 0.75rem 1.5rem;
+            padding: 1rem 2rem;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 1rem;
-            font-weight: 600;
-            transition: background-color 0.3s;
+            font-weight: 700;
+            transition: all 0.3s ease;
             width: 100%;
             max-width: 200px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            letter-spacing: 0.5px;
         }
 
         .button-group button:hover {
-            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .button-group button:active {
+            transform: translateY(0);
         }
 
         .totals-container {
             background-color: white;
             padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin: 20px 0;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            margin: 24px 0;
+        }
+
+        .totals-container h2 {
+            color: #1a202c;
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 0.75rem;
+            letter-spacing: -0.3px;
         }
 
         .totals-grid {
@@ -158,23 +194,36 @@
         }
 
         .total-item {
-            background-color: #f8f9fa;
-            padding: 1rem;
-            border-radius: 8px;
-            border-left: 4px solid #4CAF50;
+            background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+            padding: 1.25rem;
+            border-radius: 12px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .total-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
         }
 
         .total-item span:first-child {
             font-weight: 600;
-            color: #2c3e50;
+            color: #6b7280;
             display: block;
             margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .total-item span:last-child {
-            font-size: 1.5rem;
-            color: #4CAF50;
-            font-weight: 700;
+            font-size: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
         }
 
         .directions-button-container {
@@ -183,27 +232,54 @@
         }
 
         .directions-button {
-            background-color: #4285f4;
+            background: linear-gradient(135deg, #4285f4 0%, #3367d6 100%);
             color: white;
-            padding: 12px 24px;
+            padding: 14px 28px;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 1rem;
-            font-weight: 600;
-            transition: background-color 0.3s;
+            font-weight: 700;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
+            letter-spacing: 0.3px;
         }
 
         .directions-button:hover {
-            background-color: #3367d6;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(66, 133, 244, 0.6);
+        }
+
+        .directions-button:active {
+            transform: translateY(0);
         }
 
         .directions-button:disabled {
-            background-color: #ccc;
+            background: #d1d5db;
             cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .route-section {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            margin: 24px 0;
+        }
+
+        .route-header {
+            color: #1a202c;
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 0.75rem;
+            letter-spacing: -0.3px;
         }
 
         .locations-table {
@@ -212,25 +288,28 @@
             background-color: white;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
         .locations-table th,
         .locations-table td {
             padding: 1rem;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #e5e7eb;
         }
 
         .locations-table th {
-            background-color: #4CAF50;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .locations-table tr:hover {
-            background-color: #f5f5f5;
+            background-color: #f9fafb;
+            transition: background-color 0.2s ease;
         }
 
         .coordinate-link {
@@ -254,26 +333,51 @@
         }
 
         .action-button {
-            padding: 0.5rem 1rem;
+            padding: 0.625rem 1.25rem;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.3s;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            letter-spacing: 0.3px;
         }
 
         .edit-button {
-            background-color: #ffa500;
+            background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
             color: white;
+            box-shadow: 0 2px 10px rgba(255, 165, 0, 0.3);
         }
 
         .edit-button:hover {
-            background-color: #ff9000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 165, 0, 0.5);
+        }
+
+        .edit-button:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                padding: 0;
+            }
+
+            .totals-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
         }
 
         @media (max-width: 768px) {
-            .form-container {
-                padding: 1rem;
+            body {
+                padding: 12px;
+            }
+
+            .form-container,
+            .totals-container,
+            .route-section {
+                padding: 1.5rem;
+                border-radius: 12px;
             }
 
             .form-grid {
@@ -287,15 +391,88 @@
 
             .page-title {
                 font-size: 2rem;
+                margin-bottom: 24px;
+            }
+
+            .form-container h2,
+            .totals-container h2,
+            .route-header {
+                font-size: 1.5rem;
             }
 
             #map {
-                height: 300px;
+                height: 280px;
+                border-radius: 12px;
+            }
+
+            .totals-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .total-item {
+                padding: 1rem;
+            }
+
+            .total-item span:last-child {
+                font-size: 1.75rem;
+            }
+
+            .directions-button-container {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .directions-button {
+                width: 100%;
+                margin-left: 0 !important;
+                justify-content: center;
             }
 
             .locations-table {
                 display: block;
                 overflow-x: auto;
+                font-size: 0.875rem;
+            }
+
+            .locations-table th,
+            .locations-table td {
+                padding: 0.75rem 0.5rem;
+                white-space: nowrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+            }
+
+            .page-title {
+                font-size: 1.75rem;
+            }
+
+            .form-container,
+            .totals-container,
+            .route-section {
+                padding: 1rem;
+            }
+
+            #map {
+                height: 250px;
+            }
+
+            .form-group input,
+            .form-group select,
+            .phone-prefix {
+                padding: 0.75rem;
+                font-size: 0.938rem;
+            }
+
+            .button-group button,
+            .directions-button {
+                padding: 0.875rem 1.5rem;
+                font-size: 0.938rem;
             }
         }
     </style>
@@ -590,15 +767,18 @@
 
         function initMap() {
             try {
+                // Center map on Kolkata
                 map = L.map('map', {
-                    center: [START_POINT.lat, START_POINT.lng],
-                    zoom: 12,
-                    minZoom: 2
+                    center: [22.5726, 88.3639],
+                    zoom: 11,
+                    minZoom: 2,
+                    maxZoom: 18
                 });
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '© OpenStreetMap contributors',
-                    maxZoom: 19
+                    maxZoom: 19,
+                    minZoom: 2
                 }).addTo(map);
 
                 map.on('click', function(e) {
