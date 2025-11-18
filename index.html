@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Picnic Location Planner</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f0f8ff;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            text-align: center;
+            color: #2c3e50;
+            margin: 20px 0 40px;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+
+        .form-container h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 0.5rem;
+        }
+
+        .pickup-form {
+            width: 100%;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            width: 100%;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        .phone-input-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .phone-prefix {
+            background-color: #f5f5f5;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            color: #666;
+            font-size: 1rem;
+        }
+
+        #map {
+            height: 500px;
+            width: 100%;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-group {
+            grid-column: 1 / -1;
+            margin-top: 1rem;
+        }
+
+        .button-group button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            width: 100%;
+            max-width: 200px;
+        }
+
+        .button-group button:hover {
+            background-color: #45a049;
+        }
+
+        .totals-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+
+        .totals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .total-item {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .total-item span:first-child {
+            font-weight: 600;
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .total-item span:last-child {
+            font-size: 1.5rem;
+            color: #4CAF50;
+            font-weight: 700;
+        }
+
+        .directions-button-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .directions-button {
+            background-color: #4285f4;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .directions-button:hover {
+            background-color: #3367d6;
+        }
+
+        .directions-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .locations-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+
+        .locations-table th,
+        .locations-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .locations-table th {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: 600;
+        }
+
+        .locations-table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .coordinate-link {
+            color: #0066cc;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .coordinate-link:hover {
+            text-decoration: underline;
+        }
+
+        .veg-type {
+            color: #4CAF50;
+            font-weight: 600;
+        }
+
+        .non-veg-type {
+            color: #ff4444;
+            font-weight: 600;
+        }
+
+        .action-button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .edit-button {
+            background-color: #ffa500;
+            color: white;
+        }
+
+        .edit-button:hover {
+            background-color: #ff9000;
+        }
+
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 1rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .button-group button {
+                max-width: 100%;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            #map {
+                height: 300px;
+            }
+
+            .locations-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">Picnic Location Planner</h1>
+
+        <div class="form-container">
+            <h2>Add Pickup Location</h2>
+            <form id="pickupForm" class="pickup-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" placeholder="Enter full name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" placeholder="Enter pickup location" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="coords">Coordinates</label>
+                        <input type="text" id="coords" placeholder="Click on map to set coordinates" required readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <div class="phone-input-container">
+                            <span class="phone-prefix">+91</span>
+                            <input type="tel" id="phone" placeholder="10-digit number" pattern="[0-9]{10}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="headCount">Head Count</label>
+                        <input type="number" id="headCount" min="1" placeholder="Total members" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="kidsCount">Kids Count</label>
+                        <input type="number" id="kidsCount" min="0" placeholder="Number of kids" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="food">Food Preference</label>
+                        <select id="food" required>
+                            <option value="Veg">Vegetarian</option>
+                            <option value="Non-Veg">Non-Vegetarian</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group button-group">
+                        <button type="button" onclick="saveData()">Add Location</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div id="map"></div>
+
+        <div class="totals-container">
+            <h2>Summary</h2>
+            <div class="totals-grid">
+                <div class="total-item">
+                    <span>Total Participants</span>
+                    <span id="totalHeadCount">0</span>
+                </div>
+                <div class="total-item">
+                    <span>Adults</span>
+                    <span id="totalAdults">0</span>
+                </div>
+                <div class="total-item">
+                    <span>Kids</span>
+                    <span id="totalKidsCount">0</span>
+                </div>
+                <div class="total-item">
+                    <span>Vegetarian</span>
+                    <span id="vegCount">0</span>
+                </div>
+                <div class="total-item">
+                    <span>Non-Vegetarian</span>
+                    <span id="nonVegCount">0</span>
+                </div>
+            </div>
+            <div class="directions-button-container">
+                <button onclick="openGoogleMapsDirections()" class="directions-button">
+                    Open Route in Google Maps
+                </button>
+                <button onclick="exportToCSV()" class="directions-button" style="margin-left: 10px; background-color: #28a745;">
+                    Export to CSV
+                </button>
+            </div>
+        </div>
+
+        <div class="route-section">
+            <h2 class="route-header">Pickup Locations</h2>
+            <table class="locations-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Location</th>
+                        <th>Coordinates</th>
+                        <th>Phone Number</th>
+                        <th>Head Count</th>
+                        <th>Kids Count</th>
+                        <th>Food Type</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="locationList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let map;
+        let markers = [];
+        let routeLine = null;
+        let locations = JSON.parse(localStorage.getItem('locations') || '[]');
+        let tempMarker = null;
+        const START_POINT = { lat: 22.46610605026677, lng: 88.39275004634959 };
+        const END_POINT = { lat: 22.751314856502464, lng: 88.36437679984543 };
+
+        function exportToCSV() {
+            const allLocations = [
+                {
+                    name: "Starting Point",
+                    location: "Start Location",
+                    coords: `${START_POINT.lat}, ${START_POINT.lng}`,
+                    phone: "-",
+                    headCount: "0",
+                    kidsCount: "0",
+                    food: "-",
+                    lat: START_POINT.lat,
+                    lng: START_POINT.lng
+                },
+                ...locations,
+                {
+                    name: "Final Destination",
+                    location: "End Location",
+                    coords: `${END_POINT.lat}, ${END_POINT.lng}`,
+                    phone: "-",
+                    headCount: "0",
+                    kidsCount: "0",
+                    food: "-",
+                    lat: END_POINT.lat,
+                    lng: END_POINT.lng
+                }
+            ];
+
+            const headers = ['Name', 'Location', 'Coordinates', 'Phone', 'Head Count', 'Kids Count', 'Food Type'];
+            const csvContent = [
+                headers.join(','),
+                ...allLocations.map(loc => [
+                    loc.name,
+                    loc.location,
+                    loc.coords,
+                    loc.phone,
+                    loc.headCount,
+                    loc.kidsCount,
+                    loc.food
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'picnic_locations.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function createGoogleMapsDirectionsUrl(locations) {
+            const allPoints = [
+                START_POINT,
+                ...locations,
+                END_POINT
+            ];
+            
+            if (allPoints.length === 0) return '';
+            
+            let url = 'https://www.google.com/maps/dir/';
+            allPoints.forEach(loc => {
+                url += `${loc.lat},${loc.lng}/`;
+            });
+            
+            url += '@' + allPoints[0].lat + ',' + allPoints[0].lng + ',13z/data=!4m2!4m1!3e0';
+            return url;
+        }
+
+        function openGoogleMapsDirections() {
+            const url = createGoogleMapsDirectionsUrl(locations);
+            window.open(url, '_blank');
+        }
+
+        function initMap() {
+            try {
+                map = L.map('map', {
+                    center: [START_POINT.lat, START_POINT.lng],
+                    zoom: 12,
+                    minZoom: 2
+                });
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors',
+                    maxZoom: 19
+                }).addTo(map);
+
+                map.on('click', function(e) {
+                    const lat = e.latlng.lat.toFixed(8);
+                    const lng = e.latlng.lng.toFixed(8);
+                    document.getElementById('coords').value = `${lat}, ${lng}`;
+                    
+                    if (tempMarker) {
+                        map.removeLayer(tempMarker);
+                    }
+                    
+                    tempMarker = L.circleMarker([lat, lng], {
+                        radius: 8,
+                        color: '#ff7800',
+                        fillColor: '#ff7800',
+                        fillOpacity: 0.8
+                    }).addTo(map);
+                });
+
+                updateMap();
+            } catch (error) {
+                console.error('Error initializing map:', error);
+            }
+        }
+
+        function updateMap() {
+            try {
+                if (!map) return;
+
+                markers.forEach(m => map.removeLayer(m));
+                markers = [];
+                
+                if(routeLine) {
+                    map.removeLayer(routeLine);
+                    routeLine = null;
+                }
+
+                const allPoints = [
+                    { 
+                        ...START_POINT,
+                        name: "Starting Point",
+                        location: "Start Location",
+                        isStartPoint: true
+                    },
+                    ...locations,
+                    { 
+                        ...END_POINT,
+                        name: "Final Destination",
+                        location: "End Location",
+                        isEndPoint: true
+                    }
+                ];
+
+                let bounds = L.latLngBounds();
+                let waypoints = [];
+
+                allPoints.forEach(loc => {
+                    let lat = parseFloat(loc.lat);
+                    let lng = parseFloat(loc.lng);
+                    
+                    if (!isNaN(lat) && !isNaN(lng)) {
+                        let color = loc.isStartPoint ? "blue" : 
+                                   loc.isEndPoint ? "purple" : 
+                                   loc.food === "Veg" ? "green" : "red";
+                        
+                        let marker = L.circleMarker([lat, lng], {
+                            radius: loc.isStartPoint || loc.isEndPoint ? 10 : 8,
+                            color: color,
+                            fillColor: color,
+                            fillOpacity: 0.8
+                        }).addTo(map);
+                        
+                        marker.bindPopup(`
+                            <b>${loc.name}</b><br>
+                            ${loc.location}<br>
+                            ${lat}, ${lng}<br>
+                            ${!loc.isStartPoint && !loc.isEndPoint ? 
+                                `Phone: +91 ${loc.phone}<br>
+                                Head Count: ${loc.headCount}<br>
+                                Kids: ${loc.kidsCount}` : ''}
+                        `);
+                        
+                        markers.push(marker);
+                        waypoints.push([lat, lng]);
+                        bounds.extend([lat, lng]);
+                    }
+                });
+
+                if(waypoints.length > 1) {
+                    routeLine = L.polyline(waypoints, {
+                        color: 'blue',
+                        weight: 3
+                    }).addTo(map);
+                    map.fitBounds(bounds, { padding: [50, 50] });
+                }
+            } catch (error) {
+                console.error('Error updating map:', error);
+            }
+        }
+
+        function calculateTotals() {
+            let totalHeadCount = 0;
+            let totalKidsCount = 0;
+            let vegCount = 0;
+            let nonVegCount = 0;
+
+            locations.forEach(loc => {
+                totalHeadCount += parseInt(loc.headCount) || 0;
+                totalKidsCount += parseInt(loc.kidsCount) || 0;
+                if(loc.food === 'Veg') {
+                    vegCount += parseInt(loc.headCount) || 0;
+                } else {
+                    nonVegCount += parseInt(loc.headCount) || 0;
+                }
+            });
+
+            return {
+                totalHeadCount,
+                totalKidsCount,
+                vegCount,
+                nonVegCount,
+                totalAdults: totalHeadCount - totalKidsCount
+            };
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('locationList');
+            tbody.innerHTML = '';
+            
+            locations.forEach((loc, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${loc.name}</td>
+                    <td>${loc.location}</td>
+                    <td>
+                        <a class="coordinate-link" 
+                           onclick="openInGoogleMaps(${loc.lat}, ${loc.lng})" 
+                           title="Click to open in Google Maps">
+                            ${loc.coords}
+                        </a>
+                    </td>
+                    <td>+91 ${loc.phone}</td>
+                    <td>${loc.headCount}</td>
+                    <td>${loc.kidsCount}</td>
+                    <td class="${loc.food === 'Veg' ? 'veg-type' : 'non-veg-type'}">${loc.food}</td>
+                    <td>
+                        <button onclick="editLocation(${index})" class="action-button edit-button">Edit</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            const totals = calculateTotals();
+            document.getElementById('totalHeadCount').textContent = totals.totalHeadCount;
+            document.getElementById('totalAdults').textContent = totals.totalAdults;
+            document.getElementById('totalKidsCount').textContent = totals.totalKidsCount;
+            document.getElementById('vegCount').textContent = totals.vegCount;
+            document.getElementById('nonVegCount').textContent = totals.nonVegCount;
+        }
+
+        function saveData() {
+            let name = document.getElementById('name').value;
+            let location = document.getElementById('location').value;
+            let coords = document.getElementById('coords').value;
+            let phone = document.getElementById('phone').value.trim();
+            let headCount = document.getElementById('headCount').value;
+            let kidsCount = document.getElementById('kidsCount').value;
+            let food = document.getElementById('food').value;
+
+            phone = phone.replace('+91', '').trim();
+
+            if(!/^\d{10}$/.test(phone)) {
+                alert("Please enter a valid 10-digit phone number without +91");
+                return;
+            }
+
+            if(name && location && coords && phone && headCount && kidsCount) {
+                let latLng = coords.split(",").map(coord => coord.trim());
+                if(latLng.length === 2 && !isNaN(latLng[0]) && !isNaN(latLng[1])) {
+                    let newEntry = {
+                        id: Date.now(),
+                        name,
+                        location,
+                        coords,
+                        phone,
+                        headCount,
+                        kidsCount,
+                        food,
+                        lat: parseFloat(latLng[0]),
+                        lng: parseFloat(latLng[1])
+                    };
+
+                    locations.push(newEntry);
+                    localStorage.setItem('locations', JSON.stringify(locations));
+                    renderTable();
+                    updateMap();
+                    document.getElementById('pickupForm').reset();
+                    if(tempMarker) {
+                        map.removeLayer(tempMarker);
+                        tempMarker = null;
+                    }
+                } else {
+                    alert("Please enter valid coordinates in format: latitude,longitude");
+                }
+            } else {
+                alert("Please fill all fields!");
+            }
+        }
+
+        function editLocation(index) {
+            const loc = locations[index];
+            
+            document.getElementById('name').value = loc.name;
+            document.getElementById('location').value = loc.location;
+            document.getElementById('coords').value = loc.coords;
+            document.getElementById('phone').value = loc.phone;
+            document.getElementById('headCount').value = loc.headCount;
+            document.getElementById('kidsCount').value = loc.kidsCount;
+            document.getElementById('food').value = loc.food;
+            
+            document.querySelector('.form-container').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+            
+            const addButton = document.querySelector('button[onclick="saveData()"]');
+            addButton.textContent = 'Update Location';
+            addButton.onclick = function() {
+                updateLocation(index);
+            };
+
+            const [lat, lng] = loc.coords.split(',').map(coord => parseFloat(coord.trim()));
+            if (!isNaN(lat) && !isNaN(lng)) {
+                map.setView([lat, lng], 16);
+            }
+        }
+
+        function updateLocation(index) {
+            let name = document.getElementById('name').value;
+            let location = document.getElementById('location').value;
+            let coords = document.getElementById('coords').value;
+            let phone = document.getElementById('phone').value.trim();
+            let headCount = document.getElementById('headCount').value;
+            let kidsCount = document.getElementById('kidsCount').value;
+            let food = document.getElementById('food').value;
+
+            phone = phone.replace('+91', '').trim();
+
+            if(!/^\d{10}$/.test(phone)) {
+                alert("Please enter a valid 10-digit phone number without +91");
+                return;
+            }
+
+            if(name && location && coords && phone && headCount && kidsCount) {
+                let latLng = coords.split(",").map(coord => coord.trim());
+                if(latLng.length === 2 && !isNaN(latLng[0]) && !isNaN(latLng[1])) {
+                    locations[index] = {
+                        ...locations[index],
+                        name,
+                        location,
+                        coords,
+                        phone,
+                        headCount,
+                        kidsCount,
+                        food,
+                        lat: parseFloat(latLng[0]),
+                        lng: parseFloat(latLng[1])
+                    };
+
+                    localStorage.setItem('locations', JSON.stringify(locations));
+                    renderTable();
+                    updateMap();
+                    document.getElementById('pickupForm').reset();
+                    
+                    const addButton = document.querySelector('button');
+                    addButton.textContent = 'Add Location';
+                    addButton.onclick = saveData;
+                } else {
+                    alert("Please enter valid coordinates in format: latitude,longitude");
+                }
+            } else {
+                alert("Please fill all fields!");
+            }
+        }
+
+        function openInGoogleMaps(lat, lng) {
+            window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
+        }
+
+        window.onload = function() {
+            initMap();
+            renderTable();
+            
+            document.getElementById('phone').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.startsWith('91')) {
+                    value = value.substring(2);
+                }
+                if (value.length > 10) {
+                    value = value.slice(0, 10);
+                }
+                e.target.value = value;
+            });
+
+            document.getElementById('coords').addEventListener('click', function() {
+                const coords = this.value;
+                if (coords) {
+                    const [lat, lng] = coords.split(',').map(coord => parseFloat(coord.trim()));
+                    if (!isNaN(lat) && !isNaN(lng)) {
+                        map.setView([lat, lng], 16);
+                    }
+                }
+            });
+        };
+    </script>
+</body>
+</html>
