@@ -1262,9 +1262,6 @@
             if (supabaseData && supabaseData.length > 0) {
                 locations = supabaseData;
                 console.log('Loaded data from Supabase:', locations.length, 'locations');
-            } else if (githubData && githubData.length > 0) {
-                locations = githubData;
-                console.log('Loaded data from GitHub:', locations.length, 'locations');
             } else {
                 console.log('No data found. Starting with empty locations.');
             }
