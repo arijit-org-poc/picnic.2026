@@ -978,6 +978,10 @@
                 alert("Incorrect Password")
                 return
             }
+            
+            // Optimize the route before exporting
+            const optimizedLocations = optimizeRoute(START_POINT, locations, END_POINT);
+            
             const allLocations = [
                 {
                     name: "Starting Point",
@@ -989,11 +993,13 @@
                     adults: "0",
                     food: "N/A",
                     lat: START_POINT.lat,
-                    lng: START_POINT.lng
+                    lng: START_POINT.lng,
+                    sequence: 0
                 },
-                ...locations.map(loc => ({
+                ...optimizedLocations.map((loc, index) => ({
                     ...loc,
-                    adults: (parseInt(loc.headCount) - parseInt(loc.kidsCount)) || 0
+                    adults: (parseInt(loc.headCount) - parseInt(loc.kidsCount)) || 0,
+                    sequence: index + 1
                 })),
                 {
                     name: "Final Destination",
@@ -1005,7 +1011,8 @@
                     adults: "0",
                     food: "N/A",
                     lat: END_POINT.lat,
-                    lng: END_POINT.lng
+                    lng: END_POINT.lng,
+                    sequence: optimizedLocations.length + 1
                 }
             ];
 
@@ -1019,10 +1026,11 @@
                 return stringValue;
             };
 
-            const headers = ['Name', 'Location', 'Phone Number', 'Coordinates', 'Latitude', 'Longitude', 'Total Head Count', 'Adults', 'Kids', 'Food Preference'];
+            const headers = ['Sequence', 'Name', 'Location', 'Phone Number', 'Coordinates', 'Latitude', 'Longitude', 'Total Head Count', 'Adults', 'Kids', 'Food Preference'];
             const csvContent = [
                 headers.join(','),
                 ...allLocations.map(loc => [
+                    loc.sequence,
                     escapeCSV(loc.name),
                     escapeCSV(loc.location),
                     loc.phone !== '-' ? `+91 ${loc.phone}` : '-',
@@ -1049,9 +1057,12 @@
         }
 
         function createGoogleMapsDirectionsUrl(locations) {
+            // Optimize the route before creating the URL
+            const optimizedLocations = optimizeRoute(START_POINT, locations, END_POINT);
+            
             const allPoints = [
                 START_POINT,
-                ...locations,
+                ...optimizedLocations,
                 END_POINT
             ];
 
@@ -1110,6 +1121,52 @@
             }
         }
 
+        // Calculate distance between two points using Haversine formula
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371; // Earth's radius in kilometers
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLng / 2) * Math.sin(dLng / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        // Optimize route using nearest neighbor algorithm
+        function optimizeRoute(startPoint, pickupLocations, endPoint) {
+            if (pickupLocations.length === 0) return [];
+
+            const optimized = [];
+            const remaining = [...pickupLocations];
+            let currentPoint = startPoint;
+
+            while (remaining.length > 0) {
+                let nearestIndex = 0;
+                let minDistance = calculateDistance(
+                    currentPoint.lat, currentPoint.lng,
+                    remaining[0].lat, remaining[0].lng
+                );
+
+                for (let i = 1; i < remaining.length; i++) {
+                    const distance = calculateDistance(
+                        currentPoint.lat, currentPoint.lng,
+                        remaining[i].lat, remaining[i].lng
+                    );
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        nearestIndex = i;
+                    }
+                }
+
+                optimized.push(remaining[nearestIndex]);
+                currentPoint = remaining[nearestIndex];
+                remaining.splice(nearestIndex, 1);
+            }
+
+            return optimized;
+        }
+
         function updateMap() {
             try {
                 if (!map) return;
@@ -1122,6 +1179,9 @@
                     routeLine = null;
                 }
 
+                // Optimize the route
+                const optimizedLocations = optimizeRoute(START_POINT, locations, END_POINT);
+
                 const allPoints = [
                     {
                         ...START_POINT,
@@ -1129,7 +1189,7 @@
                         location: "Start Location",
                         isStartPoint: true
                     },
-                    ...locations,
+                    ...optimizedLocations,
                     {
                         ...END_POINT,
                         name: "Final Destination",
@@ -1141,7 +1201,7 @@
                 let bounds = L.latLngBounds();
                 let waypoints = [];
 
-                allPoints.forEach(loc => {
+                allPoints.forEach((loc, index) => {
                     let lat = parseFloat(loc.lat);
                     let lng = parseFloat(loc.lng);
 
@@ -1157,8 +1217,11 @@
                             fillOpacity: 0.8
                         }).addTo(map);
 
+                        // Add sequence number for pickup locations
+                        const sequenceNumber = loc.isStartPoint || loc.isEndPoint ? '' : `#${index} `;
+
                         marker.bindPopup(`
-                            <b>${loc.name}</b><br>
+                            <b>${sequenceNumber}${loc.name}</b><br>
                             ${loc.location}<br>
                             ${lat}, ${lng}<br>
                             ${!loc.isStartPoint && !loc.isEndPoint ?
@@ -1175,8 +1238,10 @@
 
                 if (waypoints.length > 1) {
                     routeLine = L.polyline(waypoints, {
-                        color: 'blue',
-                        weight: 3
+                        color: '#4285f4',
+                        weight: 4,
+                        opacity: 0.7,
+                        smoothFactor: 1
                     }).addTo(map);
                     map.fitBounds(bounds, { padding: [50, 50] });
                 }
