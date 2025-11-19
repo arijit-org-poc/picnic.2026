@@ -830,11 +830,15 @@
                     phone: "-",
                     headCount: "0",
                     kidsCount: "0",
-                    food: "-",
+                    adults: "0",
+                    food: "N/A",
                     lat: START_POINT.lat,
                     lng: START_POINT.lng
                 },
-                ...locations,
+                ...locations.map(loc => ({
+                    ...loc,
+                    adults: (parseInt(loc.headCount) - parseInt(loc.kidsCount)) || 0
+                })),
                 {
                     name: "Final Destination",
                     location: "End Location",
@@ -842,31 +846,46 @@
                     phone: "-",
                     headCount: "0",
                     kidsCount: "0",
-                    food: "-",
+                    adults: "0",
+                    food: "N/A",
                     lat: END_POINT.lat,
                     lng: END_POINT.lng
                 }
             ];
 
-            const headers = ['Name', 'Location', 'Coordinates', 'Phone', 'Head Count', 'Kids Count', 'Food Type'];
+            // Escape CSV values that contain commas, quotes, or newlines
+            const escapeCSV = (value) => {
+                if (value === null || value === undefined) return '';
+                const stringValue = String(value);
+                if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+                    return `"${stringValue.replace(/"/g, '""')}"`;
+                }
+                return stringValue;
+            };
+
+            const headers = ['Name', 'Location', 'Phone Number', 'Coordinates', 'Latitude', 'Longitude', 'Total Head Count', 'Adults', 'Kids', 'Food Preference'];
             const csvContent = [
                 headers.join(','),
                 ...allLocations.map(loc => [
-                    loc.name,
-                    loc.location,
-                    loc.coords,
-                    loc.phone,
+                    escapeCSV(loc.name),
+                    escapeCSV(loc.location),
+                    loc.phone !== '-' ? `+91 ${loc.phone}` : '-',
+                    escapeCSV(loc.coords),
+                    loc.lat,
+                    loc.lng,
                     loc.headCount,
+                    loc.adults,
                     loc.kidsCount,
-                    loc.food
+                    escapeCSV(loc.food)
                 ].join(','))
             ].join('\n');
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
+            const timestamp = new Date().toISOString().slice(0, 10);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'picnic_locations.csv');
+            link.setAttribute('download', `picnic_locations_${timestamp}.csv`);
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -1041,6 +1060,9 @@
 
             locations.forEach((loc, index) => {
                 const row = document.createElement('tr');
+                // Mask phone number - show only last 4 digits
+                const maskedPhone = loc.phone ? `+91 ******${loc.phone.slice(-4)}` : 'N/A';
+                
                 row.innerHTML = `
                     <td>${loc.name}</td>
                     <td>${loc.location}</td>
@@ -1051,7 +1073,7 @@
                             ${loc.coords}
                         </a>
                     </td>
-                    <td>+91 ${loc.phone}</td>
+                    <td>${maskedPhone}</td>
                     <td>${loc.headCount}</td>
                     <td>${loc.kidsCount}</td>
                     <td class="${loc.food === 'Veg' ? 'veg-type' : 'non-veg-type'}">${loc.food}</td>
@@ -1337,7 +1359,7 @@
             try {
                 // Use geocode.maps.co API to geocode the location
                 const response = await fetch(
-                    `https://geocode.maps.co/search?q=${encodeURIComponent(locationName + ', Kolkata')}&api_key=691d9d3238072619515182nhu4b4034`
+                    `https://geocode.maps.co/search?q=${encodeURIComponent(locationName + ', West Bengal')}&api_key=691d9d3238072619515182nhu4b4034`
                 );
 
                 const data = await response.json();
