@@ -18,6 +18,7 @@ CREATE INDEX idx_picnic_coordinates ON picnic_2026 USING GIN(coordinates);
 -- Enable Row Level Security (optional but recommended)
 ALTER TABLE picnic_2026 ENABLE ROW LEVEL SECURITY;
 
+ALTER TABLE picnic_2026 ADD COLUMN transport_required BOOLEAN DEFAULT FALSE;
 -- Create a policy that allows all operations (adjust based on your security needs)
 CREATE POLICY "Allow all operations on picnic_2026"
 ON picnic_2026

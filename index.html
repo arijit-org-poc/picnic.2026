@@ -601,6 +601,72 @@
             position: relative;
         }
 
+        /* Toggle Switch Styles */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.875rem 0;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .switch-label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+            letter-spacing: 0.3px;
+        }
+
+        .switch-description {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
         /* Destination Info Styles */
         .destination-info {
             background: rgba(255, 255, 255, 0.95);
@@ -761,16 +827,29 @@
                         <input type="text" id="name" placeholder="Enter full name" required>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <div class="switch-container">
+                            <label class="switch">
+                                <input type="checkbox" id="transportRequired" onchange="toggleTransportFields()">
+                                <span class="slider"></span>
+                            </label>
+                            <div>
+                                <span class="switch-label">🚌 Transport Required</span>
+                                <div class="switch-description">Enable if you need pickup from a location</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="locationField" style="display: none;">
                         <label for="location">Location</label>
-                        <input type="text" id="location" placeholder="Enter pickup location" required
+                        <input type="text" id="location" placeholder="Enter pickup location"
                             autocomplete="off">
                         <div id="locationDropdown" class="location-dropdown"></div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" id="coordsField" style="display: none;">
                         <label for="coords">Coordinates</label>
-                        <input type="text" id="coords" placeholder="Click on map to set coordinates" required readonly>
+                        <input type="text" id="coords" placeholder="Click on map to set coordinates" readonly>
                     </div>
 
                     <div class="form-group">
@@ -850,6 +929,7 @@
                 <thead>
                     <tr>
                         <th>Name</th>
+                        <th>Transport</th>
                         <th>Location</th>
                         <th>Coordinates</th>
                         <th>Phone Number</th>
@@ -1082,6 +1162,41 @@
             window.open(url, '_blank');
         }
 
+        function toggleTransportFields() {
+            const transportRequired = document.getElementById('transportRequired').checked;
+            const locationField = document.getElementById('locationField');
+            const coordsField = document.getElementById('coordsField');
+            const locationInput = document.getElementById('location');
+            const coordsInput = document.getElementById('coords');
+            const mapElement = document.getElementById('map');
+
+            if (transportRequired) {
+                locationField.style.display = 'block';
+                coordsField.style.display = 'block';
+                locationInput.required = true;
+                coordsInput.required = true;
+                mapElement.style.opacity = '1';
+                mapElement.style.pointerEvents = 'auto';
+                mapElement.style.transition = 'opacity 0.3s ease';
+            } else {
+                locationField.style.display = 'none';
+                coordsField.style.display = 'none';
+                locationInput.required = false;
+                coordsInput.required = false;
+                locationInput.value = '';
+                coordsInput.value = '';
+                mapElement.style.opacity = '1';
+                mapElement.style.pointerEvents = 'auto';
+                mapElement.style.transition = 'opacity 0.3s ease';
+                
+                // Remove temporary marker if exists
+                if (tempMarker && map) {
+                    map.removeLayer(tempMarker);
+                    tempMarker = null;
+                }
+            }
+        }
+
         function initMap() {
             try {
                 // Center map on Kolkata
@@ -1099,6 +1214,10 @@
                 }).addTo(map);
 
                 map.on('click', function (e) {
+                    // Only allow map clicks if transport is required
+                    const transportRequired = document.getElementById('transportRequired').checked;
+                    if (!transportRequired) return;
+
                     const lat = e.latlng.lat.toFixed(8);
                     const lng = e.latlng.lng.toFixed(8);
                     document.getElementById('coords').value = `${lat}, ${lng}`;
@@ -1116,6 +1235,10 @@
                 });
 
                 updateMap();
+                
+                // Set initial map state (map is viewable but clicking disabled)
+                document.getElementById('map').style.opacity = '1';
+                document.getElementById('map').style.pointerEvents = 'auto';
             } catch (error) {
                 console.error('Error initializing map:', error);
             }
@@ -1135,10 +1258,12 @@
 
         // Optimize route using nearest neighbor algorithm
         function optimizeRoute(startPoint, pickupLocations, endPoint) {
-            if (pickupLocations.length === 0) return [];
+            // Filter only locations that require transport
+            const transportLocations = pickupLocations.filter(loc => loc.transportRequired);
+            if (transportLocations.length === 0) return [];
 
             const optimized = [];
-            const remaining = [...pickupLocations];
+            const remaining = [...transportLocations];
             let currentPoint = startPoint;
 
             while (remaining.length > 0) {
@@ -1284,16 +1409,26 @@
                 // Mask phone number - show only last 4 digits
                 const maskedPhone = loc.phone ? `+91 ******${loc.phone.slice(-4)}` : 'N/A';
                 
+                // Transport badge
+                const transportBadge = loc.transportRequired ? 
+                    '<span style="color: #10b981; font-weight: 700;">✓ Yes</span>' : 
+                    '<span style="color: #6b7280; font-weight: 600;">✗ No</span>';
+                
+                // Show location and coords only if transport is required
+                const locationDisplay = loc.transportRequired && loc.location ? loc.location : '-';
+                const coordsDisplay = loc.transportRequired && loc.coords && loc.lat && loc.lng ? `
+                    <a class="coordinate-link" 
+                       onclick="openInGoogleMaps(${loc.lat}, ${loc.lng})" 
+                       title="Click to open in Google Maps">
+                        ${loc.coords}
+                    </a>
+                ` : '-';
+                
                 row.innerHTML = `
                     <td>${loc.name}</td>
-                    <td>${loc.location}</td>
-                    <td>
-                        <a class="coordinate-link" 
-                           onclick="openInGoogleMaps(${loc.lat}, ${loc.lng})" 
-                           title="Click to open in Google Maps">
-                            ${loc.coords}
-                        </a>
-                    </td>
+                    <td>${transportBadge}</td>
+                    <td>${locationDisplay}</td>
+                    <td>${coordsDisplay}</td>
                     <td>${maskedPhone}</td>
                     <td>${loc.headCount}</td>
                     <td>${loc.kidsCount}</td>
@@ -1315,8 +1450,9 @@
 
         async function saveData() {
             let name = document.getElementById('name').value;
-            let location = document.getElementById('location').value;
-            let coords = document.getElementById('coords').value;
+            let transportRequired = document.getElementById('transportRequired').checked;
+            let location = transportRequired ? document.getElementById('location').value : '';
+            let coords = transportRequired ? document.getElementById('coords').value : '';
             let phone = document.getElementById('phone').value.trim();
             let headCount = document.getElementById('headCount').value;
             let kidsCount = document.getElementById('kidsCount').value;
@@ -1337,54 +1473,73 @@
                 return;
             }
 
-            if (name && location && coords && phone && headCount && kidsCount) {
-                let latLng = coords.split(",").map(coord => coord.trim());
-                if (latLng.length === 2 && !isNaN(latLng[0]) && !isNaN(latLng[1])) {
-                    let newEntry = {
-                        name,
-                        location,
-                        coords,
-                        phone,
-                        headCount,
-                        kidsCount,
-                        food,
-                        lat: parseFloat(latLng[0]),
-                        lng: parseFloat(latLng[1])
-                    };
+            // Validate transport-specific fields
+            if (transportRequired && (!location || !coords)) {
+                alert("Please enter location and coordinates when transport is required!");
+                return;
+            }
 
-                    try {
-                        // Save to Supabase first
-                        const savedData = await saveLocationsToSupabase(newEntry);
-
-                        // Add the ID from Supabase to the entry
-                        if (savedData && savedData.length > 0) {
-                            newEntry.id = savedData[0].id;
-                        }
-
-                        locations.push(newEntry);
-
-                        // Also save to GitHub as backup
-                        // await saveLocationsToGitHub();
-
-
-                        renderTable();
-                        updateMap();
-                        document.getElementById('pickupForm').reset();
-                        if (tempMarker) {
-                            map.removeLayer(tempMarker);
-                            tempMarker = null;
-                        }
-
-                        alert('Location saved successfully!');
-                    } catch (error) {
-                        console.error('Error saving data:', error);
-                        alert('Error saving data. Please try again.');
+            if (name && phone && headCount && kidsCount) {
+                let lat = 0, lng = 0;
+                
+                // Parse coordinates only if transport is required
+                if (transportRequired && coords) {
+                    let latLng = coords.split(",").map(coord => coord.trim());
+                    if (latLng.length === 2 && !isNaN(latLng[0]) && !isNaN(latLng[1])) {
+                        lat = parseFloat(latLng[0]);
+                        lng = parseFloat(latLng[1]);
+                    } else {
+                        alert("Please enter valid coordinates in format: latitude,longitude");
+                        return;
                     }
-                } else {
-                    alert("Please enter valid coordinates in format: latitude,longitude");
+                }
+
+                let newEntry = {
+                    name,
+                    transportRequired,
+                    location: location || '',
+                    coords: coords || '',
+                    phone,
+                    headCount,
+                    kidsCount,
+                    food,
+                    lat,
+                    lng
+                };
+
+                try {
+                    // Save to Supabase first
+                    const savedData = await saveLocationsToSupabase(newEntry);
+
+                    // Add the ID from Supabase to the entry
+                    if (savedData && savedData.length > 0) {
+                        newEntry.id = savedData[0].id;
+                    }
+
+                    locations.push(newEntry);
+
+                    // Also save to GitHub as backup
+                    // await saveLocationsToGitHub();
+
+                    renderTable();
+                    updateMap();
+                    document.getElementById('pickupForm').reset();
+                    // Reset transport toggle
+                    document.getElementById('transportRequired').checked = false;
+                    toggleTransportFields();
+                    
+                    if (tempMarker) {
+                        map.removeLayer(tempMarker);
+                        tempMarker = null;
+                    }
+
+                    alert('Registration saved successfully!');
+                } catch (error) {
+                    console.error('Error saving data:', error);
+                    alert('Error saving data. Please try again.');
                 }
             } else {
-                alert("Please fill all fields!");
+                alert("Please fill all required fields!");
             }
         }
 
@@ -1393,8 +1548,10 @@
             const loc = locations[index];
 
             document.getElementById('name').value = loc.name;
-            document.getElementById('location').value = loc.location;
-            document.getElementById('coords').value = loc.coords;
+            document.getElementById('transportRequired').checked = loc.transportRequired || false;
+            toggleTransportFields(); // Update field visibility
+            document.getElementById('location').value = loc.location || '';
+            document.getElementById('coords').value = loc.coords || '';
             document.getElementById('phone').value = loc.phone;
             document.getElementById('headCount').value = loc.headCount;
             document.getElementById('kidsCount').value = loc.kidsCount;
@@ -1419,8 +1576,9 @@
 
         async function updateLocation(index) {
             let name = document.getElementById('name').value;
-            let location = document.getElementById('location').value;
-            let coords = document.getElementById('coords').value;
+            let transportRequired = document.getElementById('transportRequired').checked;
+            let location = transportRequired ? document.getElementById('location').value : '';
+            let coords = transportRequired ? document.getElementById('coords').value : '';
             let phone = document.getElementById('phone').value.trim();
             let headCount = document.getElementById('headCount').value;
             let kidsCount = document.getElementById('kidsCount').value;
@@ -1433,58 +1591,77 @@
                 return;
             }
 
-            if (name && location && coords && phone && headCount && kidsCount) {
-                let latLng = coords.split(",").map(coord => coord.trim());
-                if (latLng.length === 2 && !isNaN(latLng[0]) && !isNaN(latLng[1])) {
-                    locations[index] = {
-                        ...locations[index],
-                        name,
-                        location,
-                        coords,
-                        phone,
-                        headCount,
-                        kidsCount,
-                        food,
-                        lat: parseFloat(latLng[0]),
-                        lng: parseFloat(latLng[1])
-                    };
+            // Validate transport-specific fields
+            if (transportRequired && (!location || !coords)) {
+                alert("Please enter location and coordinates when transport is required!");
+                return;
+            }
 
-                    try {
-                        // Update in Supabase if ID exists
-                        if (locations[index].id) {
-                            await updateLocationInSupabase(locations[index].id, {
-                                name,
-                                location,
-                                phone,
-                                headCount,
-                                kidsCount,
-                                food,
-                                lat: parseFloat(latLng[0]),
-                                lng: parseFloat(latLng[1])
-                            });
-                        }
-
-                        // Also update in GitHub
-                        // await saveLocationsToGitHub();
-
-                        renderTable();
-                        updateMap();
-                        document.getElementById('pickupForm').reset();
-
-                        const addButton = document.querySelector('button[onclick="saveData()"]');
-                        addButton.textContent = 'Add Location';
-                        addButton.onclick = saveData;
-
-                        alert('Location updated successfully!');
-                    } catch (error) {
-                        console.error('Error updating data:', error);
-                        alert('Error updating data. Please try again.');
+            if (name && phone && headCount && kidsCount) {
+                let lat = 0, lng = 0;
+                
+                // Parse coordinates only if transport is required
+                if (transportRequired && coords) {
+                    let latLng = coords.split(",").map(coord => coord.trim());
+                    if (latLng.length === 2 && !isNaN(latLng[0]) && !isNaN(latLng[1])) {
+                        lat = parseFloat(latLng[0]);
+                        lng = parseFloat(latLng[1]);
+                    } else {
+                        alert("Please enter valid coordinates in format: latitude,longitude");
+                        return;
                     }
-                } else {
-                    alert("Please enter valid coordinates in format: latitude,longitude");
+                }
+
+                locations[index] = {
+                    ...locations[index],
+                    name,
+                    transportRequired,
+                    location: location || '',
+                    coords: coords || '',
+                    phone,
+                    headCount,
+                    kidsCount,
+                    food,
+                    lat,
+                    lng
+                };
+
+                try {
+                    // Update in Supabase if ID exists
+                    if (locations[index].id) {
+                        await updateLocationInSupabase(locations[index].id, {
+                            name,
+                            transportRequired,
+                            location: location || '',
+                            phone,
+                            headCount,
+                            kidsCount,
+                            food,
+                            lat,
+                            lng
+                        });
+                    }
+
+                    // Also update in GitHub
+                    // await saveLocationsToGitHub();
+
+                    renderTable();
+                    updateMap();
+                    document.getElementById('pickupForm').reset();
+                    document.getElementById('transportRequired').checked = false;
+                    toggleTransportFields();
+
+                    const addButton = document.querySelector('button[onclick="saveData()"]');
+                    addButton.textContent = 'Add Location';
+                    addButton.onclick = saveData;
+
+                    alert('Registration updated successfully!');
+                } catch (error) {
+                    console.error('Error updating data:', error);
+                    alert('Error updating data. Please try again.');
                 }
             } else {
-                alert("Please fill all fields!");
+                alert("Please fill all required fields!");
             }
         }
 
@@ -1716,6 +1893,7 @@
                     return {
                         id: item.id,
                         name: item.name || '',
+                        transportRequired: item.transport_required || false,
                         location: item.location || '',
                         coords: `${lat}, ${lng}`,
                         phone: item.phone_number || '',
@@ -1743,7 +1921,8 @@
                     .from("picnic_2026")
                     .insert([{
                         name: locationData.name,
-                        location: locationData.location,
+                        transport_required: locationData.transportRequired || false,
+                        location: locationData.location || '',
                         coordinates: [locationData.lng, locationData.lat], // PostGIS format: [longitude, latitude]
                         phone_number: locationData.phone,
                         head_count: parseInt(locationData.headCount),
@@ -1772,7 +1951,8 @@
                     .from("picnic_2026")
                     .update({
                         name: locationData.name,
-                        location: locationData.location,
+                        transport_required: locationData.transportRequired || false,
+                        location: locationData.location || '',
                         coordinates: [locationData.lng, locationData.lat],
                         phone_number: locationData.phone,
                         head_count: parseInt(locationData.headCount),
