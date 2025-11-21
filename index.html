@@ -27,6 +27,39 @@
             min-height: 100vh;
         }
 
+        /* Marquee banner (modern, accessible replacement for <marquee>) */
+        .marquee-banner {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(6px); /* Frosted glass effect */
+            -webkit-backdrop-filter: blur(6px);
+            border-radius: 14px;
+            padding: 10px 0;
+            margin: 0 0 18px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+        }
+        .marquee-inner {
+            display: inline-block;
+            white-space: nowrap;
+            padding-left: 100%; /* Start off-screen to the right */
+            animation: marquee-scroll 25s linear infinite;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            font-size: 0.95rem;
+            color: #ffffff;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+        .marquee-banner:hover .marquee-inner {
+            animation-play-state: paused; /* Allow user to pause */
+        }
+        @keyframes marquee-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -801,6 +834,12 @@
 </head>
 
 <body>
+    <!-- Top marquee banner (text adjustable) -->
+    <div class="marquee-banner" role="status" aria-live="polite">
+        <div class="marquee-inner" id="topMarqueeText">
+            🚍 Picnic 2026 •<b style="color: rgb(255, 197, 71);">❗❗ The Picnic Spot not yet fixed, Searching a place around 1 hour distance from Airport ❗❗</b>• Welcome everyone! • Registration open •
+        </div>
+    </div>
     <!-- Loading Overlay -->
     <div id="loadingOverlay">
         <div class="loader"></div>
@@ -815,7 +854,7 @@
 
         <div class="destination-info">
             <div class="destination-label">📍 Picnic Destination</div>
-            <div class="destination-name" onclick="openInGoogleMaps(22.7694162777404, 88.33872289489572)" style="cursor: pointer;">📌 Debdwar Park, Barrackpore (Tentative)</div>
+            <div class="destination-name" onclick="openInGoogleMaps(22.7694162777404, 88.33872289489572)" style="cursor: pointer;">📌 Debdwar Park, Barrackpore (Not-Final)</div>
             <!-- <div class="destination-coords" onclick="openInGoogleMaps(22.7694162777404, 88.33872289489572)" title="Click to open in Google Maps"> -->
                 <!-- 📌 22.7694162777404, 88.33872289489572 -->
             <!-- </div> -->
