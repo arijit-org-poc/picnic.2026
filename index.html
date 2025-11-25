@@ -984,7 +984,7 @@
                 <tbody id="locationList"></tbody>
             </table>
         </div>
-
+        
         <footer class="footer">
             <div class="footer-content">
                 <p class="footer-description">
@@ -1004,8 +1004,33 @@
         let routeLine = null;
         let locations = JSON.parse(localStorage.getItem('locations') || '[]');
         let tempMarker = null;
-        const START_POINT = { "lat": 22.46610605026677, "lng": 88.39275004634959 };
-        const END_POINT = { "lat": 22.7694162777404, "lng": 88.33872289489572 };
+        let START_POINT = { lat: 22.46610605026677, lng: 88.39275004634959 }; // fallback
+        let END_POINT = { lat: 22.7694162777404, lng: 88.33872289489572 }; // fallback
+
+        let PICNIC_SPOT_NAME = '';
+        async function loadAdminRoutePoints() {
+            try {
+                const { data, error } = await window.supabase
+                    .from('picnic_2026_root')
+                    .select('bus_source_coordinates, picnic_spot, picnic_spot_name')
+                    .limit(1)
+                    .single();
+                if (error) throw error;
+                if (data) {
+                    if (Array.isArray(data.bus_source_coordinates) && data.bus_source_coordinates.length === 2) {
+                        START_POINT = { lat: data.bus_source_coordinates[1], lng: data.bus_source_coordinates[0] };
+                    }
+                    if (Array.isArray(data.picnic_spot) && data.picnic_spot.length === 2) {
+                        END_POINT = { lat: data.picnic_spot[1], lng: data.picnic_spot[0] };
+                    }
+                    if (typeof data.picnic_spot_name === 'string') {
+                        PICNIC_SPOT_NAME = data.picnic_spot_name;
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load admin route points:', err);
+            }
+        }
 
 
         function exportToCSV() {
@@ -1627,22 +1652,28 @@
         }
 
         window.onload = async function () {
-            // Show loading indicator
             showLoading(true);
-
-            // Load data from both sources
-            // const githubData = await loadLocationsFromGitHub();
+            await loadAdminRoutePoints();
+            // Update top banner and destination info with picnic spot name
+            if (PICNIC_SPOT_NAME) {
+                // Update destination info section
+                const destName = document.querySelector('.destination-name');
+                if (destName) {
+                    destName.textContent = `📌 ${PICNIC_SPOT_NAME}`;
+                }
+                // Update marquee banner if it contains a spot name
+                const marquee = document.getElementById('topMarqueeText');
+                if (marquee) {
+                    marquee.innerHTML = marquee.innerHTML.replace(/📌[^•]+/g, `📌 ${PICNIC_SPOT_NAME}`);
+                }
+            }
             const supabaseData = await loadLocationsFromSupabase();
-
-            // Use Supabase data if available, otherwise fallback to GitHub
             if (supabaseData && supabaseData.length > 0) {
                 locations = supabaseData;
                 console.log('Loaded data from Supabase:', locations.length, 'locations');
             } else {
                 console.log('No data found. Starting with empty locations.');
             }
-
-            // Initialize map and display data
             initMap();
             renderTable();
             showLoading(false);
@@ -1675,30 +1706,20 @@
 
             locationInput.addEventListener('input', function (e) {
                 const locationText = e.target.value.trim();
-
-                // Clear previous timeout
                 clearTimeout(searchTimeout);
-
-                // Hide dropdown if input is too short
                 if (locationText.length <= 2) {
                     dropdown.classList.remove('active');
                     dropdown.innerHTML = '';
                     return;
                 }
-
-                // Show searching indicator
                 dropdown.innerHTML = '<div class="searching-indicator">Searching...</div>';
                 dropdown.classList.add('active');
-
-                // Search after user stops typing for 800ms
                 if (locationText.length > 2) {
                     searchTimeout = setTimeout(async () => {
                         await searchLocations(locationText);
                     }, 800);
                 }
             });
-
-            // Close dropdown when clicking outside
             document.addEventListener('click', function (e) {
                 if (!locationInput.contains(e.target) && !dropdown.contains(e.target)) {
                     dropdown.classList.remove('active');

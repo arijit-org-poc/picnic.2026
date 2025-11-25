@@ -209,6 +209,139 @@
             margin: 0;
         }
 
+        /* Participants table */
+        .participants-card h2 {
+            border-bottom-color: #667eea;
+        }
+
+        .participants-table-wrapper {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        table.participants-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        table.participants-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+
+        table.participants-table th,
+        table.participants-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+        }
+
+        table.participants-table tbody tr:hover {
+            background: #f3f4f6;
+        }
+
+        .paid-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+            background: #10b981;
+            color: #fff;
+        }
+
+        .unpaid-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .switch-cell {
+            text-align: center;
+        }
+
+        /* Toggle switch */
+        .pay-switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+        }
+
+        .pay-switch input {
+            display: none;
+        }
+
+        .pay-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ef4444;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .pay-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            top: 3px;
+            background: #fff;
+            transition: .3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+        }
+
+        .pay-switch input:checked+.pay-slider {
+            background: #10b981;
+        }
+
+        .pay-switch input:checked+.pay-slider:before {
+            transform: translateX(22px);
+        }
+
+        .totals-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .totals-box {
+            background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+            padding: 1rem;
+            border-radius: 12px;
+            border-left: 5px solid #ff6b6b;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .totals-box h3 {
+            margin: 0 0 6px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+        }
+
+        .totals-box .value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -261,8 +394,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .loading-text {
@@ -288,12 +426,13 @@
         </div>
 
         <div class="info-box">
-            <p>ℹ️ This table contains a single row with core picnic configuration. Updates will modify the existing record.</p>
+            <p>ℹ️ This table contains a single row with core picnic configuration. Updates will modify the existing
+                record.</p>
         </div>
 
         <div class="admin-card">
             <h2>🚀 Bus Source Point</h2>
-            
+
             <div id="currentData" class="current-data" style="display: none;">
                 <h3>Current Configuration</h3>
                 <p><strong>Bus Source Name:</strong> <span id="currentBusSourceName">-</span></p>
@@ -336,6 +475,8 @@
                 <div style="margin-top: 1.5rem;">
                     <button type="submit" class="btn btn-primary">💾 Save Configuration</button>
                     <button type="button" class="btn btn-secondary" onclick="viewMainPage()">👁️ View Main Page</button>
+                    <a href="cashbook.html"
+                        style="display: inline-block; padding: 10px 24px; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 0.938rem; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4); transition: all 0.3s ease;">Cashbook</a>
                 </div>
             </form>
         </div>
@@ -353,6 +494,10 @@
         let map;
         let busSourceMarker, picnicSpotMarker;
         let selectedMode = 'busSource'; // 'busSource' or 'picnicSpot'
+        let rootConfigId = null;
+        let paymentStatusMap = {}; // keyed by phone -> { name, status, timestamp, head_count, kids_count }
+        let pricePerPerson = 0;
+        let participants = [];
 
         // Initialize map
         function initMap() {
@@ -362,13 +507,13 @@
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
 
-            map.on('click', function(e) {
+            map.on('click', function (e) {
                 const lat = e.latlng.lat.toFixed(8);
                 const lng = e.latlng.lng.toFixed(8);
-                
+
                 if (selectedMode === 'busSource') {
                     document.getElementById('busSourceCoords').value = `${lat}, ${lng}`;
-                    
+
                     if (busSourceMarker) {
                         map.removeLayer(busSourceMarker);
                     }
@@ -381,7 +526,7 @@
                     }).addTo(map).bindPopup('Bus Source Point');
                 } else {
                     document.getElementById('picnicSpotCoords').value = `${lat}, ${lng}`;
-                    
+
                     if (picnicSpotMarker) {
                         map.removeLayer(picnicSpotMarker);
                     }
@@ -397,19 +542,19 @@
         }
 
         // Toggle between bus source and picnic spot selection
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             let pass = prompt("Enter the admin password:");
             if (pass !== "picnic_2026_TCS@") {
                 alert("Incorrect password! Redirecting to main page.");
                 window.location.href = "index.html";
                 return;
             }
-            document.getElementById('busSourceCoords').addEventListener('click', function() {
+            document.getElementById('busSourceCoords').addEventListener('click', function () {
                 selectedMode = 'busSource';
                 alert('Click on the map to set Bus Source coordinates');
             });
 
-            document.getElementById('picnicSpotCoords').addEventListener('click', function() {
+            document.getElementById('picnicSpotCoords').addEventListener('click', function () {
                 selectedMode = 'picnicSpot';
                 alert('Click on the map to set Picnic Spot coordinates');
             });
@@ -429,15 +574,18 @@
                 }
 
                 if (data) {
+                    rootConfigId = data.id;
+                    paymentStatusMap = (data.payment_status && typeof data.payment_status === 'object') ? data.payment_status : {};
                     // Display current data
                     document.getElementById('currentData').style.display = 'block';
                     document.getElementById('currentBusSourceName').textContent = data.bus_source_name || 'Not set';
-                    document.getElementById('currentBusSourceCoords').textContent = 
+                    document.getElementById('currentBusSourceCoords').textContent =
                         data.bus_source_coordinates ? `${data.bus_source_coordinates[1]}, ${data.bus_source_coordinates[0]}` : 'Not set';
                     document.getElementById('currentPicnicSpotName').textContent = data.picnic_spot_name || 'Not set';
-                    document.getElementById('currentPicnicSpotCoords').textContent = 
+                    document.getElementById('currentPicnicSpotCoords').textContent =
                         data.picnic_spot ? `${data.picnic_spot[1]}, ${data.picnic_spot[0]}` : 'Not set';
                     document.getElementById('currentPrice').textContent = data.picnic_price_per_person || '0';
+                    pricePerPerson = parseFloat(data.picnic_price_per_person || '0');
 
                     // Populate form
                     document.getElementById('busSourceName').value = data.bus_source_name || '';
@@ -445,7 +593,7 @@
                         const lat = data.bus_source_coordinates[1];
                         const lng = data.bus_source_coordinates[0];
                         document.getElementById('busSourceCoords').value = `${lat}, ${lng}`;
-                        
+
                         busSourceMarker = L.marker([lat, lng], {
                             icon: L.divIcon({
                                 html: '<div style="background: #ff6b6b; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">🚌</div>',
@@ -460,7 +608,7 @@
                         const lat = data.picnic_spot[1];
                         const lng = data.picnic_spot[0];
                         document.getElementById('picnicSpotCoords').value = `${lat}, ${lng}`;
-                        
+
                         picnicSpotMarker = L.marker([lat, lng], {
                             icon: L.divIcon({
                                 html: '<div style="background: #10b981; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">📍</div>',
@@ -468,7 +616,7 @@
                                 iconSize: [32, 32]
                             })
                         }).addTo(map).bindPopup('Picnic Spot');
-                        
+
                         // Center map between both points if both exist
                         if (busSourceMarker) {
                             const bounds = L.latLngBounds([
@@ -488,6 +636,7 @@
                 alert('Error loading configuration. Please refresh the page.');
             }
         }
+
 
         // Save configuration
         async function saveConfiguration(formData) {
@@ -558,12 +707,12 @@
             });
         });
 
-        window.viewMainPage = function() {
+        window.viewMainPage = function () {
             window.open('index.html', '_blank');
         };
 
         // Initialize on load
-        window.onload = async function() {
+        window.onload = async function () {
             document.getElementById('loadingOverlay').style.display = 'flex';
             initMap();
             await loadConfiguration();

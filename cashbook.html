@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cashbook – Picnic 2026</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            color: #222;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.13);
+            padding: 2rem;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .title {
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: #667eea;
+            letter-spacing: -1px;
+        }
+        .primary-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.18);
+            transition: all 0.2s;
+        }
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25);
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 1.5rem;
+        }
+        .ledger-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.07);
+        }
+        .ledger-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            font-weight: 700;
+            padding: 12px 8px;
+            border: none;
+        }
+        .ledger-table td {
+            padding: 10px 8px;
+            border: none;
+            text-align: left;
+        }
+        .ledger-table tr:nth-child(even) {
+            background: #f3f4f6;
+        }
+        .ledger-table tr:nth-child(odd) {
+            background: #fff;
+        }
+        .type-income {
+            color: #10b981;
+            font-weight: 700;
+        }
+        .type-expense {
+            color: #ef4444;
+            font-weight: 700;
+        }
+        .onsite-yes {
+            color: #2563eb;
+            font-weight: 600;
+        }
+        .onsite-no {
+            color: #6b7280;
+            font-weight: 600;
+        }
+        /* Modal Styles */
+        .modal-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(102, 126, 234, 0.18);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s;
+        }
+        .modal {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.18);
+            padding: 2rem;
+            min-width: 340px;
+            max-width: 95vw;
+            width: 500px;
+            position: relative;
+            animation: modalIn 0.2s;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        @keyframes modalIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-header {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 1.2rem;
+        }
+        .modal-close {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            font-size: 1.3rem;
+            color: #667eea;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            transition: color 0.2s;
+        }
+        .modal-close:hover {
+            color: #ef4444;
+        }
+        .form-group {
+            margin-bottom: 1.1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+            margin-bottom: 0.4rem;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.7rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #f9fafb;
+        }
+        .form-group textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        .switch-container {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            margin-top: 0.5rem;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 26px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .secondary-btn {
+            background: #f3f4f6;
+            color: #667eea;
+            border: none;
+            border-radius: 10px;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .secondary-btn:hover {
+            background: #e0e7ff;
+        }
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.93rem;
+            margin-bottom: 0.7rem;
+            margin-top: -0.5rem;
+            font-weight: 600;
+        }
+        .multiselect {
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 0.7rem 1rem;
+            background: #fff;
+            min-height: 44px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+        .multiselect-option {
+            background: #e0e7ff;
+            color: #374151;
+            border-radius: 8px;
+            padding: 0.2rem 0.7rem;
+            font-size: 0.95rem;
+            margin: 2px 0;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .multiselect-remove {
+            color: #ef4444;
+            font-weight: 700;
+            cursor: pointer;
+            margin-left: 2px;
+        }
+        .multiselect-dropdown {
+            position: absolute;
+            background: #fff;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            box-shadow: 0 4px 18px rgba(102, 126, 234, 0.13);
+            z-index: 10;
+            margin-top: 2px;
+            min-width: 220px;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+        .multiselect-dropdown-option {
+            padding: 0.6rem 1rem;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #374151;
+            transition: background 0.15s;
+        }
+        .multiselect-dropdown-option:hover {
+            background: #e0e7ff;
+        }
+        @media (max-width: 768px) {
+            .container { 
+                padding: 1rem; 
+                margin: 10px;
+                border-radius: 12px;
+            }
+            .modal { 
+                padding: 1.5rem 1rem; 
+                min-width: 0; 
+                width: 95vw;
+                max-height: 85vh;
+            }
+            .header { 
+                flex-direction: column; 
+                gap: 1rem; 
+                text-align: center;
+            }
+            .title { font-size: 1.5rem; }
+            .ledger-table { font-size: 0.85rem; }
+            .ledger-table th,
+            .ledger-table td { padding: 8px 4px; }
+            .form-row { flex-direction: column; }
+            .summary-cards { 
+                flex-direction: column; 
+                gap: 1rem;
+            }
+            .summary-card { min-width: 0; }
+        }
+        .summary-cards {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .summary-card {
+            flex: 1;
+            min-width: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 14px;
+            padding: 1.5rem;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+            transition: transform 0.2s;
+        }
+        .summary-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+        .summary-card.income {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .summary-card.onsite {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+        .summary-card.expense {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        .summary-card-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+        .summary-card-value {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">Cashbook – Picnic 2026</div>
+            <button class="primary-btn" id="openModalBtn">Insert Entry</button>
+        </div>
+        <div class="summary-cards">
+            <div class="summary-card income">
+                <div class="summary-card-label">Total Income</div>
+                <div class="summary-card-value" id="totalIncome">₹0.00</div>
+            </div>
+            <div class="summary-card onsite">
+                <div class="summary-card-label">Onsite Collected</div>
+                <div class="summary-card-value" id="totalOnsite">₹0.00</div>
+            </div>
+            <div class="summary-card expense">
+                <div class="summary-card-label">Total Expenses</div>
+                <div class="summary-card-value" id="totalExpense">₹0.00</div>
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table class="ledger-table" id="ledgerTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Payee</th>
+                        <th>Receiver</th>
+                        <th>Amount</th>
+                        <th>Type</th>
+                        <th>From Onsite</th>
+                        <th>Participants</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody id="ledgerTbody">
+                    <tr><td colspan="8" style="text-align:center;color:#6b7280;">No entries yet.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-bg" id="modalBg" style="display:none;">
+        <div class="modal" id="modal">
+            <button class="modal-close" id="closeModalBtn">×</button>
+            <div class="modal-header">Insert Cashbook Entry</div>
+            <form id="entryForm" autocomplete="off">
+                <div class="form-group">
+                    <label for="payee">Payee <span style="color:#ef4444;">*</span></label>
+                    <input type="text" id="payee" required>
+                </div>
+                <div class="form-group">
+                    <label for="receiver">Receiver <span style="color:#ef4444;">*</span></label>
+                    <input type="text" id="receiver" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="type">Type</label>
+                        <select id="type">
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount <span style="color:#ef4444;">*</span></label>
+                        <input type="number" id="amount" min="0.01" step="0.01" required>
+                    </div>
+                </div>
+                <div class="form-group" style="position:relative;">
+                    <label for="participants">Add Participants</label>
+                    <div id="participantsSelect" class="multiselect" tabindex="0"></div>
+                    <div id="participantsDropdown" class="multiselect-dropdown" style="display:none;"></div>
+                </div>
+                <div class="form-group">
+                    <label for="remarks">Remarks <span id="remarksRequired" style="color:#ef4444;display:none;">*</span></label>
+                    <textarea id="remarks"></textarea>
+                </div>
+                <div class="form-group switch-container">
+                    <label for="onsite">From Onsite?</label>
+                    <label class="switch">
+                        <input type="checkbox" id="onsite">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="error-msg" id="formError" style="display:none;"></div>
+                <div class="modal-actions">
+                    <button type="button" class="secondary-btn" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="primary-btn">Save Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.83.0/dist/umd/supabase.min.js"></script>
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js";
+
+    const supabaseUrl = "https://lpvuhqtpkvbmrkhnknaf.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwdnVocXRwa3ZibXJraG5rbmFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3MDQyMDIsImV4cCI6MjA2OTI4MDIwMn0.fmKlgIAY_Yoi3sFk333lRWlxzNlNNGqRZZAuLzGLnmw";
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    let participants = [];
+    let ledgerEntries = [];
+    let selectedParticipants = [];
+
+    // Load participants from Supabase
+    async function loadParticipants() {
+        try {
+            const { data, error } = await supabase.from('picnic_2026').select('id, name, phone_number');
+            if (error) throw error;
+            participants = data || [];
+            console.log('Loaded participants:', participants.length);
+        } catch (error) {
+            console.error('Error loading participants:', error);
+            alert('Failed to load participants from database');
+        }
+    }
+
+    // Load cashbook entries from Supabase
+    async function loadCashbookEntries() {
+        try {
+            const { data, error } = await supabase
+                .from('cashbook_picnic_2026')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+            
+            ledgerEntries = (data || []).map(entry => ({
+                id: entry.id,
+                date: new Date(entry.created_at).toLocaleDateString() + ' ' + new Date(entry.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                payee: entry.payee,
+                receiver: entry.receiver,
+                amount: parseFloat(entry.amount).toFixed(2),
+                type: entry.type,
+                onsite: entry.from_onsite,
+                remarks: entry.remarks || '',
+                participantsDisplay: entry.remarks || '-'
+            }));
+            
+            renderLedgerTable();
+            console.log('Loaded cashbook entries:', ledgerEntries.length);
+        } catch (error) {
+            console.error('Error loading cashbook entries:', error);
+            alert('Failed to load cashbook entries from database');
+        }
+    }
+
+    // Save entry to Supabase
+    async function saveCashbookEntry(entryData) {
+        try {
+            const { data, error } = await supabase
+                .from('cashbook_picnic_2026')
+                .insert([{
+                    payee: entryData.payee,
+                    receiver: entryData.receiver,
+                    amount: entryData.amount,
+                    type: entryData.type,
+                    from_onsite: entryData.onsite,
+                    remarks: entryData.remarks
+                }])
+                .select();
+            
+            if (error) throw error;
+            return data[0];
+        } catch (error) {
+            console.error('Error saving cashbook entry:', error);
+            throw error;
+        }
+    }
+
+    // Modal logic
+        const openModalBtn = document.getElementById('openModalBtn');
+        const modalBg = document.getElementById('modalBg');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const entryForm = document.getElementById('entryForm');
+        const remarksInput = document.getElementById('remarks');
+        const remarksRequired = document.getElementById('remarksRequired');
+        const formError = document.getElementById('formError');
+        const participantsSelect = document.getElementById('participantsSelect');
+        const participantsDropdown = document.getElementById('participantsDropdown');
+
+        function openModal() {
+            modalBg.style.display = 'flex';
+            entryForm.reset();
+            selectedParticipants = [];
+            renderParticipantsSelect();
+            remarksRequired.style.display = 'none';
+            formError.style.display = 'none';
+            document.getElementById('type').value = 'income';
+            document.getElementById('onsite').checked = false;
+            updateRemarksRequired();
+        }
+        function closeModal() {
+            modalBg.style.display = 'none';
+        }
+        openModalBtn.onclick = openModal;
+        closeModalBtn.onclick = closeModal;
+        cancelBtn.onclick = closeModal;
+        modalBg.onclick = function(e) { if (e.target === modalBg) closeModal(); };
+
+        // Multi-select logic
+        function renderParticipantsSelect() {
+            participantsSelect.innerHTML = '';
+            if (selectedParticipants.length === 0) {
+                participantsSelect.innerHTML = '<span style="color:#6b7280;">Click to add participants</span>';
+            } else {
+                selectedParticipants.forEach(p => {
+                    const opt = document.createElement('span');
+                    opt.className = 'multiselect-option';
+                    opt.textContent = p.name;
+                    const remove = document.createElement('span');
+                    remove.className = 'multiselect-remove';
+                    remove.textContent = '×';
+                    remove.onclick = (e) => {
+                        e.stopPropagation();
+                        selectedParticipants = selectedParticipants.filter(sp => sp.id !== p.id);
+                        renderParticipantsSelect();
+                        updateRemarksRequired();
+                    };
+                    opt.appendChild(remove);
+                    participantsSelect.appendChild(opt);
+                });
+            }
+        }
+        participantsSelect.onclick = function() {
+            participantsDropdown.style.display = 'block';
+            participantsDropdown.innerHTML = '';
+            participants.forEach(p => {
+                if (!selectedParticipants.some(sp => sp.id === p.id)) {
+                    const opt = document.createElement('div');
+                    opt.className = 'multiselect-dropdown-option';
+                    opt.textContent = p.name;
+                    opt.onclick = function(e) {
+                        e.stopPropagation();
+                        selectedParticipants.push(p);
+                        renderParticipantsSelect();
+                        participantsDropdown.style.display = 'none';
+                        updateRemarksRequired();
+                    };
+                    participantsDropdown.appendChild(opt);
+                }
+            });
+            if (participantsDropdown.innerHTML === '') {
+                participantsDropdown.innerHTML = '<div style="color:#6b7280;padding:0.7rem 1rem;">All selected</div>';
+            }
+        };
+        document.addEventListener('click', function(e) {
+            if (!participantsSelect.contains(e.target) && !participantsDropdown.contains(e.target)) {
+                participantsDropdown.style.display = 'none';
+            }
+        });
+
+        function updateRemarksRequired() {
+            if (selectedParticipants.length === 0) {
+                remarksRequired.style.display = 'inline';
+                remarksInput.required = true;
+            } else {
+                remarksRequired.style.display = 'none';
+                remarksInput.required = false;
+            }
+        }
+
+        // Validation and Save
+        entryForm.onsubmit = async function(e) {
+            e.preventDefault();
+            formError.style.display = 'none';
+            const payee = document.getElementById('payee').value.trim();
+            const receiver = document.getElementById('receiver').value.trim();
+            const type = document.getElementById('type').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const remarks = remarksInput.value.trim();
+            const onsite = document.getElementById('onsite').checked;
+            updateRemarksRequired();
+            if (!payee) { showError('Payee is required.'); return; }
+            if (!receiver) { showError('Receiver is required.'); return; }
+            if (!amount || amount <= 0) { showError('Amount must be greater than 0.'); return; }
+            if (selectedParticipants.length === 0 && !remarks) { showError('Remarks required if no participants.'); return; }
+            
+            // Build remarks with participant info
+            let finalRemarks = remarks;
+            if (selectedParticipants.length > 0) {
+                const participantNames = selectedParticipants.map(p => p.name).join(', ');
+                finalRemarks = `${participantNames} – Each: ${amount.toFixed(2)}${remarks ? ' | ' + remarks : ''}`;
+            }
+            
+            try {
+                // Save to Supabase
+                const savedEntry = await saveCashbookEntry({
+                    payee,
+                    receiver,
+                    amount: selectedParticipants.length > 0 ? amount * selectedParticipants.length : amount,
+                    type,
+                    onsite,
+                    remarks: finalRemarks
+                });
+                
+                // Add to local array for immediate display
+                const now = new Date();
+                const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                let displayAmount = selectedParticipants.length > 0 
+                    ? amount.toFixed(2) + ' × ' + selectedParticipants.length 
+                    : amount.toFixed(2);
+                
+                ledgerEntries.unshift({
+                    id: savedEntry.id,
+                    date: dateStr,
+                    payee,
+                    receiver,
+                    amount: displayAmount,
+                    type,
+                    onsite,
+                    remarks: finalRemarks,
+                    participantsDisplay: selectedParticipants.length > 0 
+                        ? selectedParticipants.map(p => p.name).join(', ') + ' – Each: ' + amount.toFixed(2)
+                        : '-'
+                });
+                
+                renderLedgerTable();
+                closeModal();
+            } catch (error) {
+                showError('Failed to save entry. Please try again.');
+            }
+        };
+        function showError(msg) {
+            formError.textContent = msg;
+            formError.style.display = 'block';
+        }
+        function renderLedgerTable() {
+            const tbody = document.getElementById('ledgerTbody');
+            if (ledgerEntries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#6b7280;">No entries yet.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = '';
+            ledgerEntries.forEach(entry => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${entry.date}</td>
+                    <td>${entry.payee}</td>
+                    <td>${entry.receiver}</td>
+                    <td>${entry.amount}</td>
+                    <td class="type-${entry.type}">${entry.type.charAt(0).toUpperCase() + entry.type.slice(1)}</td>
+                    <td class="onsite-${entry.onsite ? 'yes' : 'no'}">${entry.onsite ? 'Yes' : 'No'}</td>
+                    <td>${entry.participantsDisplay}</td>
+                    <td>${entry.remarks || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            updateSummaryCards();
+        }
+
+        function updateSummaryCards() {
+            let totalIncome = 0;
+            let totalOnsite = 0;
+            let totalExpense = 0;
+
+            ledgerEntries.forEach(entry => {
+                const amount = parseFloat(entry.amount.toString().replace(/[^0-9.]/g, ''));
+                if (entry.type === 'income') {
+                    totalIncome += amount;
+                    if (entry.onsite) {
+                        totalOnsite += amount;
+                    }
+                } else if (entry.type === 'expense') {
+                    totalExpense += amount;
+                }
+            });
+
+            document.getElementById('totalIncome').textContent = '₹' + totalIncome.toFixed(2);
+            document.getElementById('totalOnsite').textContent = '₹' + totalOnsite.toFixed(2);
+            document.getElementById('totalExpense').textContent = '₹' + totalExpense.toFixed(2);
+        }
+
+        // Initialize on page load
+        async function init() {
+            await loadParticipants();
+            await loadCashbookEntries();
+        }
+
+        init();
+    </script>
+</body>
+</html>
