@@ -67,6 +67,17 @@
             font-weight: 700;
             padding: 12px 8px;
             border: none;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+        .ledger-table th.sortable:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+        }
+        .ledger-table th .sort-indicator {
+            margin-left: 5px;
+            font-size: 0.8rem;
+            opacity: 0.7;
         }
         .ledger-table td {
             padding: 10px 8px;
@@ -357,6 +368,10 @@
         .summary-card.expense {
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         }
+        .summary-card.balance {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: #fff;
+        }
         .summary-card-label {
             font-size: 0.9rem;
             opacity: 0.9;
@@ -412,13 +427,65 @@
             outline: none;
             border-color: #667eea;
         }
+        .summary-card.balance {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: #fff;
+        }
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .filter-group label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+        .filter-group select {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: #fff;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .clear-filters-btn {
+            background: #f3f4f6;
+            color: #667eea;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .clear-filters-btn:hover {
+            background: #e0e7ff;
+            border-color: #667eea;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <div class="title">Cashbook – Picnic 2026</div>
-            <button class="primary-btn" id="openModalBtn">Insert Entry</button>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <button class="primary-btn" id="toggleModeBtn">Switch to Edit Mode</button>
+                <button class="primary-btn" id="openModalBtn">Insert Entry</button>
+            </div>
         </div>
         <div class="summary-cards">
             <div class="summary-card income">
@@ -433,17 +500,40 @@
                 <div class="summary-card-label">Total Expenses</div>
                 <div class="summary-card-value" id="totalExpense">₹0.00</div>
             </div>
+            <div class="summary-card balance">
+                <div class="summary-card-label">Balance</div>
+                <div class="summary-card-value" id="balance">₹0.00</div>
+            </div>
+        </div>
+        <div class="filter-controls">
+            <div class="filter-group">
+                <label for="filterType">Filter Type:</label>
+                <select id="filterType">
+                    <option value="all">All</option>
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filterOnsite">From Onsite:</label>
+                <select id="filterOnsite">
+                    <option value="all">All</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+            <button class="clear-filters-btn" id="clearFiltersBtn">Clear Filters</button>
         </div>
         <div class="table-wrapper">
             <table class="ledger-table" id="ledgerTable">
                 <thead>
                     <tr>
-                        <th>Date</th>
-                        <th>Payee</th>
-                        <th>Receiver</th>
-                        <th>Amount</th>
-                        <th>Type</th>
-                        <th>From Onsite</th>
+                        <th class="sortable" data-sort="date">Date <span class="sort-indicator"></span></th>
+                        <th class="sortable" data-sort="payee">Payee <span class="sort-indicator"></span></th>
+                        <th class="sortable" data-sort="receiver">Receiver <span class="sort-indicator"></span></th>
+                        <th class="sortable" data-sort="amount">Amount <span class="sort-indicator"></span></th>
+                        <th class="sortable" data-sort="type">Type <span class="sort-indicator"></span></th>
+                        <th class="sortable" data-sort="onsite">From Onsite <span class="sort-indicator"></span></th>
                         <th>Participants</th>
                         <th>Remarks</th>
                         <th>Actions</th>
@@ -524,7 +614,29 @@
     let selectedParticipants = [];
     let currentAction = null;
     let currentEntryId = null;
+    let currentSortColumn = null;
+    let currentSortDirection = 'asc';
+    let currentFilters = { type: 'all', onsite: 'all' };
+    // View/Edit mode logic
+    function getQueryParam(name) {
+        const url = new URL(window.location.href);
+        return url.searchParams.get(name);
+    }
+    function getEditModeFromStorage() {
+        const stored = localStorage.getItem('picnic2026_cashbook_editmode');
+        return stored === 'true';
+    }
+    function setEditModeToStorage(val) {
+        localStorage.setItem('picnic2026_cashbook_editmode', val ? 'true' : 'false');
+    }
     let isEditMode = false;
+    // On load: check query param, then localStorage
+    if (getQueryParam('edit') === '1') {
+        isEditMode = true;
+        setEditModeToStorage(true);
+    } else {
+        isEditMode = getEditModeFromStorage();
+    }
 
     // Load participants from Supabase
     async function loadParticipants() {
@@ -633,6 +745,7 @@
 
     // Modal logic
         const openModalBtn = document.getElementById('openModalBtn');
+        const toggleModeBtn = document.getElementById('toggleModeBtn');
         const modalBg = document.getElementById('modalBg');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const cancelBtn = document.getElementById('cancelBtn');
@@ -644,9 +757,9 @@
         const participantsDropdown = document.getElementById('participantsDropdown');
 
         function openModal(entry = null) {
+            if (!isEditMode) return; // Prevent opening in view-only
             modalBg.style.display = 'flex';
             if (entry) {
-                isEditMode = true;
                 currentEntryId = entry.id;
                 document.querySelector('.modal-header').textContent = 'Edit Cashbook Entry';
                 document.getElementById('payee').value = entry.payee;
@@ -673,7 +786,6 @@
                 document.getElementById('remarks').value = remarksValue.trim();
                 document.getElementById('onsite').checked = entry.onsite;
             } else {
-                isEditMode = false;
                 currentEntryId = null;
                 document.querySelector('.modal-header').textContent = 'Insert Cashbook Entry';
                 entryForm.reset();
@@ -689,7 +801,7 @@
         function closeModal() {
             modalBg.style.display = 'none';
         }
-        openModalBtn.onclick = () => openModal(null);
+        openModalBtn.onclick = () => { if (isEditMode) openModal(null); };
         closeModalBtn.onclick = closeModal;
         cancelBtn.onclick = closeModal;
         modalBg.onclick = function(e) { if (e.target === modalBg) closeModal(); };
@@ -836,14 +948,98 @@
             formError.textContent = msg;
             formError.style.display = 'block';
         }
+        
+        function sortEntries(entries, column, direction) {
+            return [...entries].sort((a, b) => {
+                let aVal, bVal;
+                
+                switch(column) {
+                    case 'date':
+                        aVal = new Date(a.date);
+                        bVal = new Date(b.date);
+                        break;
+                    case 'amount':
+                        aVal = parseFloat(a.amount.toString().replace(/[^0-9.]/g, ''));
+                        bVal = parseFloat(b.amount.toString().replace(/[^0-9.]/g, ''));
+                        break;
+                    case 'type':
+                        aVal = a.type;
+                        bVal = b.type;
+                        break;
+                    case 'onsite':
+                        aVal = a.onsite ? 1 : 0;
+                        bVal = b.onsite ? 1 : 0;
+                        break;
+                    case 'payee':
+                        aVal = a.payee.toLowerCase();
+                        bVal = b.payee.toLowerCase();
+                        break;
+                    case 'receiver':
+                        aVal = a.receiver.toLowerCase();
+                        bVal = b.receiver.toLowerCase();
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+        
+        function filterEntries(entries, filters) {
+            return entries.filter(entry => {
+                if (filters.type !== 'all' && entry.type !== filters.type) {
+                    return false;
+                }
+                if (filters.onsite !== 'all') {
+                    const onsiteMatch = filters.onsite === 'yes' ? entry.onsite : !entry.onsite;
+                    if (!onsiteMatch) return false;
+                }
+                return true;
+            });
+        }
+        
+        function getDisplayEntries() {
+            let entries = [...ledgerEntries];
+            
+            // Apply filters
+            entries = filterEntries(entries, currentFilters);
+            
+            // Apply sorting
+            if (currentSortColumn) {
+                entries = sortEntries(entries, currentSortColumn, currentSortDirection);
+            }
+            
+            return entries;
+        }
+        
+        function updateSortIndicators() {
+            document.querySelectorAll('.ledger-table th .sort-indicator').forEach(indicator => {
+                indicator.textContent = '';
+            });
+            
+            if (currentSortColumn) {
+                const th = document.querySelector(`th[data-sort="${currentSortColumn}"] .sort-indicator`);
+                if (th) {
+                    th.textContent = currentSortDirection === 'asc' ? '▲' : '▼';
+                }
+            }
+        }
+        
         function renderLedgerTable() {
             const tbody = document.getElementById('ledgerTbody');
-            if (ledgerEntries.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#6b7280;">No entries yet.</td></tr>';
+            const displayEntries = getDisplayEntries();
+            
+            if (displayEntries.length === 0) {
+                const message = ledgerEntries.length === 0 ? 'No entries yet.' : 'No entries match the current filters.';
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:#6b7280;">${message}</td></tr>`;
+                updateSortIndicators();
                 return;
             }
             tbody.innerHTML = '';
-            ledgerEntries.forEach(entry => {
+            displayEntries.forEach(entry => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${entry.date}</td>
@@ -856,13 +1052,14 @@
                     <td>${entry.remarks || '-'}</td>
                     <td>
                         <div class="action-buttons">
-                            <button class="action-btn edit-btn" data-action="edit" data-entry-id="${entry.id}">Edit</button>
-                            <button class="action-btn delete-btn" data-action="delete" data-entry-id="${entry.id}">Delete</button>
+                            ${isEditMode ? `<button class="action-btn edit-btn" data-action="edit" data-entry-id="${entry.id}">Edit</button>
+                            <button class="action-btn delete-btn" data-action="delete" data-entry-id="${entry.id}">Delete</button>` : ''}
                         </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
+            updateSortIndicators();
             updateSummaryCards();
         }
 
@@ -883,14 +1080,17 @@
                 }
             });
 
+            const balance = totalIncome - totalExpense;
             document.getElementById('totalIncome').textContent = '₹' + totalIncome.toFixed(2);
             document.getElementById('totalOnsite').textContent = '₹' + totalOnsite.toFixed(2);
             document.getElementById('totalExpense').textContent = '₹' + totalExpense.toFixed(2);
+            document.getElementById('balance').textContent = '₹' + balance.toFixed(2);
         }
 
 
         // Event delegation for action buttons with prompt for password
         document.getElementById('ledgerTbody').addEventListener('click', async function(e) {
+            if (!isEditMode) return;
             const button = e.target.closest('.action-btn');
             if (button) {
                 const action = button.getAttribute('data-action');
@@ -925,9 +1125,75 @@
         });
 
         // Initialize on page load
+        function updateModeUI() {
+            // Toggle Insert Entry button
+            openModalBtn.style.display = isEditMode ? '' : 'none';
+            // Toggle action buttons in table (re-render)
+            renderLedgerTable();
+            // Toggle button label
+            toggleModeBtn.textContent = isEditMode ? 'Switch to View Only' : 'Switch to Edit Mode';
+        }
+
+        toggleModeBtn.onclick = function() {
+            if (!isEditMode) {
+                // Going to edit mode: prompt for password
+                const pwd = prompt('Enter password to switch to Edit Mode:');
+                if (pwd !== ADMIN_PASSWORD) {
+                    alert('Incorrect password!');
+                    return;
+                }
+                isEditMode = true;
+                setEditModeToStorage(true);
+            } else {
+                // Going to view only
+                isEditMode = false;
+                setEditModeToStorage(false);
+            }
+            updateModeUI();
+        };
+
+        // Add sorting event listeners
+        document.querySelectorAll('.ledger-table th.sortable').forEach(th => {
+            th.addEventListener('click', function() {
+                const column = this.getAttribute('data-sort');
+                
+                if (currentSortColumn === column) {
+                    // Toggle direction
+                    currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    // New column, default to ascending
+                    currentSortColumn = column;
+                    currentSortDirection = 'asc';
+                }
+                
+                renderLedgerTable();
+            });
+        });
+        
+        // Add filter event listeners
+        document.getElementById('filterType').addEventListener('change', function(e) {
+            currentFilters.type = e.target.value;
+            renderLedgerTable();
+        });
+        
+        document.getElementById('filterOnsite').addEventListener('change', function(e) {
+            currentFilters.onsite = e.target.value;
+            renderLedgerTable();
+        });
+        
+        document.getElementById('clearFiltersBtn').addEventListener('click', function() {
+            currentFilters = { type: 'all', onsite: 'all' };
+            document.getElementById('filterType').value = 'all';
+            document.getElementById('filterOnsite').value = 'all';
+            currentSortColumn = null;
+            currentSortDirection = 'asc';
+            renderLedgerTable();
+        });
+        
         async function init() {
             await loadParticipants();
             await loadCashbookEntries();
+            updateModeUI();
         }
 
         init();

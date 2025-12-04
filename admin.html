@@ -482,6 +482,54 @@
                 </div>
             </form>
         </div>
+
+        <!-- Notifications Management Section -->
+        <div class="admin-card">
+            <h2>📢 Manage Notifications</h2>
+            <div>
+                <div class="form-group">
+                    <label for="notificationsContent">Notifications Content</label>
+                    <textarea id="notificationsContent" rows="10" placeholder="Enter each notification on a new line..."
+                        style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem; font-family: inherit; resize: vertical; background-color: #f9fafb;"></textarea>
+                    <small style="color: #6b7280; display: block; margin-top: 0.5rem;">ℹ️ Each line will appear as a bullet point on the main page</small>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <button type="button" class="btn btn-primary" onclick="return saveNotifications()">💾 Save Notifications</button>
+                    <button type="button" class="btn btn-secondary" onclick="loadNotifications()">🔄 Reload</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <h2>🔧 UI Enabler</h2>
+            <div>
+                <div id="uiEnablerSwitches" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <!-- Switches will be dynamically inserted here -->
+                </div>
+                <div style="margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-primary" onclick="return saveUIEnabler()">💾 Save UI Enabler</button>
+                    <button type="button" class="btn btn-secondary" onclick="loadUIEnabler()">🔄 Reload</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Route Plan Management Section -->
+        <div class="admin-card">
+            <h2>🚌 Manage Route Plan</h2>
+            <div>
+                <div class="form-group">
+                    <label for="routePlanContent">Route Plan JSON</label>
+                    <textarea id="routePlanContent" rows="20" placeholder="Enter route plan JSON..."
+                        style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.875rem; font-family: 'Courier New', monospace; resize: vertical; background-color: #f9fafb;"></textarea>
+                    <small style="color: #6b7280; display: block; margin-top: 0.5rem;">ℹ️ Enter valid JSON format for route plan. Make sure to validate JSON before saving.</small>
+                </div>
+                <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button type="button" class="btn btn-primary" onclick="return saveRoutePlan()">💾 Save Route Plan</button>
+                    <button type="button" class="btn btn-secondary" onclick="loadRoutePlanAdmin()">🔄 Reload</button>
+                    <button type="button" class="btn btn-secondary" onclick="validateRoutePlanJSON()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">✓ Validate JSON</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.83.0/dist/umd/supabase.min.js"></script>
@@ -498,6 +546,179 @@
         let selectedMode = 'busSource'; // 'busSource' or 'picnicSpot'
         let rootConfigId = null;
         let paymentStatusMap = {}; // keyed by phone -> { name, status, timestamp, head_count, kids_count }
+        
+        // Load notifications from Supabase
+        window.loadNotifications = async function() {
+            try {
+                const { data, error } = await window.supabase
+                    .from('notes')
+                    .select('content')
+                    .eq('title', 'Notifications')
+                    .single();
+                
+                if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+                    console.error('Error loading notifications:', error);
+                    return;
+                }
+                
+                if (data && data.content) {
+                    document.getElementById('notificationsContent').value = data.content;
+                } else {
+                    document.getElementById('notificationsContent').value = '';
+                }
+            } catch (err) {
+                console.error('Failed to load notifications:', err);
+                alert('Failed to load notifications');
+            }
+        };
+
+        // Load UI enabler (registration state) from notes table with title 'UI_Enabler'
+        window.loadUIEnabler = async function() {
+            try {
+                const { data, error } = await window.supabase
+                    .from('notes')
+                    .select('content')
+                    .eq('title', 'UI_Enabler')
+                    .single();
+
+                if (error && error.code !== 'PGRST116') {
+                    console.error('Error loading UI enabler:', error);
+                    return;
+                }
+
+                let uiConfig = { registration: 'enabled' };
+                if (data && data.content) {
+                    try {
+                        uiConfig = JSON.parse(data.content);
+                    } catch (e) {
+                        console.error('Invalid JSON in UI_Enabler content:', e);
+                    }
+                }
+
+                // Render switches dynamically
+                const container = document.getElementById('uiEnablerSwitches');
+                container.innerHTML = '';
+
+                Object.keys(uiConfig).forEach(key => {
+                    const isEnabled = uiConfig[key] === 'enabled';
+                    const switchHtml = `
+                        <div class="switch-container" style="padding: 1rem; background: #f9fafb; border-radius: 10px; border: 2px solid #e5e7eb;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <span class="switch-label" style="font-size: 1rem; text-transform: capitalize;">${key}</span>
+                                    <div class="switch-description">Toggle to enable/disable ${key}</div>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="ui_${key}" data-key="${key}" ${isEnabled ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', switchHtml);
+                });
+            } catch (err) {
+                console.error('Failed to load UI enabler:', err);
+                alert('Failed to load UI enabler');
+            }
+        };
+
+        // Save UI enabler state to notes table with title 'UI_Enabler'
+        window.saveUIEnabler = async function() {
+            const container = document.getElementById('uiEnablerSwitches');
+            const switches = container.querySelectorAll('input[type="checkbox"]');
+            
+            const uiConfig = {};
+            switches.forEach(switchInput => {
+                const key = switchInput.getAttribute('data-key');
+                uiConfig[key] = switchInput.checked ? 'enabled' : 'disabled';
+            });
+
+            const content = JSON.stringify(uiConfig);
+
+            try {
+                const { data: existing, error: fetchError } = await window.supabase
+                    .from('notes')
+                    .select('id')
+                    .eq('title', 'UI_Enabler')
+                    .single();
+
+                if (fetchError && fetchError.code !== 'PGRST116') {
+                    throw fetchError;
+                }
+
+                if (existing) {
+                    const { error: updateError } = await window.supabase
+                        .from('notes')
+                        .update({ content: content, updated_at: new Date().toISOString() })
+                        .eq('title', 'UI_Enabler');
+
+                    if (updateError) throw updateError;
+                } else {
+                    const { error: insertError } = await window.supabase
+                        .from('notes')
+                        .insert([{ title: 'UI_Enabler', content: content }]);
+
+                    if (insertError) throw insertError;
+                }
+
+                alert('✅ UI Enabler saved successfully!');
+                return false;
+            } catch (err) {
+                console.error('Failed to save UI Enabler:', err);
+                alert('❌ Error saving UI Enabler: ' + (err.message || err));
+                return false;
+            }
+        };
+        
+        // Save notifications to Supabase
+        window.saveNotifications = async function () {
+            const content = document.getElementById('notificationsContent').value;
+            
+            try {
+                // Check if Notifications record exists
+                const { data: existing, error: fetchError } = await window.supabase
+                    .from('notes')
+                    .select('id')
+                    .eq('title', 'Notifications')
+                    .single();
+                
+                if (fetchError && fetchError.code !== 'PGRST116') {
+                    throw fetchError;
+                }
+                
+                if (existing) {
+                    // Update existing record
+                    const { error: updateError } = await window.supabase
+                        .from('notes')
+                        .update({ 
+                            content: content,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('title', 'Notifications');
+                    
+                    if (updateError) throw updateError;
+                } else {
+                    // Insert new record
+                    const { error: insertError } = await window.supabase
+                        .from('notes')
+                        .insert([{
+                            title: 'Notifications',
+                            content: content
+                        }]);
+                    
+                    if (insertError) throw insertError;
+                }
+                
+                alert('✅ Notifications saved successfully!');
+                return false;
+            } catch (err) {
+                console.error('Failed to save notifications:', err);
+                alert('❌ Error saving notifications: ' + err.message);
+                return false;
+            }
+        }
+        
         let pricePerPerson = 0;
         let participants = [];
 
@@ -713,11 +934,142 @@
             window.open('index.html', '_blank');
         };
 
+        // Load notifications from Supabase
+        async function loadNotifications() {
+            try {
+                const { data, error } = await window.supabase
+                    .from('notes')
+                    .select('content')
+                    .eq('title', 'Notifications')
+                    .single();
+                
+                if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+                    console.error('Error loading notifications:', error);
+                    return;
+                }
+                
+                if (data && data.content) {
+                    document.getElementById('notificationsContent').value = data.content;
+                } else {
+                    document.getElementById('notificationsContent').value = '';
+                }
+            } catch (err) {
+                console.error('Failed to load notifications:', err);
+                alert('Failed to load notifications');
+            }
+        }
+
+        // Load route plan for admin editing
+        window.loadRoutePlanAdmin = async function() {
+            try {
+                const { data, error } = await window.supabase
+                    .from('notes')
+                    .select('content')
+                    .eq('title', 'Route_Plan')
+                    .single();
+
+                if (error && error.code !== 'PGRST116') {
+                    console.error('Error loading route plan:', error);
+                    return;
+                }
+
+                if (data && data.content) {
+                    try {
+                        // Pretty print the JSON for better readability
+                        const parsed = JSON.parse(data.content);
+                        document.getElementById('routePlanContent').value = JSON.stringify(parsed, null, 4);
+                    } catch (e) {
+                        // If it's not valid JSON, just display as-is
+                        document.getElementById('routePlanContent').value = data.content;
+                    }
+                } else {
+                    document.getElementById('routePlanContent').value = '';
+                }
+            } catch (err) {
+                console.error('Failed to load route plan:', err);
+                alert('Failed to load route plan');
+            }
+        };
+
+        // Validate route plan JSON
+        window.validateRoutePlanJSON = function() {
+            const content = document.getElementById('routePlanContent').value.trim();
+            
+            if (!content) {
+                alert('⚠️ Please enter some JSON content first.');
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(content);
+                // Pretty format the JSON
+                document.getElementById('routePlanContent').value = JSON.stringify(parsed, null, 4);
+                alert('✅ JSON is valid!');
+            } catch (e) {
+                alert('❌ Invalid JSON!\n\nError: ' + e.message);
+            }
+        };
+
+        // Save route plan to notes table
+        window.saveRoutePlan = async function() {
+            const content = document.getElementById('routePlanContent').value.trim();
+
+            if (!content) {
+                alert('⚠️ Please enter route plan JSON content.');
+                return false;
+            }
+
+            // Validate JSON before saving
+            try {
+                JSON.parse(content);
+            } catch (e) {
+                alert('❌ Invalid JSON format!\n\nError: ' + e.message + '\n\nPlease fix the JSON before saving.');
+                return false;
+            }
+
+            try {
+                const { data: existing, error: fetchError } = await window.supabase
+                    .from('notes')
+                    .select('id')
+                    .eq('title', 'Route_Plan')
+                    .single();
+
+                if (fetchError && fetchError.code !== 'PGRST116') {
+                    throw fetchError;
+                }
+
+                if (existing) {
+                    const { error: updateError } = await window.supabase
+                        .from('notes')
+                        .update({ content: content, updated_at: new Date().toISOString() })
+                        .eq('title', 'Route_Plan');
+
+                    if (updateError) throw updateError;
+                } else {
+                    const { error: insertError } = await window.supabase
+                        .from('notes')
+                        .insert([{ title: 'Route_Plan', content: content }]);
+
+                    if (insertError) throw insertError;
+                }
+
+                alert('✅ Route Plan saved successfully!');
+                return false;
+            } catch (err) {
+                console.error('Failed to save route plan:', err);
+                alert('❌ Error saving route plan: ' + (err.message || err));
+                return false;
+            }
+        };
+
         // Initialize on load
         window.onload = async function () {
             document.getElementById('loadingOverlay').style.display = 'flex';
             initMap();
             await loadConfiguration();
+            await loadNotifications();
+            await loadUIEnabler();
+            await loadRoutePlanAdmin();
             document.getElementById('loadingOverlay').style.display = 'none';
         };
     </script>

@@ -339,6 +339,24 @@
             letter-spacing: 0.5px;
         }
 
+        .locations-table th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 1.5rem;
+        }
+
+        .locations-table th.sortable:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+        }
+
+        .locations-table th .sort-indicator {
+            position: absolute;
+            right: 0.5rem;
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+
         .locations-table tr:hover {
             background-color: #f9fafb;
             transition: background-color 0.2s ease;
@@ -830,6 +848,189 @@
                 font-size: 0.875rem;
             }
         }
+
+        /* Card style for info and contact sections */
+        .card-style {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.13);
+            padding: 1.5rem 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .card-style {
+                padding: 1.25rem 1rem;
+                border-radius: 12px;
+            }
+        }
+
+        /* Route Plan Styles */
+        .route-plan-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .route-card {
+            background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .route-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15);
+        }
+
+        .route-header {
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .route-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .route-info {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .route-info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .route-info-item strong {
+            color: #374151;
+        }
+
+        .timeline {
+            margin-top: 1rem;
+        }
+
+        .segment {
+            background: white;
+            border-radius: 8px;
+            padding: 0.875rem;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid #10b981;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .segment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .segment-route {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 0.938rem;
+        }
+
+        .segment-time {
+            font-size: 0.813rem;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .segment-stops {
+            font-size: 0.813rem;
+            color: #6b7280;
+            line-height: 1.6;
+            margin-top: 0.5rem;
+        }
+
+        .stops-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .stop-badge {
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 0.25rem 0.625rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .contact-groups {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .contact-groups-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.75rem;
+        }
+
+        .contact-group {
+            background: #fef3c7;
+            border-left: 3px solid #f59e0b;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .contact-group strong {
+            color: #92400e;
+        }
+
+        .contact-phone {
+            color: #1d4ed8;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .contact-phone:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 1024px) {
+            .route-plan-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .route-card {
+                padding: 1rem;
+            }
+
+            .route-title {
+                font-size: 1.1rem;
+            }
+
+            .segment {
+                padding: 0.75rem;
+            }
+        }
     </style>
 </head>
 
@@ -858,6 +1059,14 @@
             <!-- <div class="destination-coords" onclick="openInGoogleMaps(22.7694162777404, 88.33872289489572)" title="Click to open in Google Maps"> -->
                 <!-- 📌 22.7694162777404, 88.33872289489572 -->
             <!-- </div> -->
+        </div>
+
+        <!-- Info Section -->
+        <div class="info-section card-style" style="margin: 0 auto 24px; max-width: 1200px;">
+            <h2 style="color: #1a202c; font-size: 1.35rem; font-weight: 700; margin-bottom: 0.75rem;">ℹ️ Important Information</h2>
+            <ul id="notificationsList" style="margin-left: 1.2em; color: #333; font-size: 1.05rem; line-height: 1.7;">
+                <li>Loading notifications...</li>
+            </ul>
         </div>
 
         <div class="form-container">
@@ -965,26 +1174,142 @@
             </div>
         </div>
 
+        <!-- Route Plan Section -->
+        <div class="card-style" style="margin: 0 auto 24px; max-width: 1200px;">
+            <h2 style="color: #1a202c; font-size: 1.75rem; font-weight: 700; border-bottom: 3px solid #667eea; padding-bottom: 0.75rem; margin-bottom: 1rem; letter-spacing: -0.3px;">🚌 Bus Route Plan</h2>
+            <div id="routePlanContainer" class="route-plan-container">
+                <p style="text-align: center; color: #6b7280;">Loading route information...</p>
+            </div>
+        </div>
+
+        <!-- Picnic Menu Section -->
+        <div class="card-style" style="margin: 0 auto 24px; max-width: 1200px;">
+            <h2 style="color: #1a202c; font-size: 1.75rem; font-weight: 700; border-bottom: 3px solid #667eea; padding-bottom: 0.75rem; margin-bottom: 1rem; letter-spacing: -0.3px;">🍽️ Picnic Menu (Buffet) 2026</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                <!-- Breakfast -->
+                <div style="background: linear-gradient(135deg, #fef3c7 0%, #fef9e5 100%); border-radius: 12px; padding: 1.5rem; border-left: 5px solid #f59e0b; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);">
+                    <h3 style="color: #92400e; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.5rem;">🌅</span> Breakfast
+                    </h3>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="padding: 0.5rem 0; color: #78350f; font-size: 0.938rem; border-bottom: 1px solid #fde68a; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🥟</span> Koraisutir kachuri
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #78350f; font-size: 0.938rem; border-bottom: 1px solid #fde68a; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🥔</span> Aloor dam
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #78350f; font-size: 0.938rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🍬</span> Moya/MISTI
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Snacks -->
+                <div style="background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%); border-radius: 12px; padding: 1.5rem; border-left: 5px solid #3b82f6; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);">
+                    <h3 style="color: #1e40af; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.5rem;">☕</span> Snacks
+                    </h3>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="padding: 0.5rem 0; color: #1e3a8a; font-size: 0.938rem; border-bottom: 1px solid #bfdbfe; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🥬</span> Veg Pakora
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #1e3a8a; font-size: 0.938rem; border-bottom: 1px solid #bfdbfe; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🌽</span> Crispy chilli baby corn
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #1e3a8a; font-size: 0.938rem; border-bottom: 1px solid #bfdbfe; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🍗</span> Dry chilli Chicken / Chicken sutey
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #1e3a8a; font-size: 0.938rem; border-bottom: 1px solid #bfdbfe; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">☕</span> Coffee & Tea
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #1e3a8a; font-size: 0.938rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🍟</span> French fries
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Lunch -->
+                <div style="background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%); border-radius: 12px; padding: 1.5rem; border-left: 5px solid #10b981; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);">
+                    <h3 style="color: #065f46; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.5rem;">🍛</span> Lunch
+                    </h3>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🐟</span> Fish fry / Paneer Pasanda
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🍚</span> Deradun Rice
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🥔</span> Jhuri Aloo Vaja
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🥘</span> Veg Dal
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🍛</span> Polao
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🐡/🥦</span> Gondhoraj Katla / Fulkopir Rost
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🍖/🍵</span> Mutton / Chanar Kofta Kari
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🥗</span> Chatni & Papard
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🍡</span> Nolengurer Rasogolla
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🍰</span> Sondesh
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🍃</span> Mitha Pan
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <div class="route-section">
             <h2 class="route-header">Pickup Locations</h2>
             <table class="locations-table">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Transport</th>
-                        <th>Location</th>
+                        <th class="sortable" data-sort="name">Name <span class="sort-indicator"></span></th>
+                        <th class="sortable" data-sort="transport">Transport <span class="sort-indicator"></span></th>
+                        <th class="sortable" data-sort="location">Location <span class="sort-indicator"></span></th>
                         <th>Coordinates</th>
                         <th>Phone Number</th>
-                        <th>Head Count</th>
-                        <th>Kids Count</th>
-                        <th>Food Type</th>
+                        <th class="sortable" data-sort="headCount">Head Count <span class="sort-indicator"></span></th>
+                        <th class="sortable" data-sort="kidsCount">Kids Count <span class="sort-indicator"></span></th>
+                        <th class="sortable" data-sort="food">Food Type <span class="sort-indicator"></span></th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="locationList"></tbody>
             </table>
         </div>
-        
+        <!-- Contact Persons Card -->
+        <div class="contact-card card-style" style="margin: 0 auto 24px; max-width: 1200px;">
+            <h2 style="color: #1a202c; font-size: 1.75rem; font-weight: 700; border-bottom: 3px solid #667eea; padding-bottom: 0.75rem; margin-bottom: 1.5rem; letter-spacing: -0.3px;">📞 Contact Persons</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div class="total-item">
+                    <span style="font-size: 1rem; margin-bottom: 0.75rem;">Arijit</span>
+                    <span style="font-size: 1.25rem;"><a href="tel:+918777698332" style="color: #667eea; text-decoration: none; font-weight: 700;">8777698332</a></span>
+                </div>
+                <div class="total-item">
+                    <span style="font-size: 1rem; margin-bottom: 0.75rem;">Avinaba</span>
+                    <span style="font-size: 1.25rem;"><a href="tel:+918016941498" style="color: #667eea; text-decoration: none; font-weight: 700;">8016941498</a></span>
+                </div>
+                <div class="total-item">
+                    <span style="font-size: 1rem; margin-bottom: 0.75rem;">Kowsik</span>
+                    <span style="font-size: 1.25rem;"><a href="tel:+918274819788" style="color: #667eea; text-decoration: none; font-weight: 700;">8274819788</a></span>
+                </div>
+            </div>
+        </div>
         <footer class="footer">
             <div class="footer-content">
                 <p class="footer-description">
@@ -1008,6 +1333,178 @@
         let END_POINT = { lat: 22.7694162777404, lng: 88.33872289489572 }; // fallback
 
         let PICNIC_SPOT_NAME = '';
+        let currentSortColumn = null;
+        let currentSortDirection = 'asc';
+        
+        // Load notifications from Supabase notes table
+        async function loadNotifications() {
+            try {
+                const { data, error } = await window.supabase
+                    .from('notes')
+                    .select('content')
+                    .eq('title', 'Notifications')
+                    .single();
+                
+                if (error) {
+                    console.error('Error loading notifications:', error);
+                    document.getElementById('notificationsList').innerHTML = '<li>No notifications available.</li>';
+                    return;
+                }
+                
+                if (data && data.content) {
+                    // Split content by newlines and create list items
+                    const lines = data.content.split('\n').filter(line => line.trim() !== '');
+                    const listHTML = lines.map(line => `<li>${line.trim()}</li>`).join('');
+                    document.getElementById('notificationsList').innerHTML = listHTML || '<li>No notifications available.</li>';
+                } else {
+                    document.getElementById('notificationsList').innerHTML = '<li>No notifications available.</li>';
+                }
+            } catch (err) {
+                console.error('Failed to load notifications:', err);
+                document.getElementById('notificationsList').innerHTML = '<li>Error loading notifications.</li>';
+            }
+        }
+
+        // Load UI enabler state (registration enabled/disabled)
+        async function loadUIEnablerState() {
+            try {
+                const { data, error } = await window.supabase
+                    .from('notes')
+                    .select('content')
+                    .eq('title', 'UI_Enabler')
+                    .single();
+
+                if (error && error.code !== 'PGRST116') {
+                    console.error('Error loading UI enabler state:', error);
+                    return;
+                }
+
+                let registrationEnabled = true;
+                if (data && data.content) {
+                    try {
+                        const parsed = JSON.parse(data.content);
+                        registrationEnabled = parsed.registration !== 'disabled';
+                    } catch (e) {
+                        console.error('Invalid UI_Enabler JSON:', e);
+                    }
+                }
+
+                const pickupFormElm = document.getElementById('pickupForm');
+                if (!registrationEnabled) {
+                    // Hide the registration form container
+                    if (pickupFormElm) {
+                        pickupFormElm.style.display = 'none';
+                        const info = document.createElement('div');
+                        info.className = 'card-style';
+                        info.style.margin = '0 auto 24px';
+                        info.style.maxWidth = '1200px';
+                        info.innerHTML = '<h2 style="color:#1a202c;font-size:1.35rem;font-weight:700;margin-bottom:0.75rem;">Registration Closed</h2><p style="color:#374151;">Registration is currently disabled. Please check back later.</p>';
+                        pickupFormElm.parentNode.insertBefore(info, pickupFormElm);
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load UI enabler state:', err);
+            }
+        }
+
+        // Load route plan from notes table
+        async function loadRoutePlan() {
+            try {
+                const { data, error } = await window.supabase
+                    .from('notes')
+                    .select('content')
+                    .eq('title', 'Route_Plan')
+                    .single();
+
+                if (error && error.code !== 'PGRST116') {
+                    console.error('Error loading route plan:', error);
+                    document.getElementById('routePlanContainer').innerHTML = '<p style="text-align: center; color: #ef4444;">Error loading route information.</p>';
+                    return;
+                }
+
+                if (data && data.content) {
+                    try {
+                        const routeData = JSON.parse(data.content);
+                        renderRoutePlan(routeData);
+                    } catch (e) {
+                        console.error('Invalid Route_Plan JSON:', e);
+                        document.getElementById('routePlanContainer').innerHTML = '<p style="text-align: center; color: #ef4444;">Invalid route data format.</p>';
+                    }
+                } else {
+                    document.getElementById('routePlanContainer').innerHTML = '<p style="text-align: center; color: #6b7280;">No route information available.</p>';
+                }
+            } catch (err) {
+                console.error('Failed to load route plan:', err);
+                document.getElementById('routePlanContainer').innerHTML = '<p style="text-align: center; color: #ef4444;">Failed to load route information.</p>';
+            }
+        }
+
+        // Render route plan
+        function renderRoutePlan(routeData) {
+            const container = document.getElementById('routePlanContainer');
+            container.innerHTML = '';
+
+            Object.keys(routeData).forEach(routeKey => {
+                const route = routeData[routeKey];
+                const routeCard = document.createElement('div');
+                routeCard.className = 'route-card';
+
+                let contactGroupsHtml = '';
+                if (route.contact_groups) {
+                    contactGroupsHtml = '<div class="contact-groups"><div class="contact-groups-title">📞 Contact Groups</div>';
+                    Object.keys(route.contact_groups).forEach(groupKey => {
+                        const group = route.contact_groups[groupKey];
+                        contactGroupsHtml += `
+                            <div class="contact-group">
+                                <strong>${group.contact_person}</strong>: 
+                                <a href="tel:+91${group.phone}" class="contact-phone">+91 ${group.phone}</a>
+                                <span style="color: #6b7280;"> (Segments: ${group.routes.join(', ')})</span>
+                            </div>
+                        `;
+                    });
+                    contactGroupsHtml += '</div>';
+                }
+
+                let timelineHtml = '';
+                if (route.timeline && route.timeline.length > 0) {
+                    timelineHtml = '<div class="timeline">';
+                    route.timeline.forEach(segment => {
+                        const stops = segment.stops ? segment.stops.join(' → ') : '';
+                        const segmentNum = segment.segment || '';
+                        const pickupTime = segment.pickup_time ? `<div style="margin-top: 0.5rem; color: #10b981; font-weight: 600; font-size: 0.875rem;">⏰ Pickup: ${segment.pickup_time}</div>` : '';
+                        timelineHtml += `
+                            <div class="segment">
+                                <div class="segment-header">
+                                    <div class="segment-route"><strong>#${segmentNum}</strong> 🚍 ${segment.from} → ${segment.to}</div>
+                                    <div class="segment-time">${segment.time} (${segment.duration})</div>
+                                </div>
+                                <div class="segment-stops">
+                                    <strong>Stops:</strong> ${stops}
+                                </div>
+                                ${pickupTime}
+                            </div>
+                        `;
+                    });
+                    timelineHtml += '</div>';
+                }
+
+                routeCard.innerHTML = `
+                    <div class="route-header">
+                        <div class="route-title">${route.route_name}</div>
+                        <div class="route-info">
+                            ${route.planned_start_time ? `<div class="route-info-item"><strong>🕐 Start:</strong> ${route.planned_start_time}</div>` : ''}
+                            ${route.total_estimated_time ? `<div class="route-info-item"><strong>⏱️ Duration:</strong> ${route.total_estimated_time}</div>` : ''}
+                            ${route.final_arrival_time ? `<div class="route-info-item"><strong>🏁 Arrival:</strong> ${route.final_arrival_time}</div>` : ''}
+                        </div>
+                    </div>
+                    ${timelineHtml}
+                    ${contactGroupsHtml}
+                `;
+
+                container.appendChild(routeCard);
+            });
+        }
+        
         async function loadAdminRoutePoints() {
             try {
                 const { data, error } = await window.supabase
@@ -1040,8 +1537,12 @@
                 return
             }
             
-            // Optimize the route before exporting
-            const optimizedLocations = optimizeRoute(START_POINT, locations, END_POINT);
+            // Separate locations with and without transport
+            const transportLocations = locations.filter(loc => loc.transportRequired);
+            const noTransportLocations = locations.filter(loc => !loc.transportRequired);
+            
+            // Optimize the route for transport locations only
+            const optimizedLocations = optimizeRoute(START_POINT, transportLocations, END_POINT);
             
             const allLocations = [
                 {
@@ -1053,6 +1554,7 @@
                     kidsCount: "0",
                     adults: "0",
                     food: "N/A",
+                    transportRequired: true,
                     lat: START_POINT.lat,
                     lng: START_POINT.lng,
                     sequence: 0
@@ -1071,10 +1573,17 @@
                     kidsCount: "0",
                     adults: "0",
                     food: "N/A",
+                    transportRequired: true,
                     lat: END_POINT.lat,
                     lng: END_POINT.lng,
                     sequence: optimizedLocations.length + 1
-                }
+                },
+                // Add participants without transport at the end
+                ...noTransportLocations.map((loc, index) => ({
+                    ...loc,
+                    adults: (parseInt(loc.headCount) - parseInt(loc.kidsCount)) || 0,
+                    sequence: optimizedLocations.length + 2 + index
+                }))
             ];
 
             // Escape CSV values that contain commas, quotes, or newlines
@@ -1087,17 +1596,18 @@
                 return stringValue;
             };
 
-            const headers = ['Sequence', 'Name', 'Location', 'Phone Number', 'Coordinates', 'Latitude', 'Longitude', 'Total Head Count', 'Adults', 'Kids', 'Food Preference'];
+            const headers = ['Sequence', 'Name', 'Transport Required', 'Location', 'Phone Number', 'Coordinates', 'Latitude', 'Longitude', 'Total Head Count', 'Adults', 'Kids', 'Food Preference'];
             const csvContent = [
                 headers.join(','),
                 ...allLocations.map(loc => [
                     loc.sequence,
                     escapeCSV(loc.name),
-                    escapeCSV(loc.location),
+                    loc.transportRequired ? 'Yes' : 'No',
+                    escapeCSV(loc.location || '-'),
                     loc.phone !== '-' ? `+91 ${loc.phone}` : '-',
-                    escapeCSV(loc.coords),
-                    loc.lat,
-                    loc.lng,
+                    escapeCSV(loc.coords || '-'),
+                    loc.lat || '-',
+                    loc.lng || '-',
                     loc.headCount,
                     loc.adults,
                     loc.kidsCount,
@@ -1381,9 +1891,66 @@
             };
         }
 
+        function sortLocations(column, direction) {
+            locations.sort((a, b) => {
+                let aVal, bVal;
+                
+                switch(column) {
+                    case 'name':
+                        aVal = (a.name || '').toLowerCase();
+                        bVal = (b.name || '').toLowerCase();
+                        break;
+                    case 'transport':
+                        aVal = a.transportRequired ? 1 : 0;
+                        bVal = b.transportRequired ? 1 : 0;
+                        break;
+                    case 'location':
+                        aVal = (a.location || '').toLowerCase();
+                        bVal = (b.location || '').toLowerCase();
+                        break;
+                    case 'headCount':
+                        aVal = parseInt(a.headCount) || 0;
+                        bVal = parseInt(b.headCount) || 0;
+                        break;
+                    case 'kidsCount':
+                        aVal = parseInt(a.kidsCount) || 0;
+                        bVal = parseInt(b.kidsCount) || 0;
+                        break;
+                    case 'food':
+                        aVal = (a.food || '').toLowerCase();
+                        bVal = (b.food || '').toLowerCase();
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        function updateSortIndicators() {
+            document.querySelectorAll('.locations-table th .sort-indicator').forEach(indicator => {
+                indicator.textContent = '';
+            });
+            
+            if (currentSortColumn) {
+                const th = document.querySelector(`.locations-table th[data-sort="${currentSortColumn}"] .sort-indicator`);
+                if (th) {
+                    th.textContent = currentSortDirection === 'asc' ? '▲' : '▼';
+                }
+            }
+        }
+
         function renderTable() {
             const tbody = document.getElementById('locationList');
             tbody.innerHTML = '';
+
+            // Apply current sort if any
+            if (currentSortColumn) {
+                sortLocations(currentSortColumn, currentSortDirection);
+            }
 
             locations.forEach((loc, index) => {
                 const row = document.createElement('tr');
@@ -1427,6 +1994,8 @@
             document.getElementById('totalKidsCount').textContent = totals.totalKidsCount;
             document.getElementById('vegCount').textContent = totals.vegCount;
             document.getElementById('nonVegCount').textContent = totals.nonVegCount;
+            
+            updateSortIndicators();
         }
 
         async function saveData() {
@@ -1654,6 +2223,9 @@
         window.onload = async function () {
             showLoading(true);
             await loadAdminRoutePoints();
+            await loadNotifications();
+            await loadUIEnablerState();
+            await loadRoutePlan();
             // Update top banner and destination info with picnic spot name
             if (PICNIC_SPOT_NAME) {
                 // Update destination info section
@@ -1724,6 +2296,24 @@
                 if (!locationInput.contains(e.target) && !dropdown.contains(e.target)) {
                     dropdown.classList.remove('active');
                 }
+            });
+
+            // Add sort event listeners
+            document.querySelectorAll('.locations-table th.sortable').forEach(th => {
+                th.addEventListener('click', function() {
+                    const column = this.getAttribute('data-sort');
+                    
+                    if (currentSortColumn === column) {
+                        // Toggle direction
+                        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        // New column, default to ascending
+                        currentSortColumn = column;
+                        currentSortDirection = 'asc';
+                    }
+                    
+                    renderTable();
+                });
             });
         };
 
