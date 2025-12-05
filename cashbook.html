@@ -892,7 +892,7 @@
             }
             
             try {
-                if (isEditMode) {
+                if (currentEntryId) {
                     // Update existing entry
                     await updateCashbookEntry(currentEntryId, {
                         payee,
