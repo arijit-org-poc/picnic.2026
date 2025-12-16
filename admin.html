@@ -439,7 +439,6 @@
                 <p><strong>Bus Source Coordinates:</strong> <span id="currentBusSourceCoords">-</span></p>
                 <p><strong>Picnic Spot Name:</strong> <span id="currentPicnicSpotName">-</span></p>
                 <p><strong>Picnic Spot Coordinates:</strong> <span id="currentPicnicSpotCoords">-</span></p>
-                <p><strong>Price Per Person:</strong> ₹<span id="currentPrice">-</span></p>
             </div>
 
             <form id="adminForm">
@@ -462,11 +461,6 @@
                     <div class="form-group">
                         <label for="picnicSpotCoords">Picnic Spot Coordinates</label>
                         <input type="text" id="picnicSpotCoords" placeholder="Click on map to set" readonly required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="picnicPrice">Price Per Person (₹)</label>
-                        <input type="number" id="picnicPrice" placeholder="e.g., 500" step="0.01" min="0" required>
                     </div>
                 </div>
 
@@ -551,14 +545,6 @@
                     <h3>Unpaid Heads</h3>
                     <div class="value" id="pd_unpaid_heads">0</div>
                 </div>
-                <div class="totals-box">
-                    <h3>Expected Amount (₹)</h3>
-                    <div class="value" id="pd_expected_amount">0</div>
-                </div>
-                <div class="totals-box">
-                    <h3>Collected (₹)</h3>
-                    <div class="value" id="pd_collected_amount">0</div>
-                </div>
             </div>
 
             <div style="margin-top: 1rem; display: flex; gap: .5rem; flex-wrap: wrap;">
@@ -587,47 +573,47 @@
 
         <!-- Bus Capacity Planner -->
         <div class="admin-card">
-            <h2>🧭 Bus Capacity Planner</h2>
+            <h2>🚌 Bus Capacity Planner</h2>
             <div class="info-box" style="margin-bottom:1rem;">
-                <p>Define buses (name, capacity, color) and auto-assign participants who need transport using proximity-based clustering. Save assignments to apply color-coding on the main map.</p>
+                <p>Manage buses and assign participants to buses. Bus details and assignments are stored in notes.</p>
             </div>
-            <div class="form-grid" id="busesContainer">
-                <!-- Bus rows injected here -->
+            
+            <!-- Bus Management Section -->
+            <div style="margin-bottom:1.5rem;">
+                <h3 style="margin-bottom:1rem;">Bus Management</h3>
+                <div style="display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+                    <input type="text" id="newBusName" placeholder="Bus Name (e.g., Bus 1)" style="padding:0.5rem; border:2px solid #e5e7eb; border-radius:8px; flex:1; min-width:200px;">
+                    <input type="number" id="newBusCapacity" placeholder="Capacity" min="1" style="padding:0.5rem; border:2px solid #e5e7eb; border-radius:8px; width:120px;">
+                    <input type="color" id="newBusColor" value="#667eea" style="padding:0.25rem; border:2px solid #e5e7eb; border-radius:8px; width:60px;">
+                    <button type="button" class="btn btn-secondary" onclick="addNewBus()">➕ Add Bus</button>
+                </div>
             </div>
-            <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
-                <button type="button" class="btn btn-secondary" onclick="addBusRow()">➕ Add Bus</button>
-                <button type="button" class="btn btn-secondary" onclick="loadBusAssignmentsAdmin()">🔄 Reload Assignments</button>
-                <button type="button" class="btn btn-primary" onclick="autoAssignBuses()">⚙️ Auto-Assign</button>
-                <button type="button" class="btn btn-primary" onclick="saveBusAssignments()">💾 Save Assignments</button>
+
+            <!-- Bus Summary Cards -->
+            <div class="totals-summary" style="margin-bottom:1rem;" id="busSummaryCards">
+                <!-- Bus cards will be injected here -->
             </div>
-            <div class="totals-summary" style="margin-top:1rem;" id="busPlannerSummary">
-                <!-- Summary injected here -->
+
+            <!-- Action Buttons -->
+            <div style="display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+                <button type="button" class="btn btn-primary" onclick="saveBusData()">💾 Save Bus Details</button>
+                <button type="button" class="btn btn-primary" onclick="saveBusAssignmentsData()">💾 Save Assignments</button>
+                <button type="button" class="btn btn-secondary" onclick="loadBusData()">🔄 Reload All</button>
             </div>
-            <div class="participants-table-wrapper" style="margin-top:1rem;">
-                <table class="participants-table" id="busAllocationTable">
+
+            <!-- Participant Assignment Table -->
+            <div class="participants-table-wrapper">
+                <table class="participants-table" id="busAssignmentTable">
                     <thead>
                         <tr>
                             <th>Participant</th>
-                            <th>Heads</th>
                             <th>Phone</th>
-                            <th>Assign Bus</th>
-                            <th>Action</th>
+                            <th>Heads</th>
+                            <th>Transport Required</th>
+                            <th>Assigned Bus</th>
                         </tr>
                     </thead>
-                    <tbody id="busAllocationBody"></tbody>
-                </table>
-            </div>
-            <div class="participants-table-wrapper" style="margin-top:1rem;">
-                <table class="participants-table" id="busRosterTable">
-                    <thead>
-                        <tr>
-                            <th>Bus</th>
-                            <th>Participant</th>
-                            <th>Heads</th>
-                            <th>Phone</th>
-                        </tr>
-                    </thead>
-                    <tbody id="busRosterBody"></tbody>
+                    <tbody id="busAssignmentBody"></tbody>
                 </table>
             </div>
         </div>
@@ -820,11 +806,9 @@
             }
         }
         
-        let pricePerPerson = 0;
         let participants = [];
-        let buses = [];
-        let busAssignments = {}; // participantId -> busId
-        let busMetaById = {}; // busId -> { name, capacity, color }
+        let busesData = []; // Array of { id, name, capacity, color }
+        let busAssignmentsData = []; // Array of { busId, userId, userName, phone }
 
         // Initialize map
         function initMap() {
@@ -923,8 +907,6 @@
                     document.getElementById('currentPicnicSpotName').textContent = data.picnic_spot_name || 'Not set';
                     document.getElementById('currentPicnicSpotCoords').textContent =
                         data.picnic_spot ? `${data.picnic_spot[1]}, ${data.picnic_spot[0]}` : 'Not set';
-                    document.getElementById('currentPrice').textContent = data.picnic_price_per_person || '0';
-                    pricePerPerson = parseFloat(data.picnic_price_per_person || '0');
 
                     // Populate form
                     document.getElementById('busSourceName').value = data.bus_source_name || '';
@@ -968,7 +950,7 @@
                         }
                     }
 
-                    document.getElementById('picnicPrice').value = data.picnic_price_per_person || '';
+                    // document.getElementById('picnicPrice').value = data.picnic_price_per_person || '';
                 }
             } catch (error) {
                 console.error('Error loading configuration:', error);
@@ -992,7 +974,6 @@
                     bus_source_coordinates: formData.busSourceCoords,
                     picnic_spot_name: formData.picnicSpotName,
                     picnic_spot: formData.picnicSpotCoords,
-                    picnic_price_per_person: parseFloat(formData.picnicPrice),
                     updated_at: new Date().toISOString()
                 };
 
@@ -1041,8 +1022,7 @@
                 busSourceName: document.getElementById('busSourceName').value,
                 busSourceCoords: [busSourceCoords[1], busSourceCoords[0]], // [lng, lat]
                 picnicSpotName: document.getElementById('picnicSpotName').value,
-                picnicSpotCoords: [picnicSpotCoords[1], picnicSpotCoords[0]], // [lng, lat]
-                picnicPrice: document.getElementById('picnicPrice').value
+                picnicSpotCoords: [picnicSpotCoords[1], picnicSpotCoords[0]] // [lng, lat]
             });
         });
 
@@ -1097,9 +1077,8 @@
                 }));
                 normalizePaymentStatusMap();
                 renderPaymentDashboard();
-                renderBusPlannerSummary();
-                renderAllocationTable();
-                renderBusRoster();
+                renderBusSummaryCards();
+                renderBusAssignmentTable();
             } catch (e) {
                 console.error('Failed to load participants:', e);
                 alert('Failed to load participants');
@@ -1162,7 +1141,7 @@
                     <td>${p.food}</td>
                     <td class="switch-cell">
                         <label class="pay-switch">
-                            <input type="checkbox" ${paid ? 'checked' : ''} onchange="togglePaid(${p.id})">
+                            <input type="checkbox" ${paid ? 'checked' : ''} onchange=togglePaid('${p.id}')>
                             <span class="pay-slider"></span>
                         </label>
                     </td>
@@ -1171,15 +1150,11 @@
             });
 
             const unpaidHeads = totalHeads - paidHeads;
-            const expected = Math.round((totalHeads * pricePerPerson) * 100) / 100;
-            const collected = Math.round((paidHeads * pricePerPerson) * 100) / 100;
 
             document.getElementById('pd_total_participants').textContent = participants.length;
             document.getElementById('pd_total_heads').textContent = totalHeads;
             document.getElementById('pd_paid_heads').textContent = paidHeads;
             document.getElementById('pd_unpaid_heads').textContent = unpaidHeads;
-            document.getElementById('pd_expected_amount').textContent = expected;
-            document.getElementById('pd_collected_amount').textContent = collected;
         }
 
         window.togglePaid = function (participantId) {
@@ -1278,308 +1253,241 @@
             document.body.removeChild(a);
         }
 
-        // -------- Bus Planner --------
-        window.addBusRow = function (data) {
-            const container = document.getElementById('busesContainer');
-            const busId = data && data.id ? data.id : `bus_${Date.now()}_${Math.floor(Math.random()*1000)}`;
-            const name = data && data.name ? data.name : `Bus ${buses.length + 1}`;
-            const capacity = data && data.capacity ? data.capacity : 50;
-            const color = data && data.color ? data.color : randomColor();
+        // -------- Bus Planner (New Simplified Version) --------
+        
+        // Add a new bus
+        window.addNewBus = function() {
+            const name = document.getElementById('newBusName').value.trim();
+            const capacity = parseInt(document.getElementById('newBusCapacity').value);
+            const color = document.getElementById('newBusColor').value;
 
-            buses.push({ id: busId, name, capacity: parseInt(capacity), color });
-            busMetaById[busId] = { name, capacity: parseInt(capacity), color };
-
-            const div = document.createElement('div');
-            div.className = 'form-group';
-            div.style.border = '1px solid #e5e7eb';
-            div.style.borderRadius = '10px';
-            div.style.padding = '1rem';
-            div.style.background = '#f9fafb';
-            div.dataset.busId = busId;
-            div.innerHTML = `
-                <label>Bus Name</label>
-                <input type="text" value="${name}" oninput="updateBusMeta('${busId}','name',this.value)">
-                <label style="margin-top:.5rem; display:block;">Capacity</label>
-                <input type="number" min="1" value="${capacity}" oninput="updateBusMeta('${busId}','capacity',this.value)">
-                <label style="margin-top:.5rem; display:block;">Color</label>
-                <input type="color" value="${toHexColor(color)}" oninput="updateBusMeta('${busId}','color',this.value)">
-                <button type="button" class="btn btn-secondary" style="margin-top:.5rem;" onclick="removeBusRow('${busId}')">Remove</button>
-            `;
-            container.appendChild(div);
-            renderBusPlannerSummary();
-        }
-
-        window.updateBusMeta = function (id, key, value) {
-            const idx = buses.findIndex(b => b.id === id);
-            if (idx === -1) return;
-            if (key === 'capacity') {
-                buses[idx][key] = parseInt(value || 0);
-            } else if (key === 'color') {
-                buses[idx][key] = value;
-            } else {
-                buses[idx][key] = value;
+            if (!name) {
+                alert('Please enter a bus name');
+                return;
             }
-            busMetaById[id] = { name: buses[idx].name, capacity: buses[idx].capacity, color: buses[idx].color };
-            renderBusPlannerSummary();
-            renderAllocationTable();
+            if (!capacity || capacity < 1) {
+                alert('Please enter a valid capacity');
+                return;
+            }
+
+            const busId = `bus_${Date.now()}_${Math.floor(Math.random()*1000)}`;
+            busesData.push({ id: busId, name, capacity, color });
+
+            // Clear inputs
+            document.getElementById('newBusName').value = '';
+            document.getElementById('newBusCapacity').value = '';
+            document.getElementById('newBusColor').value = '#667eea';
+
+            renderBusSummaryCards();
+            renderBusAssignmentTable();
+            alert(`✅ Bus "${name}" added. Don't forget to save!`);
         }
 
-        window.removeBusRow = function (id) {
-            buses = buses.filter(b => b.id !== id);
-            delete busMetaById[id];
-            const container = document.getElementById('busesContainer');
-            const el = container.querySelector(`[data-bus-id="${id}"]`);
-            if (el) container.removeChild(el);
-            renderBusPlannerSummary();
-            renderAllocationTable();
+        // Remove a bus
+        window.removeBus = function(busId) {
+            if (!confirm('Are you sure you want to remove this bus?')) return;
+            
+            busesData = busesData.filter(b => b.id !== busId);
+            // Remove assignments for this bus
+            busAssignmentsData = busAssignmentsData.filter(a => a.busId !== busId);
+            
+            renderBusSummaryCards();
+            renderBusAssignmentTable();
         }
 
-        function randomColor() {
-            const r = Math.floor(100 + Math.random()*155);
-            const g = Math.floor(100 + Math.random()*155);
-            const b = Math.floor(100 + Math.random()*155);
-            return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
-        }
-
-        function toHexColor(c) { return c && c.startsWith('#') ? c : '#667eea'; }
-
-        function renderBusPlannerSummary() {
-            const container = document.getElementById('busPlannerSummary');
+        // Render bus summary cards
+        function renderBusSummaryCards() {
+            const container = document.getElementById('busSummaryCards');
             if (!container) return;
             container.innerHTML = '';
-            if (buses.length === 0) return;
 
-            // counts per bus
-            const counts = {};
-            buses.forEach(b => counts[b.id] = 0);
-            participants.forEach(p => {
-                if (!p.transportRequired) return;
-                const assigned = busAssignments[String(p.id)];
-                if (assigned && counts[assigned] !== undefined) counts[assigned] += (p.headCount || 0);
+            if (busesData.length === 0) {
+                container.innerHTML = '<p style="color:#6b7280; text-align:center;">No buses added yet. Add buses above.</p>';
+                return;
+            }
+
+            // Calculate occupancy for each bus
+            const occupancy = {};
+            busesData.forEach(b => occupancy[b.id] = 0);
+            busAssignmentsData.forEach(a => {
+                const participant = participants.find(p => p.id === a.userId);
+                if (participant && occupancy[a.busId] !== undefined) {
+                    occupancy[a.busId] += participant.headCount || 0;
+                }
             });
 
-            buses.forEach(b => {
-                const box = document.createElement('div');
-                box.className = 'totals-box';
-                const used = counts[b.id] || 0;
-                const over = used > (b.capacity||0);
-                box.style.borderLeftColor = b.color || '#667eea';
-                box.innerHTML = `
-                    <h3>${b.name} (cap ${b.capacity})</h3>
-                    <div class="value" style="color:${over ? '#ef4444':'#1f2937'}">${used} heads</div>
+            busesData.forEach(bus => {
+                const used = occupancy[bus.id] || 0;
+                const capacity = bus.capacity || 0;
+                const isOverCapacity = used > capacity;
+                
+                const card = document.createElement('div');
+                card.className = 'totals-box';
+                card.style.borderLeft = `4px solid ${bus.color}`;
+                card.innerHTML = `
+                    <h3>${bus.name}</h3>
+                    <div class="value" style="color:${isOverCapacity ? '#ef4444' : '#1f2937'}">
+                        ${used} / ${capacity}
+                    </div>
+                    <div style="margin-top:0.5rem;">
+                        <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:0.25rem 0.5rem;" onclick="removeBus('${bus.id}')">Remove</button>
+                    </div>
                 `;
-                container.appendChild(box);
+                container.appendChild(card);
             });
         }
 
-        function renderAllocationTable() {
-            const tbody = document.getElementById('busAllocationBody');
+        // Render bus assignment table
+        function renderBusAssignmentTable() {
+            const tbody = document.getElementById('busAssignmentBody');
             if (!tbody) return;
             tbody.innerHTML = '';
-            // Build bus options once
-            const options = ['<option value="">-- Select Bus --</option>']
-                .concat(buses.map(b => `<option value="${b.id}">${b.name}</option>`))
+
+            if (participants.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#6b7280;">No participants loaded</td></tr>';
+                return;
+            }
+
+            // Build bus options
+            const busOptions = ['<option value="">No Bus</option>']
+                .concat(busesData.map(b => `<option value="${b.id}">${b.name}</option>`))
                 .join('');
+
             participants.forEach(p => {
-                if (!p.transportRequired) return;
-                const assigned = busAssignments[String(p.id)] || '';
+                const assignment = busAssignmentsData.find(a => a.userId === p.id);
+                const assignedBusId = assignment ? assignment.busId : '';
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${p.name}</td>
+                    <td>+91 ${p.phone}</td>
                     <td>${p.headCount || 0}</td>
-                    <td>+91 ${p.phone || ''}</td>
+                    <td>${p.transportRequired ? 'Yes' : 'No'}</td>
                     <td>
-                        <select onchange="allocateParticipantToBus(${p.id}, this.value)">
-                            ${options}
+                        <select onchange="assignParticipantToBus('${p.id}', this.value)" style="padding:0.5rem; border:2px solid #e5e7eb; border-radius:8px;">
+                            ${busOptions}
                         </select>
                     </td>
-                    <td>
-                        <button type="button" class="btn btn-secondary" onclick="clearAllocation(${p.id})">Clear</button>
-                    </td>
                 `;
                 tbody.appendChild(tr);
-                const sel = tr.querySelector('select');
-                sel.value = assigned;
+
+                // Set the selected value
+                const select = tr.querySelector('select');
+                select.value = assignedBusId;
             });
         }
 
-        window.allocateParticipantToBus = function (participantId, busId) {
-            if (!busId) {
-                delete busAssignments[String(participantId)];
-            } else {
-                busAssignments[String(participantId)] = busId;
-            }
-            renderBusPlannerSummary();
-            renderBusRoster();
-        }
+        // Assign participant to bus
+        window.assignParticipantToBus = function(participantId, busId) {
+            const participant = participants.find(p => p.id === participantId);
+            if (!participant) return;
 
-        window.clearAllocation = function (participantId) {
-            delete busAssignments[String(participantId)];
-            renderAllocationTable();
-            renderBusPlannerSummary();
-            renderBusRoster();
-        }
+            // Remove existing assignment for this participant
+            busAssignmentsData = busAssignmentsData.filter(a => a.userId !== participantId);
 
-        function renderBusRoster() {
-            const tbody = document.getElementById('busRosterBody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            if (!buses.length) return;
-            const busNameById = {}; buses.forEach(b => busNameById[b.id] = b.name);
-            participants.forEach(p => {
-                if (!p.transportRequired) return;
-                const bid = busAssignments[String(p.id)];
-                if (!bid) return;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${busNameById[bid] || '-'}</td>
-                    <td>${p.name}</td>
-                    <td>${p.headCount || 0}</td>
-                    <td>+91 ${p.phone || ''}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function distance(a, b) {
-            const dLat = (b.lat - a.lat) * Math.PI / 180;
-            const dLng = (b.lng - a.lng) * Math.PI / 180;
-            const r = 6371;
-            const A = Math.sin(dLat/2)**2 + Math.cos(a.lat*Math.PI/180) * Math.cos(b.lat*Math.PI/180) * Math.sin(dLng/2)**2;
-            return 2 * r * Math.atan2(Math.sqrt(A), Math.sqrt(1-A));
-        }
-
-        function kmeans(points, k, maxIter=10) {
-            if (points.length === 0 || k <= 0) return { centroids: [], clusters: [] };
-            const centroids = [];
-            for (let i=0; i<k; i++) centroids.push({ ...points[i % points.length] });
-            let clusters = new Array(k).fill(0).map(()=>[]);
-            for (let iter=0; iter<maxIter; iter++) {
-                clusters = new Array(k).fill(0).map(()=>[]);
-                points.forEach(p => {
-                    let best=0, bestD=Infinity;
-                    for (let i=0;i<k;i++) {
-                        const d = distance(p, centroids[i]);
-                        if (d < bestD) { bestD=d; best=i; }
-                    }
-                    clusters[best].push(p);
+            // Add new assignment if bus is selected
+            if (busId) {
+                busAssignmentsData.push({
+                    busId: busId,
+                    userId: participant.id,
+                    userName: participant.name,
+                    phone: participant.phone
                 });
-                // recompute centroids
-                for (let i=0;i<k;i++) {
-                    if (clusters[i].length===0) continue;
-                    const avgLat = clusters[i].reduce((s,p)=>s+p.lat,0)/clusters[i].length;
-                    const avgLng = clusters[i].reduce((s,p)=>s+p.lng,0)/clusters[i].length;
-                    centroids[i] = { lat: avgLat, lng: avgLng };
-                }
             }
-            return { centroids, clusters };
+
+            renderBusSummaryCards();
         }
 
-        window.autoAssignBuses = function () {
-            const needTransport = participants.filter(p => p.transportRequired && typeof p.lat==='number' && typeof p.lng==='number');
-            if (buses.length === 0) { alert('Add at least one bus'); return; }
-            if (needTransport.length === 0) { alert('No participants with transport and coordinates'); return; }
-
-            const k = Math.min(buses.length, needTransport.length);
-            const pts = needTransport.map(p => ({ lat: p.lat, lng: p.lng, id: p.id, heads: p.headCount||0 }));
-            const { clusters } = kmeans(pts, k, 12);
-
-            // initial assignment by cluster index -> bus index
-            busAssignments = {};
-            for (let i=0; i<clusters.length; i++) {
-                const bus = buses[i] || buses[buses.length-1];
-                clusters[i].forEach(pt => { busAssignments[String(pt.id)] = bus.id; });
-            }
-
-            // enforce capacity by moving overflow to next buses with space
-            const usage = {}; buses.forEach(b=>usage[b.id]=0);
-            needTransport.forEach(p => { const bid = busAssignments[String(p.id)]; usage[bid] += (p.headCount||0); });
-
-            const busesBySpace = () => buses.map(b => ({...b, space: (b.capacity||0) - (usage[b.id]||0)})).sort((a,b)=>b.space-a.space);
-            let pass=0;
-            while (pass<3) { // a few balancing passes
-                pass++;
-                for (const b of buses) {
-                    while ((usage[b.id]||0) > (b.capacity||0)) {
-                        // move one participant (largest heads) to bus with most space
-                        const cand = needTransport.filter(p => busAssignments[String(p.id)]===b.id).sort((a,bp)=> (bp.headCount||0)-(a.headCount||0))[0];
-                        if (!cand) break;
-                        const target = busesBySpace().find(x => x.id !== b.id && x.space > 0);
-                        if (!target) break;
-                        busAssignments[String(cand.id)] = target.id;
-                        usage[b.id] -= (cand.headCount||0);
-                        usage[target.id] = (usage[target.id]||0) + (cand.headCount||0);
-                    }
-                }
-            }
-
-            renderBusPlannerSummary();
-            renderAllocationTable();
-            renderBusRoster();
-            alert('✅ Auto assignment complete. Review summary and Save Assignments.');
-        }
-
-        window.saveBusAssignments = async function () {
+        // Save bus details to notes
+        window.saveBusData = async function() {
             try {
-                const content = JSON.stringify({
-                    buses: buses.map(b=>({ id:b.id, name:b.name, capacity:b.capacity, color:b.color })),
-                    assignments: busAssignments,
-                    updated_at: new Date().toISOString()
-                });
+                const content = JSON.stringify(busesData);
                 const { data: existing, error: fetchError } = await window.supabase
-                    .from('notes').select('id').eq('title','Bus_Assignments').single();
+                    .from('notes').select('id').eq('title', 'Bus_Details').maybeSingle();
+                
                 if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+
                 if (existing) {
                     const { error } = await window.supabase
-                        .from('notes').update({ content, updated_at: new Date().toISOString() }).eq('title','Bus_Assignments');
+                        .from('notes')
+                        .update({ content, updated_at: new Date().toISOString() })
+                        .eq('title', 'Bus_Details');
                     if (error) throw error;
                 } else {
                     const { error } = await window.supabase
-                        .from('notes').insert([{ title:'Bus_Assignments', content }]);
+                        .from('notes')
+                        .insert([{ title: 'Bus_Details', content }]);
                     if (error) throw error;
                 }
-                alert('✅ Bus assignments saved');
+
+                alert('✅ Bus details saved successfully!');
             } catch (e) {
-                console.error('Failed to save Bus_Assignments:', e);
-                alert('❌ Failed to save bus assignments');
+                console.error('Failed to save bus details:', e);
+                alert('❌ Failed to save bus details: ' + (e.message || e));
             }
         }
 
-        window.loadBusAssignmentsAdmin = async function () {
+        // Save bus assignments to notes
+        window.saveBusAssignmentsData = async function() {
             try {
-                const { data, error } = await window.supabase
-                    .from('notes').select('content').eq('title','Bus_Assignments').maybeSingle();
-                if (error && error.code !== 'PGRST116') throw error;
-                const container = document.getElementById('busesContainer');
-                if (data && data.content) {
-                    const parsed = JSON.parse(data.content);
-                    const loadedBuses = parsed.buses || [];
-                    busAssignments = parsed.assignments || {};
-                    // rebuild state and UI rows without duplicating
-                    if (container) container.innerHTML = '';
-                    buses = [];
-                    busMetaById = {};
-                    loadedBuses.forEach(b => addBusRow(b));
-                    renderBusPlannerSummary();
-                    renderAllocationTable();
-                    renderBusRoster();
-                    if (!buses.length) {
-                        alert('No saved buses found. Add buses and Save Assignments.');
-                    }
+                const content = JSON.stringify(busAssignmentsData);
+                const { data: existing, error: fetchError } = await window.supabase
+                    .from('notes').select('id').eq('title', 'Bus_Assignments_Data').maybeSingle();
+                
+                if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+
+                if (existing) {
+                    const { error } = await window.supabase
+                        .from('notes')
+                        .update({ content, updated_at: new Date().toISOString() })
+                        .eq('title', 'Bus_Assignments_Data');
+                    if (error) throw error;
                 } else {
-                    // No record found
-                    if (container) container.innerHTML = '';
-                    buses = [];
-                    busAssignments = {};
-                    busMetaById = {};
-                    renderBusPlannerSummary();
-                    renderAllocationTable();
-                    renderBusRoster();
-                    alert('No bus assignments found yet. Add buses and Save Assignments.');
+                    const { error } = await window.supabase
+                        .from('notes')
+                        .insert([{ title: 'Bus_Assignments_Data', content }]);
+                    if (error) throw error;
                 }
+
+                alert('✅ Bus assignments saved successfully!');
             } catch (e) {
-                console.error('Failed to load Bus_Assignments:', e);
-                alert('Failed to load assignments. Check network/Supabase.');
+                console.error('Failed to save bus assignments:', e);
+                alert('❌ Failed to save bus assignments: ' + (e.message || e));
+            }
+        }
+
+        // Load bus data from notes
+        window.loadBusData = async function() {
+            try {
+                // Load bus details
+                const { data: busDetailsData, error: busError } = await window.supabase
+                    .from('notes').select('content').eq('title', 'Bus_Details').maybeSingle();
+                
+                if (busError && busError.code !== 'PGRST116') throw busError;
+
+                if (busDetailsData && busDetailsData.content) {
+                    busesData = JSON.parse(busDetailsData.content);
+                } else {
+                    busesData = [];
+                }
+
+                // Load bus assignments
+                const { data: assignmentsData, error: assignError } = await window.supabase
+                    .from('notes').select('content').eq('title', 'Bus_Assignments_Data').maybeSingle();
+                
+                if (assignError && assignError.code !== 'PGRST116') throw assignError;
+
+                if (assignmentsData && assignmentsData.content) {
+                    busAssignmentsData = JSON.parse(assignmentsData.content);
+                } else {
+                    busAssignmentsData = [];
+                }
+
+                renderBusSummaryCards();
+                renderBusAssignmentTable();
+            } catch (e) {
+                console.error('Failed to load bus data:', e);
+                alert('❌ Failed to load bus data: ' + (e.message || e));
             }
         }
 
@@ -1695,7 +1603,7 @@
             await loadUIEnabler();
             await loadRoutePlanAdmin();
             await loadParticipantsAdmin();
-            await loadBusAssignmentsAdmin();
+            await loadBusData();
             document.getElementById('loadingOverlay').style.display = 'none';
         };
     </script>
