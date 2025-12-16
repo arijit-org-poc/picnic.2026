@@ -439,6 +439,7 @@
                 <p><strong>Bus Source Coordinates:</strong> <span id="currentBusSourceCoords">-</span></p>
                 <p><strong>Picnic Spot Name:</strong> <span id="currentPicnicSpotName">-</span></p>
                 <p><strong>Picnic Spot Coordinates:</strong> <span id="currentPicnicSpotCoords">-</span></p>
+                <p><strong>Price Per Person:</strong> ₹<span id="currentPrice">-</span></p>
             </div>
 
             <form id="adminForm">
@@ -461,6 +462,11 @@
                     <div class="form-group">
                         <label for="picnicSpotCoords">Picnic Spot Coordinates</label>
                         <input type="text" id="picnicSpotCoords" placeholder="Click on map to set" readonly required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="picnicPrice">Price Per Person (₹)</label>
+                        <input type="number" id="picnicPrice" placeholder="e.g., 500" step="0.01" min="0" required>
                     </div>
                 </div>
 
@@ -522,99 +528,6 @@
                     <button type="button" class="btn btn-secondary" onclick="loadRoutePlanAdmin()">🔄 Reload</button>
                     <button type="button" class="btn btn-secondary" onclick="validateRoutePlanJSON()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">✓ Validate JSON</button>
                 </div>
-            </div>
-        </div>
-
-        <!-- Payment Dashboard -->
-        <div class="admin-card participants-card">
-            <h2>💳 Payment Dashboard</h2>
-            <div class="totals-summary">
-                <div class="totals-box">
-                    <h3>Total Participants</h3>
-                    <div class="value" id="pd_total_participants">0</div>
-                </div>
-                <div class="totals-box">
-                    <h3>Total Heads</h3>
-                    <div class="value" id="pd_total_heads">0</div>
-                </div>
-                <div class="totals-box">
-                    <h3>Paid Heads</h3>
-                    <div class="value" id="pd_paid_heads">0</div>
-                </div>
-                <div class="totals-box">
-                    <h3>Unpaid Heads</h3>
-                    <div class="value" id="pd_unpaid_heads">0</div>
-                </div>
-            </div>
-
-            <div style="margin-top: 1rem; display: flex; gap: .5rem; flex-wrap: wrap;">
-                <button type="button" class="btn btn-primary" onclick="savePaymentStatusMap()">💾 Save Payment Status</button>
-                <button type="button" class="btn btn-secondary" onclick="exportPaymentsCSV()">⬇️ Export CSV</button>
-                <button type="button" class="btn btn-secondary" onclick="loadParticipantsAdmin()">🔄 Reload Participants</button>
-            </div>
-
-            <div class="participants-table-wrapper">
-                <table class="participants-table" id="paymentTable">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Phone</th>
-                            <th>Transport</th>
-                            <th>Heads</th>
-                            <th>Kids</th>
-                            <th>Food</th>
-                            <th class="switch-cell">Paid</th>
-                        </tr>
-                    </thead>
-                    <tbody id="paymentTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Bus Capacity Planner -->
-        <div class="admin-card">
-            <h2>🚌 Bus Capacity Planner</h2>
-            <div class="info-box" style="margin-bottom:1rem;">
-                <p>Manage buses and assign participants to buses. Bus details and assignments are stored in notes.</p>
-            </div>
-            
-            <!-- Bus Management Section -->
-            <div style="margin-bottom:1.5rem;">
-                <h3 style="margin-bottom:1rem;">Bus Management</h3>
-                <div style="display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem;">
-                    <input type="text" id="newBusName" placeholder="Bus Name (e.g., Bus 1)" style="padding:0.5rem; border:2px solid #e5e7eb; border-radius:8px; flex:1; min-width:200px;">
-                    <input type="number" id="newBusCapacity" placeholder="Capacity" min="1" style="padding:0.5rem; border:2px solid #e5e7eb; border-radius:8px; width:120px;">
-                    <input type="color" id="newBusColor" value="#667eea" style="padding:0.25rem; border:2px solid #e5e7eb; border-radius:8px; width:60px;">
-                    <button type="button" class="btn btn-secondary" onclick="addNewBus()">➕ Add Bus</button>
-                </div>
-            </div>
-
-            <!-- Bus Summary Cards -->
-            <div class="totals-summary" style="margin-bottom:1rem;" id="busSummaryCards">
-                <!-- Bus cards will be injected here -->
-            </div>
-
-            <!-- Action Buttons -->
-            <div style="display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem;">
-                <button type="button" class="btn btn-primary" onclick="saveBusData()">💾 Save Bus Details</button>
-                <button type="button" class="btn btn-primary" onclick="saveBusAssignmentsData()">💾 Save Assignments</button>
-                <button type="button" class="btn btn-secondary" onclick="loadBusData()">🔄 Reload All</button>
-            </div>
-
-            <!-- Participant Assignment Table -->
-            <div class="participants-table-wrapper">
-                <table class="participants-table" id="busAssignmentTable">
-                    <thead>
-                        <tr>
-                            <th>Participant</th>
-                            <th>Phone</th>
-                            <th>Heads</th>
-                            <th>Transport Required</th>
-                            <th>Assigned Bus</th>
-                        </tr>
-                    </thead>
-                    <tbody id="busAssignmentBody"></tbody>
-                </table>
             </div>
         </div>
     </div>
@@ -806,9 +719,8 @@
             }
         }
         
+        let pricePerPerson = 0;
         let participants = [];
-        let busesData = []; // Array of { id, name, capacity, color }
-        let busAssignmentsData = []; // Array of { busId, userId, userName, phone }
 
         // Initialize map
         function initMap() {
@@ -886,19 +798,7 @@
 
                 if (data) {
                     rootConfigId = data.id;
-                    // Accept both object and string JSON for payment_status
-                    try {
-                        if (data.payment_status && typeof data.payment_status === 'object') {
-                            paymentStatusMap = data.payment_status;
-                        } else if (typeof data.payment_status === 'string') {
-                            paymentStatusMap = JSON.parse(data.payment_status);
-                        } else {
-                            paymentStatusMap = {};
-                        }
-                    } catch (e) {
-                        console.warn('Failed to parse payment_status; defaulting to {}', e);
-                        paymentStatusMap = {};
-                    }
+                    paymentStatusMap = (data.payment_status && typeof data.payment_status === 'object') ? data.payment_status : {};
                     // Display current data
                     document.getElementById('currentData').style.display = 'block';
                     document.getElementById('currentBusSourceName').textContent = data.bus_source_name || 'Not set';
@@ -907,6 +807,8 @@
                     document.getElementById('currentPicnicSpotName').textContent = data.picnic_spot_name || 'Not set';
                     document.getElementById('currentPicnicSpotCoords').textContent =
                         data.picnic_spot ? `${data.picnic_spot[1]}, ${data.picnic_spot[0]}` : 'Not set';
+                    document.getElementById('currentPrice').textContent = data.picnic_price_per_person || '0';
+                    pricePerPerson = parseFloat(data.picnic_price_per_person || '0');
 
                     // Populate form
                     document.getElementById('busSourceName').value = data.bus_source_name || '';
@@ -950,7 +852,7 @@
                         }
                     }
 
-                    // document.getElementById('picnicPrice').value = data.picnic_price_per_person || '';
+                    document.getElementById('picnicPrice').value = data.picnic_price_per_person || '';
                 }
             } catch (error) {
                 console.error('Error loading configuration:', error);
@@ -974,6 +876,7 @@
                     bus_source_coordinates: formData.busSourceCoords,
                     picnic_spot_name: formData.picnicSpotName,
                     picnic_spot: formData.picnicSpotCoords,
+                    picnic_price_per_person: parseFloat(formData.picnicPrice),
                     updated_at: new Date().toISOString()
                 };
 
@@ -1022,7 +925,8 @@
                 busSourceName: document.getElementById('busSourceName').value,
                 busSourceCoords: [busSourceCoords[1], busSourceCoords[0]], // [lng, lat]
                 picnicSpotName: document.getElementById('picnicSpotName').value,
-                picnicSpotCoords: [picnicSpotCoords[1], picnicSpotCoords[0]] // [lng, lat]
+                picnicSpotCoords: [picnicSpotCoords[1], picnicSpotCoords[0]], // [lng, lat]
+                picnicPrice: document.getElementById('picnicPrice').value
             });
         });
 
@@ -1038,12 +942,12 @@
                     .select('content')
                     .eq('title', 'Notifications')
                     .single();
-
+                
                 if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
                     console.error('Error loading notifications:', error);
                     return;
                 }
-
+                
                 if (data && data.content) {
                     document.getElementById('notificationsContent').value = data.content;
                 } else {
@@ -1052,442 +956,6 @@
             } catch (err) {
                 console.error('Failed to load notifications:', err);
                 alert('Failed to load notifications');
-            }
-        }
-
-        // Participants loader (exposed for button and onload)
-        window.loadParticipantsAdmin = async function () {
-            try {
-                const { data, error } = await window.supabase
-                    .from('picnic_2026')
-                    .select('id,name,transport_required,location,coordinates,phone_number,head_count,kids_count,food_type')
-                    .order('id', { ascending: true });
-                if (error) throw error;
-                participants = (data || []).map(row => ({
-                    id: row.id,
-                    name: row.name || '-',
-                    transportRequired: !!row.transport_required,
-                    location: row.location || '',
-                    lat: Array.isArray(row.coordinates) && row.coordinates.length >= 2 ? parseFloat(row.coordinates[1]) : null,
-                    lng: Array.isArray(row.coordinates) && row.coordinates.length >= 2 ? parseFloat(row.coordinates[0]) : null,
-                    phone: row.phone_number || '',
-                    headCount: parseInt(row.head_count || 0),
-                    kidsCount: parseInt(row.kids_count || 0),
-                    food: row.food_type || 'Veg'
-                }));
-                normalizePaymentStatusMap();
-                renderPaymentDashboard();
-                renderBusSummaryCards();
-                renderBusAssignmentTable();
-            } catch (e) {
-                console.error('Failed to load participants:', e);
-                alert('Failed to load participants');
-            }
-        }
-
-        function normalizePaymentStatusMap() {
-            if (!paymentStatusMap || typeof paymentStatusMap !== 'object') return;
-            // Detect if keys are numeric ids; if not, try mapping by phone
-            const keys = Object.keys(paymentStatusMap);
-            const looksLikeIds = keys.every(k => /^\d+$/.test(k));
-            if (looksLikeIds) return; // already id-keyed
-            const byPhone = {};
-            keys.forEach(k => {
-                const entry = paymentStatusMap[k];
-                if (!entry) return;
-                const phone = String(entry.phone || '').replace(/\s+/g,'');
-                if (phone) byPhone[phone] = entry;
-            });
-            const remapped = {};
-            participants.forEach(p => {
-                const phoneKey = String(p.phone || '').replace(/\s+/g,'');
-                const entry = byPhone[phoneKey];
-                if (entry) {
-                    remapped[String(p.id)] = {
-                        name: p.name,
-                        phone: p.phone,
-                        head_count: p.headCount,
-                        kids_count: p.kidsCount,
-                        paid: entry.paid === true,
-                        timestamp: entry.timestamp || new Date().toISOString()
-                    };
-                }
-            });
-            if (Object.keys(remapped).length) {
-                paymentStatusMap = remapped;
-            }
-        }
-
-        function renderPaymentDashboard() {
-            const tbody = document.getElementById('paymentTableBody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-
-            let totalHeads = 0;
-            let paidHeads = 0;
-
-            participants.forEach(p => {
-                totalHeads += p.headCount || 0;
-                const paid = paymentStatusMap && paymentStatusMap[String(p.id)] && paymentStatusMap[String(p.id)].paid === true;
-                if (paid) paidHeads += p.headCount || 0;
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${p.name}</td>
-                    <td>+91 ${p.phone}</td>
-                    <td>${p.transportRequired ? 'Yes' : 'No'}</td>
-                    <td>${p.headCount}</td>
-                    <td>${p.kidsCount}</td>
-                    <td>${p.food}</td>
-                    <td class="switch-cell">
-                        <label class="pay-switch">
-                            <input type="checkbox" ${paid ? 'checked' : ''} onchange=togglePaid('${p.id}')>
-                            <span class="pay-slider"></span>
-                        </label>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            const unpaidHeads = totalHeads - paidHeads;
-
-            document.getElementById('pd_total_participants').textContent = participants.length;
-            document.getElementById('pd_total_heads').textContent = totalHeads;
-            document.getElementById('pd_paid_heads').textContent = paidHeads;
-            document.getElementById('pd_unpaid_heads').textContent = unpaidHeads;
-        }
-
-        window.togglePaid = function (participantId) {
-            const p = participants.find(x => x.id === participantId);
-            if (!p) return;
-            const current = paymentStatusMap[String(p.id)] || {};
-            const newPaid = !(current.paid === true);
-            paymentStatusMap[String(p.id)] = {
-                name: p.name,
-                phone: p.phone,
-                head_count: p.headCount,
-                kids_count: p.kidsCount,
-                paid: newPaid,
-                timestamp: new Date().toISOString()
-            };
-            renderPaymentDashboard();
-        }
-
-        window.savePaymentStatusMap = async function () {
-            try {
-                // Ensure we have the latest configuration and root ID
-                if (!rootConfigId) {
-                    try {
-                        const { data: existingRoot, error: rootErr } = await window.supabase
-                            .from('picnic_2026_root')
-                            .select('id')
-                            .limit(1)
-                            .maybeSingle();
-                        if (rootErr && rootErr.code !== 'PGRST116') throw rootErr;
-                        if (existingRoot && existingRoot.id) {
-                            rootConfigId = existingRoot.id;
-                        }
-                    } catch (inner) {
-                        console.warn('Could not fetch rootConfigId:', inner);
-                    }
-                }
-
-                const payload = { payment_status: paymentStatusMap, updated_at: new Date().toISOString() };
-
-                let opError = null;
-                // Helper to try update/insert with a given value for payment_status
-                const tryPersist = async (value) => {
-                    const body = { ...payload, payment_status: value };
-                    if (rootConfigId) {
-                        const { error: updateError } = await window.supabase
-                            .from('picnic_2026_root')
-                            .update(body)
-                            .eq('id', rootConfigId);
-                        return updateError || null;
-                    } else {
-                        const { error: insertError } = await window.supabase
-                            .from('picnic_2026_root')
-                            .insert([body]);
-                        return insertError || null;
-                    }
-                };
-
-                // First attempt: store as JSON object (jsonb columns)
-                opError = await tryPersist(paymentStatusMap);
-                if (opError) {
-                    // Fallback: store as stringified JSON (text columns)
-                    console.warn('Primary save failed, retrying with stringified JSON', opError);
-                    opError = await tryPersist(JSON.stringify(paymentStatusMap));
-                }
-
-                if (opError) throw opError;
-
-                // Refresh local state (id, price, etc.) so dashboard reflects saved values
-                await loadConfiguration();
-                alert('✅ Payment status saved');
-            } catch (e) {
-                console.error('Failed to save payment status:', e);
-                const msg = (e && e.message) ? e.message : String(e);
-                alert('❌ Failed to save payment status: ' + msg);
-            }
-        }
-
-        window.exportPaymentsCSV = function () {
-            const headers = ['Name','Phone','Heads','Kids','Transport','Food','Paid'];
-            const rows = participants.map(p => [
-                p.name,
-                `+91 ${p.phone}`,
-                p.headCount,
-                p.kidsCount,
-                p.transportRequired ? 'Yes':'No',
-                p.food,
-                paymentStatusMap && paymentStatusMap[String(p.id)] && paymentStatusMap[String(p.id)].paid ? 'Yes':'No'
-            ].join(','));
-            const csv = [headers.join(','), ...rows].join('\n');
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `payments_${new Date().toISOString().slice(0,10)}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
-
-        // -------- Bus Planner (New Simplified Version) --------
-        
-        // Add a new bus
-        window.addNewBus = function() {
-            const name = document.getElementById('newBusName').value.trim();
-            const capacity = parseInt(document.getElementById('newBusCapacity').value);
-            const color = document.getElementById('newBusColor').value;
-
-            if (!name) {
-                alert('Please enter a bus name');
-                return;
-            }
-            if (!capacity || capacity < 1) {
-                alert('Please enter a valid capacity');
-                return;
-            }
-
-            const busId = `bus_${Date.now()}_${Math.floor(Math.random()*1000)}`;
-            busesData.push({ id: busId, name, capacity, color });
-
-            // Clear inputs
-            document.getElementById('newBusName').value = '';
-            document.getElementById('newBusCapacity').value = '';
-            document.getElementById('newBusColor').value = '#667eea';
-
-            renderBusSummaryCards();
-            renderBusAssignmentTable();
-            alert(`✅ Bus "${name}" added. Don't forget to save!`);
-        }
-
-        // Remove a bus
-        window.removeBus = function(busId) {
-            if (!confirm('Are you sure you want to remove this bus?')) return;
-            
-            busesData = busesData.filter(b => b.id !== busId);
-            // Remove assignments for this bus
-            busAssignmentsData = busAssignmentsData.filter(a => a.busId !== busId);
-            
-            renderBusSummaryCards();
-            renderBusAssignmentTable();
-        }
-
-        // Render bus summary cards
-        function renderBusSummaryCards() {
-            const container = document.getElementById('busSummaryCards');
-            if (!container) return;
-            container.innerHTML = '';
-
-            if (busesData.length === 0) {
-                container.innerHTML = '<p style="color:#6b7280; text-align:center;">No buses added yet. Add buses above.</p>';
-                return;
-            }
-
-            // Calculate occupancy for each bus
-            const occupancy = {};
-            busesData.forEach(b => occupancy[b.id] = 0);
-            busAssignmentsData.forEach(a => {
-                const participant = participants.find(p => p.id === a.userId);
-                if (participant && occupancy[a.busId] !== undefined) {
-                    occupancy[a.busId] += participant.headCount || 0;
-                }
-            });
-
-            busesData.forEach(bus => {
-                const used = occupancy[bus.id] || 0;
-                const capacity = bus.capacity || 0;
-                const isOverCapacity = used > capacity;
-                
-                const card = document.createElement('div');
-                card.className = 'totals-box';
-                card.style.borderLeft = `4px solid ${bus.color}`;
-                card.innerHTML = `
-                    <h3>${bus.name}</h3>
-                    <div class="value" style="color:${isOverCapacity ? '#ef4444' : '#1f2937'}">
-                        ${used} / ${capacity}
-                    </div>
-                    <div style="margin-top:0.5rem;">
-                        <button type="button" class="btn btn-secondary" style="font-size:0.75rem; padding:0.25rem 0.5rem;" onclick="removeBus('${bus.id}')">Remove</button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        // Render bus assignment table
-        function renderBusAssignmentTable() {
-            const tbody = document.getElementById('busAssignmentBody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-
-            if (participants.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#6b7280;">No participants loaded</td></tr>';
-                return;
-            }
-
-            // Build bus options
-            const busOptions = ['<option value="">No Bus</option>']
-                .concat(busesData.map(b => `<option value="${b.id}">${b.name}</option>`))
-                .join('');
-
-            participants.forEach(p => {
-                const assignment = busAssignmentsData.find(a => a.userId === p.id);
-                const assignedBusId = assignment ? assignment.busId : '';
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${p.name}</td>
-                    <td>+91 ${p.phone}</td>
-                    <td>${p.headCount || 0}</td>
-                    <td>${p.transportRequired ? 'Yes' : 'No'}</td>
-                    <td>
-                        <select onchange="assignParticipantToBus('${p.id}', this.value)" style="padding:0.5rem; border:2px solid #e5e7eb; border-radius:8px;">
-                            ${busOptions}
-                        </select>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-
-                // Set the selected value
-                const select = tr.querySelector('select');
-                select.value = assignedBusId;
-            });
-        }
-
-        // Assign participant to bus
-        window.assignParticipantToBus = function(participantId, busId) {
-            const participant = participants.find(p => p.id === participantId);
-            if (!participant) return;
-
-            // Remove existing assignment for this participant
-            busAssignmentsData = busAssignmentsData.filter(a => a.userId !== participantId);
-
-            // Add new assignment if bus is selected
-            if (busId) {
-                busAssignmentsData.push({
-                    busId: busId,
-                    userId: participant.id,
-                    userName: participant.name,
-                    phone: participant.phone
-                });
-            }
-
-            renderBusSummaryCards();
-        }
-
-        // Save bus details to notes
-        window.saveBusData = async function() {
-            try {
-                const content = JSON.stringify(busesData);
-                const { data: existing, error: fetchError } = await window.supabase
-                    .from('notes').select('id').eq('title', 'Bus_Details').maybeSingle();
-                
-                if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
-
-                if (existing) {
-                    const { error } = await window.supabase
-                        .from('notes')
-                        .update({ content, updated_at: new Date().toISOString() })
-                        .eq('title', 'Bus_Details');
-                    if (error) throw error;
-                } else {
-                    const { error } = await window.supabase
-                        .from('notes')
-                        .insert([{ title: 'Bus_Details', content }]);
-                    if (error) throw error;
-                }
-
-                alert('✅ Bus details saved successfully!');
-            } catch (e) {
-                console.error('Failed to save bus details:', e);
-                alert('❌ Failed to save bus details: ' + (e.message || e));
-            }
-        }
-
-        // Save bus assignments to notes
-        window.saveBusAssignmentsData = async function() {
-            try {
-                const content = JSON.stringify(busAssignmentsData);
-                const { data: existing, error: fetchError } = await window.supabase
-                    .from('notes').select('id').eq('title', 'Bus_Assignments_Data').maybeSingle();
-                
-                if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
-
-                if (existing) {
-                    const { error } = await window.supabase
-                        .from('notes')
-                        .update({ content, updated_at: new Date().toISOString() })
-                        .eq('title', 'Bus_Assignments_Data');
-                    if (error) throw error;
-                } else {
-                    const { error } = await window.supabase
-                        .from('notes')
-                        .insert([{ title: 'Bus_Assignments_Data', content }]);
-                    if (error) throw error;
-                }
-
-                alert('✅ Bus assignments saved successfully!');
-            } catch (e) {
-                console.error('Failed to save bus assignments:', e);
-                alert('❌ Failed to save bus assignments: ' + (e.message || e));
-            }
-        }
-
-        // Load bus data from notes
-        window.loadBusData = async function() {
-            try {
-                // Load bus details
-                const { data: busDetailsData, error: busError } = await window.supabase
-                    .from('notes').select('content').eq('title', 'Bus_Details').maybeSingle();
-                
-                if (busError && busError.code !== 'PGRST116') throw busError;
-
-                if (busDetailsData && busDetailsData.content) {
-                    busesData = JSON.parse(busDetailsData.content);
-                } else {
-                    busesData = [];
-                }
-
-                // Load bus assignments
-                const { data: assignmentsData, error: assignError } = await window.supabase
-                    .from('notes').select('content').eq('title', 'Bus_Assignments_Data').maybeSingle();
-                
-                if (assignError && assignError.code !== 'PGRST116') throw assignError;
-
-                if (assignmentsData && assignmentsData.content) {
-                    busAssignmentsData = JSON.parse(assignmentsData.content);
-                } else {
-                    busAssignmentsData = [];
-                }
-
-                renderBusSummaryCards();
-                renderBusAssignmentTable();
-            } catch (e) {
-                console.error('Failed to load bus data:', e);
-                alert('❌ Failed to load bus data: ' + (e.message || e));
             }
         }
 
@@ -1602,8 +1070,6 @@
             await loadNotifications();
             await loadUIEnabler();
             await loadRoutePlanAdmin();
-            await loadParticipantsAdmin();
-            await loadBusData();
             document.getElementById('loadingOverlay').style.display = 'none';
         };
     </script>
