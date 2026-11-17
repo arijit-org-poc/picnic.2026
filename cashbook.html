@@ -3,219 +3,524 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cashbook – Picnic 2026</title>
+    <title>Cashbook – Picnic 2027</title>
+    <!-- Modern Editorial & UI Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+        :root {
+            --bg-canvas: #F8F7F4;
+            --surface: #FFFFFF;
+            --surface-subtle: #F3F2EE;
+            --primary: #0F3D3E;
+            --primary-hover: #165253;
+            --primary-soft: #E6F0F0;
+            --accent: #D97706;
+            --text-main: #18181B;
+            --text-muted: #52525B;
+            --text-light: #71717A;
+            --border-subtle: #E4E4E7;
+            --income-color: #059669;
+            --income-bg: #ECFDF5;
+            --expense-color: #DC2626;
+            --expense-bg: #FEF2F2;
+            --onsite-color: #2563EB;
+            --onsite-bg: #EFF6FF;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-card: 0 4px 20px -2px rgba(15, 61, 62, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+            --shadow-hover: 0 10px 25px -4px rgba(15, 61, 62, 0.08);
+        }
+
+        * {
             margin: 0;
-            color: #222;
             padding: 0;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-canvas);
+            background-image: radial-gradient(at 0% 0%, rgba(15, 61, 62, 0.04) 0px, transparent 50%),
+                              radial-gradient(at 100% 0%, rgba(217, 119, 6, 0.04) 0px, transparent 50%);
+            min-height: 100vh;
+            color: var(--text-main);
+            padding: 24px 20px 48px;
+            -webkit-font-smoothing: antialiased;
+        }
+
         .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            background: #fff;
-            border-radius: 18px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.13);
-            padding: 2rem;
+            max-width: 1240px;
+            margin: 0 auto;
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            box-shadow: var(--shadow-card);
+            padding: 2.25rem;
         }
+
+        /* Header Bar */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.875rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.03em;
+        }
+
+        .primary-btn {
+            background: var(--primary);
+            color: #FFFFFF;
+            border: 1px solid var(--primary);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1.5rem;
+            font-size: 0.938rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(15, 61, 62, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        .primary-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(15, 61, 62, 0.2);
+        }
+
+        #toggleModeBtn {
+            background: var(--surface);
+            color: var(--primary);
+            border: 1.5px solid var(--border-subtle);
+            box-shadow: none;
+        }
+
+        #toggleModeBtn:hover {
+            background: var(--primary-soft);
+            border-color: var(--primary);
+        }
+
+        /* Summary KPI Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 1.25rem;
             margin-bottom: 2rem;
         }
-        .title {
-            font-size: 2.1rem;
-            font-weight: 800;
-            color: #667eea;
-            letter-spacing: -1px;
+
+        .summary-card {
+            background: var(--surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 1.35rem 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
         }
-        .primary-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            padding: 0.8rem 2rem;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.18);
-            transition: all 0.2s;
+
+        .summary-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
         }
-        .primary-btn:hover {
+
+        .summary-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25);
+            box-shadow: var(--shadow-hover);
         }
+
+        .summary-card.income::before { background: var(--income-color); }
+        .summary-card.onsite::before { background: var(--onsite-color); }
+        .summary-card.expense::before { background: var(--expense-color); }
+        .summary-card.balance {
+            background: linear-gradient(135deg, #0F3D3E 0%, #195354 100%);
+            border-color: var(--primary);
+            color: #FFFFFF;
+        }
+        .summary-card.balance::before { display: none; }
+
+        .summary-card-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-card.balance .summary-card-label {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .summary-card-value {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.85rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            font-variant-numeric: tabular-nums;
+            color: var(--text-main);
+        }
+
+        .summary-card.income .summary-card-value { color: var(--income-color); }
+        .summary-card.onsite .summary-card-value { color: var(--onsite-color); }
+        .summary-card.expense .summary-card-value { color: var(--expense-color); }
+        .summary-card.balance .summary-card-value { color: #FFFFFF; }
+
+        /* Filter Toolbar */
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+            padding: 1rem 1.25rem;
+            background: var(--surface-subtle);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-subtle);
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.875rem;
+        }
+
+        .filter-group select {
+            padding: 0.5rem 0.9rem;
+            border: 1.5px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-family: inherit;
+            color: var(--text-main);
+            background: var(--surface);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(15, 61, 62, 0.1);
+        }
+
+        .clear-filters-btn {
+            background: var(--surface);
+            color: var(--text-muted);
+            border: 1.5px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: auto;
+            transition: all 0.2s ease;
+        }
+
+        .clear-filters-btn:hover {
+            background: var(--primary-soft);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Ledger Table */
         .table-wrapper {
             overflow-x: auto;
-            margin-top: 1.5rem;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
         }
+
         .ledger-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.95rem;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.07);
+            font-size: 0.9rem;
+            background: var(--surface);
         }
+
         .ledger-table th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #fff;
+            background: var(--surface-subtle);
+            color: var(--text-muted);
             font-weight: 700;
-            padding: 12px 8px;
-            border: none;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 14px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-subtle);
             cursor: pointer;
             user-select: none;
-            position: relative;
+            white-space: nowrap;
+            transition: background 0.15s ease, color 0.15s ease;
         }
+
         .ledger-table th.sortable:hover {
-            background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+            background: #EAE8E1;
+            color: var(--primary);
         }
+
         .ledger-table th .sort-indicator {
             margin-left: 5px;
-            font-size: 0.8rem;
-            opacity: 0.7;
+            font-size: 0.75rem;
+            color: var(--primary);
         }
+
         .ledger-table td {
-            padding: 10px 8px;
-            border: none;
+            padding: 14px 12px;
+            border-bottom: 1px solid var(--border-subtle);
             text-align: left;
+            color: var(--text-main);
+            vertical-align: middle;
         }
-        .ledger-table tr:nth-child(even) {
-            background: #f3f4f6;
+
+        .ledger-table tbody tr:last-child td {
+            border-bottom: none;
         }
-        .ledger-table tr:nth-child(odd) {
-            background: #fff;
+
+        .ledger-table tbody tr {
+            transition: background 0.15s ease;
         }
+
+        .ledger-table tbody tr:hover {
+            background: #FAF9F6;
+        }
+
+        .ledger-table td:nth-child(4) {
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
         .type-income {
-            color: #10b981;
+            color: var(--income-color);
             font-weight: 700;
         }
+
         .type-expense {
-            color: #ef4444;
+            color: var(--expense-color);
             font-weight: 700;
         }
+
         .onsite-yes {
-            color: #2563eb;
+            color: var(--onsite-color);
             font-weight: 600;
         }
+
         .onsite-no {
-            color: #6b7280;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.4rem;
+            justify-content: flex-start;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            cursor: pointer;
+            padding: 0.35rem 0.7rem;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            transition: all 0.15s ease;
             font-weight: 600;
         }
+
+        .edit-btn {
+            color: var(--primary);
+            background: var(--primary-soft);
+        }
+
+        .edit-btn:hover {
+            background: var(--primary);
+            color: #FFFFFF;
+        }
+
+        .delete-btn {
+            color: var(--expense-color);
+            background: var(--expense-bg);
+        }
+
+        .delete-btn:hover {
+            background: var(--expense-color);
+            color: #FFFFFF;
+        }
+
         /* Modal Styles */
         .modal-bg {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(102, 126, 234, 0.18);
+            background: rgba(24, 24, 27, 0.45);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
             z-index: 1000;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.2s;
+            padding: 16px;
         }
+
         .modal {
-            background: #fff;
-            border-radius: 18px;
-            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.18);
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.18);
             padding: 2rem;
             min-width: 340px;
             max-width: 95vw;
-            width: 500px;
+            width: 520px;
             position: relative;
-            animation: modalIn 0.2s;
+            animation: modalIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             max-height: 90vh;
             overflow-y: auto;
         }
+
         @keyframes modalIn {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+            from { transform: translateY(10px) scale(0.98); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
         }
+
         .modal-header {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #667eea;
-            margin-bottom: 1.2rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.875rem;
+            border-bottom: 1px solid var(--border-subtle);
         }
+
         .modal-close {
             position: absolute;
-            top: 18px;
+            top: 20px;
             right: 22px;
-            font-size: 1.3rem;
-            color: #667eea;
-            background: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 1.35rem;
+            color: var(--text-muted);
+            background: var(--surface-subtle);
             border: none;
             cursor: pointer;
-            font-weight: 700;
-            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
         }
+
         .modal-close:hover {
-            color: #ef4444;
+            background: var(--expense-bg);
+            color: var(--expense-color);
         }
+
         .form-group {
-            margin-bottom: 1.1rem;
+            margin-bottom: 1.15rem;
             display: flex;
             flex-direction: column;
         }
+
         .form-group label {
             font-weight: 600;
-            color: #374151;
-            font-size: 0.95rem;
+            color: var(--text-main);
+            font-size: 0.875rem;
             margin-bottom: 0.4rem;
         }
+
         .form-group input,
         .form-group select,
         .form-group textarea {
-            padding: 0.7rem 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 1rem;
+            padding: 0.75rem 1rem;
+            border: 1.5px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
             font-family: inherit;
-            transition: border-color 0.2s;
+            color: var(--text-main);
+            background: var(--surface);
+            transition: all 0.2s ease;
         }
+
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #667eea;
-            background: #f9fafb;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(15, 61, 62, 0.1);
         }
+
         .form-group textarea {
-            min-height: 60px;
+            min-height: 72px;
             resize: vertical;
         }
+
         .form-row {
             display: flex;
             gap: 1rem;
         }
+
         .form-row .form-group {
             flex: 1;
-            margin-bottom: 0;
+            margin-bottom: 1.15rem;
         }
+
+        /* Toggle Switch */
         .switch-container {
             display: flex;
+            flex-direction: row !important;
             align-items: center;
-            gap: 0.7rem;
-            margin-top: 0.5rem;
+            justify-content: space-between;
+            padding: 0.875rem 1rem;
+            background: var(--surface-subtle);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-subtle);
+            margin-top: 0.25rem;
         }
+
+        .switch-container label:first-child {
+            margin-bottom: 0;
+        }
+
         .switch {
             position: relative;
             display: inline-block;
             width: 48px;
             height: 26px;
         }
+
         .switch input { opacity: 0; width: 0; height: 0; }
+
         .slider {
             position: absolute;
             cursor: pointer;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
+            background-color: #D4D4D8;
+            transition: .3s;
             border-radius: 26px;
         }
+
         .slider:before {
             position: absolute;
             content: "";
@@ -224,265 +529,178 @@
             left: 3px;
             bottom: 3px;
             background-color: white;
-            transition: .4s;
+            transition: .3s;
             border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
+
         input:checked + .slider {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary);
         }
+
         input:checked + .slider:before {
             transform: translateX(22px);
         }
+
         .modal-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 1rem;
+            gap: 0.75rem;
             margin-top: 1.5rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border-subtle);
         }
+
         .secondary-btn {
-            background: #f3f4f6;
-            color: #667eea;
-            border: none;
-            border-radius: 10px;
-            padding: 0.8rem 2rem;
-            font-size: 1rem;
-            font-weight: 700;
+            background: var(--surface-subtle);
+            color: var(--text-main);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1.5rem;
+            font-size: 0.938rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s ease;
         }
+
         .secondary-btn:hover {
-            background: #e0e7ff;
+            background: #E4E4E7;
         }
+
         .error-msg {
-            color: #ef4444;
-            font-size: 0.93rem;
-            margin-bottom: 0.7rem;
-            margin-top: -0.5rem;
+            color: var(--expense-color);
+            background: var(--expense-bg);
+            padding: 0.65rem 0.9rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
             font-weight: 600;
         }
+
+        /* Multi-select Dropdown */
         .multiselect {
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            padding: 0.7rem 1rem;
-            background: #fff;
-            min-height: 44px;
+            border: 1.5px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 0.6rem 0.9rem;
+            background: var(--surface);
+            min-height: 46px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.95rem;
             display: flex;
             flex-wrap: wrap;
+            align-items: center;
+            gap: 0.4rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .multiselect:hover,
+        .multiselect:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .multiselect-option {
+            background: var(--primary-soft);
+            color: var(--primary);
+            font-weight: 600;
+            border-radius: 6px;
+            padding: 0.25rem 0.65rem;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
             gap: 0.4rem;
         }
-        .multiselect-option {
-            background: #e0e7ff;
-            color: #374151;
-            border-radius: 8px;
-            padding: 0.2rem 0.7rem;
-            font-size: 0.95rem;
-            margin: 2px 0;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
+
         .multiselect-remove {
-            color: #ef4444;
+            color: var(--primary);
             font-weight: 700;
             cursor: pointer;
-            margin-left: 2px;
+            font-size: 1rem;
+            line-height: 1;
         }
+
+        .multiselect-remove:hover {
+            color: var(--expense-color);
+        }
+
         .multiselect-dropdown {
             position: absolute;
-            background: #fff;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            box-shadow: 0 4px 18px rgba(102, 126, 234, 0.13);
-            z-index: 10;
-            margin-top: 2px;
-            min-width: 220px;
-            max-height: 180px;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            border: 1.5px solid var(--primary);
+            border-radius: var(--radius-md);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+            z-index: 20;
+            margin-top: 4px;
+            max-height: 190px;
             overflow-y: auto;
         }
+
         .multiselect-dropdown-option {
-            padding: 0.6rem 1rem;
+            padding: 0.65rem 1rem;
             cursor: pointer;
-            font-size: 1rem;
-            color: #374151;
-            transition: background 0.15s;
+            font-size: 0.925rem;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--surface-subtle);
+            transition: background 0.15s ease;
         }
+
+        .multiselect-dropdown-option:last-child {
+            border-bottom: none;
+        }
+
         .multiselect-dropdown-option:hover {
-            background: #e0e7ff;
+            background: var(--primary-soft);
+            color: var(--primary);
+            font-weight: 600;
         }
+
         @media (max-width: 768px) {
-            .container { 
-                padding: 1rem; 
-                margin: 10px;
-                border-radius: 12px;
+            body {
+                padding: 12px 10px 32px;
             }
-            .modal { 
-                padding: 1.5rem 1rem; 
-                min-width: 0; 
+            .container {
+                padding: 1.25rem;
+                border-radius: 16px;
+            }
+            .modal {
+                padding: 1.5rem 1.25rem;
+                min-width: 0;
                 width: 95vw;
-                max-height: 85vh;
+                max-height: 88vh;
             }
-            .header { 
-                flex-direction: column; 
-                gap: 1rem; 
-                text-align: center;
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
             }
-            .title { font-size: 1.5rem; }
-            .ledger-table { font-size: 0.85rem; }
+            .title {
+                font-size: 1.5rem;
+            }
+            .ledger-table {
+                font-size: 0.85rem;
+            }
             .ledger-table th,
-            .ledger-table td { padding: 8px 4px; }
-            .form-row { flex-direction: column; }
-            .summary-cards { 
-                flex-direction: column; 
-                gap: 1rem;
+            .ledger-table td {
+                padding: 10px 8px;
             }
-            .summary-card { min-width: 0; }
-        }
-        .summary-cards {
-            display: flex;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-        .summary-card {
-            flex: 1;
-            min-width: 200px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 14px;
-            padding: 1.5rem;
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
-            transition: transform 0.2s;
-        }
-        .summary-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
-        }
-        .summary-card.income {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        }
-        .summary-card.onsite {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        }
-        .summary-card.expense {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        }
-        .summary-card.balance {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-            color: #fff;
-        }
-        .summary-card-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.5rem;
-        }
-        .summary-card-value {
-            font-size: 2rem;
-            font-weight: 800;
-            letter-spacing: -1px;
-        }
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-        }
-        .action-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0.4rem 0.6rem;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-            font-weight: 600;
-        }
-        .edit-btn {
-            color: #3b82f6;
-        }
-        .edit-btn:hover {
-            background: #dbeafe;
-        }
-        .delete-btn {
-            color: #ef4444;
-        }
-        .delete-btn:hover {
-            background: #fee2e2;
-        }
-        .password-input-group {
-            margin-bottom: 1rem;
-        }
-        .password-input-group input {
-            width: 100%;
-            padding: 0.7rem 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-family: inherit;
-        }
-        .password-input-group input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        .summary-card.balance {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-            color: #fff;
-        }
-        .filter-controls {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .filter-group label {
-            font-weight: 600;
-            color: #374151;
-            font-size: 0.95rem;
-        }
-        .filter-group select {
-            padding: 0.5rem 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            background: #fff;
-            cursor: pointer;
-            transition: border-color 0.2s;
-        }
-        .filter-group select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        .clear-filters-btn {
-            background: #f3f4f6;
-            color: #667eea;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .clear-filters-btn:hover {
-            background: #e0e7ff;
-            border-color: #667eea;
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            .clear-filters-btn {
+                margin-left: 0;
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="title">Cashbook – Picnic 2026</div>
-            <div style="display: flex; gap: 1rem; align-items: center;">
+            <div class="title">Cashbook – Picnic 2027</div>
+            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
                 <button class="primary-btn" id="toggleModeBtn">Switch to Edit Mode</button>
                 <button class="primary-btn" id="openModalBtn">Insert Entry</button>
             </div>
@@ -540,7 +758,7 @@
                     </tr>
                 </thead>
                 <tbody id="ledgerTbody">
-                    <tr><td colspan="9" style="text-align:center;color:#6b7280;">No entries yet.</td></tr>
+                    <tr><td colspan="9" style="text-align:center;color:#71717A;padding:24px;">No entries yet.</td></tr>
                 </tbody>
             </table>
         </div>
@@ -553,11 +771,11 @@
             <div class="modal-header">Insert Cashbook Entry</div>
             <form id="entryForm" autocomplete="off">
                 <div class="form-group">
-                    <label for="payee">Payee <span style="color:#ef4444;">*</span></label>
+                    <label for="payee">Payee <span style="color:#DC2626;">*</span></label>
                     <input type="text" id="payee" required>
                 </div>
                 <div class="form-group">
-                    <label for="receiver">Receiver <span style="color:#ef4444;">*</span></label>
+                    <label for="receiver">Receiver <span style="color:#DC2626;">*</span></label>
                     <input type="text" id="receiver" required>
                 </div>
                 <div class="form-row">
@@ -569,7 +787,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="amount">Amount <span style="color:#ef4444;">*</span></label>
+                        <label for="amount">Amount <span style="color:#DC2626;">*</span></label>
                         <input type="number" id="amount" min="0.01" step="0.01" required>
                     </div>
                 </div>
@@ -579,7 +797,7 @@
                     <div id="participantsDropdown" class="multiselect-dropdown" style="display:none;"></div>
                 </div>
                 <div class="form-group">
-                    <label for="remarks">Remarks <span id="remarksRequired" style="color:#ef4444;display:none;">*</span></label>
+                    <label for="remarks">Remarks <span id="remarksRequired" style="color:#DC2626;display:none;">*</span></label>
                     <textarea id="remarks"></textarea>
                 </div>
                 <div class="form-group switch-container">
@@ -598,8 +816,6 @@
         </div>
     </div>
 
-
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.83.0/dist/umd/supabase.min.js"></script>
   <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js";
@@ -608,7 +824,7 @@
     const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwdnVocXRwa3ZibXJraG5rbmFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3MDQyMDIsImV4cCI6MjA2OTI4MDIwMn0.fmKlgIAY_Yoi3sFk333lRWlxzNlNNGqRZZAuLzGLnmw";
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const ADMIN_PASSWORD = "TCS_Picnic@#2026";
+    const ADMIN_PASSWORD = "Picnic_2027@#TCS";
     let participants = [];
     let ledgerEntries = [];
     let selectedParticipants = [];
@@ -617,7 +833,7 @@
     let currentSortColumn = null;
     let currentSortDirection = 'asc';
     let currentFilters = { type: 'all', onsite: 'all' };
-    // View/Edit mode logic
+
     function getQueryParam(name) {
         const url = new URL(window.location.href);
         return url.searchParams.get(name);
@@ -630,7 +846,6 @@
         localStorage.setItem('picnic2026_cashbook_editmode', val ? 'true' : 'false');
     }
     let isEditMode = false;
-    // On load: check query param, then localStorage
     if (getQueryParam('edit') === '1') {
         isEditMode = true;
         setEditModeToStorage(true);
@@ -638,10 +853,9 @@
         isEditMode = getEditModeFromStorage();
     }
 
-    // Load participants from Supabase
     async function loadParticipants() {
         try {
-            const { data, error } = await supabase.from('picnic_2026').select('id, name, phone_number');
+            const { data, error } = await supabase.from('picnic_TCS').select('id, name, phone_number');
             if (error) throw error;
             participants = data || [];
             console.log('Loaded participants:', participants.length);
@@ -651,7 +865,6 @@
         }
     }
 
-    // Load cashbook entries from Supabase
     async function loadCashbookEntries() {
         try {
             const { data, error } = await supabase
@@ -680,7 +893,6 @@
         }
     }
 
-    // Save entry to Supabase
     async function saveCashbookEntry(entryData) {
         try {
             const { data, error } = await supabase
@@ -703,7 +915,6 @@
         }
     }
 
-    // Update entry in Supabase
     async function updateCashbookEntry(id, entryData) {
         try {
             const { data, error } = await supabase
@@ -728,7 +939,6 @@
         }
     }
 
-    // Delete entry from Supabase
     async function deleteCashbookEntry(id) {
         try {
             const { error } = await supabase
@@ -743,460 +953,429 @@
         }
     }
 
-    // Modal logic
-        const openModalBtn = document.getElementById('openModalBtn');
-        const toggleModeBtn = document.getElementById('toggleModeBtn');
-        const modalBg = document.getElementById('modalBg');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const entryForm = document.getElementById('entryForm');
-        const remarksInput = document.getElementById('remarks');
-        const remarksRequired = document.getElementById('remarksRequired');
-        const formError = document.getElementById('formError');
-        const participantsSelect = document.getElementById('participantsSelect');
-        const participantsDropdown = document.getElementById('participantsDropdown');
+    const openModalBtn = document.getElementById('openModalBtn');
+    const toggleModeBtn = document.getElementById('toggleModeBtn');
+    const modalBg = document.getElementById('modalBg');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const entryForm = document.getElementById('entryForm');
+    const remarksInput = document.getElementById('remarks');
+    const remarksRequired = document.getElementById('remarksRequired');
+    const formError = document.getElementById('formError');
+    const participantsSelect = document.getElementById('participantsSelect');
+    const participantsDropdown = document.getElementById('participantsDropdown');
 
-        function openModal(entry = null) {
-            if (!isEditMode) return; // Prevent opening in view-only
-            modalBg.style.display = 'flex';
-            if (entry) {
-                currentEntryId = entry.id;
-                document.querySelector('.modal-header').textContent = 'Edit Cashbook Entry';
-                document.getElementById('payee').value = entry.payee;
-                document.getElementById('receiver').value = entry.receiver;
-                document.getElementById('type').value = entry.type;
-                const cleanAmount = parseFloat(entry.amount.toString().replace(/[^0-9.]/g, ''));
-                // Parse participants from entry.participantsDisplay
-                let participantNames = [];
-                if (entry.participantsDisplay && entry.participantsDisplay !== '-') {
-                    // Remove ' – Each: ...' if present
-                    const parts = entry.participantsDisplay.split('– Each:');
-                    participantNames = parts[0].split(',').map(s => s.trim()).filter(Boolean);
-                }
-                selectedParticipants = participants.filter(p => participantNames.includes(p.name));
-                const participantCount = selectedParticipants.length > 0 ? selectedParticipants.length : 1;
-                document.getElementById('amount').value = participantCount > 1 ? (cleanAmount / participantCount).toFixed(2) : cleanAmount.toFixed(2);
-                // Remove participant names and '– Each: ...' from remarks
-                let remarksValue = entry.remarks || '';
-                if (participantNames.length > 0) {
-                    // Remove the participant part and '– Each: ...' from remarks
-                    const regex = new RegExp(`^${participantNames.join(', ')}\s*– Each: [^|]+\s*\|?\s*`);
-                    remarksValue = remarksValue.replace(regex, '');
-                }
-                document.getElementById('remarks').value = remarksValue.trim();
-                document.getElementById('onsite').checked = entry.onsite;
-            } else {
-                currentEntryId = null;
-                document.querySelector('.modal-header').textContent = 'Insert Cashbook Entry';
-                entryForm.reset();
-                selectedParticipants = [];
-                document.getElementById('type').value = 'income';
-                document.getElementById('onsite').checked = false;
+    function openModal(entry = null) {
+        if (!isEditMode) return;
+        modalBg.style.display = 'flex';
+        if (entry) {
+            currentEntryId = entry.id;
+            document.querySelector('.modal-header').textContent = 'Edit Cashbook Entry';
+            document.getElementById('payee').value = entry.payee;
+            document.getElementById('receiver').value = entry.receiver;
+            document.getElementById('type').value = entry.type;
+            const cleanAmount = parseFloat(entry.amount.toString().replace(/[^0-9.]/g, ''));
+            let participantNames = [];
+            if (entry.participantsDisplay && entry.participantsDisplay !== '-') {
+                const parts = entry.participantsDisplay.split('– Each:');
+                participantNames = parts[0].split(',').map(s => s.trim()).filter(Boolean);
             }
-            renderParticipantsSelect();
+            selectedParticipants = participants.filter(p => participantNames.includes(p.name));
+            const participantCount = selectedParticipants.length > 0 ? selectedParticipants.length : 1;
+            document.getElementById('amount').value = participantCount > 1 ? (cleanAmount / participantCount).toFixed(2) : cleanAmount.toFixed(2);
+            let remarksValue = entry.remarks || '';
+            if (participantNames.length > 0) {
+                const regex = new RegExp(`^${participantNames.join(', ')}\s*– Each: [^|]+\s*\|?\s*`);
+                remarksValue = remarksValue.replace(regex, '');
+            }
+            document.getElementById('remarks').value = remarksValue.trim();
+            document.getElementById('onsite').checked = entry.onsite;
+        } else {
+            currentEntryId = null;
+            document.querySelector('.modal-header').textContent = 'Insert Cashbook Entry';
+            entryForm.reset();
+            selectedParticipants = [];
+            document.getElementById('type').value = 'income';
+            document.getElementById('onsite').checked = false;
+        }
+        renderParticipantsSelect();
+        remarksRequired.style.display = 'none';
+        formError.style.display = 'none';
+        updateRemarksRequired();
+    }
+    function closeModal() {
+        modalBg.style.display = 'none';
+    }
+    openModalBtn.onclick = () => { if (isEditMode) openModal(null); };
+    closeModalBtn.onclick = closeModal;
+    cancelBtn.onclick = closeModal;
+    modalBg.onclick = function(e) { if (e.target === modalBg) closeModal(); };
+
+    function renderParticipantsSelect() {
+        participantsSelect.innerHTML = '';
+        if (selectedParticipants.length === 0) {
+            participantsSelect.innerHTML = '<span style="color:#71717A;">Click to add participants</span>';
+        } else {
+            selectedParticipants.forEach(p => {
+                const opt = document.createElement('span');
+                opt.className = 'multiselect-option';
+                opt.textContent = p.name;
+                const remove = document.createElement('span');
+                remove.className = 'multiselect-remove';
+                remove.textContent = '×';
+                remove.onclick = (e) => {
+                    e.stopPropagation();
+                    selectedParticipants = selectedParticipants.filter(sp => sp.id !== p.id);
+                    renderParticipantsSelect();
+                    updateRemarksRequired();
+                };
+                opt.appendChild(remove);
+                participantsSelect.appendChild(opt);
+            });
+        }
+    }
+    participantsSelect.onclick = function() {
+        participantsDropdown.style.display = 'block';
+        participantsDropdown.innerHTML = '';
+        participants.forEach(p => {
+            if (!selectedParticipants.some(sp => sp.id === p.id)) {
+                const opt = document.createElement('div');
+                opt.className = 'multiselect-dropdown-option';
+                opt.textContent = p.name;
+                opt.onclick = function(e) {
+                    e.stopPropagation();
+                    selectedParticipants.push(p);
+                    renderParticipantsSelect();
+                    participantsDropdown.style.display = 'none';
+                    updateRemarksRequired();
+                };
+                participantsDropdown.appendChild(opt);
+            }
+        });
+        if (participantsDropdown.innerHTML === '') {
+            participantsDropdown.innerHTML = '<div style="color:#71717A;padding:0.7rem 1rem;">All selected</div>';
+        }
+    };
+    document.addEventListener('click', function(e) {
+        if (!participantsSelect.contains(e.target) && !participantsDropdown.contains(e.target)) {
+            participantsDropdown.style.display = 'none';
+        }
+    });
+
+    function updateRemarksRequired() {
+        if (selectedParticipants.length === 0) {
+            remarksRequired.style.display = 'inline';
+            remarksInput.required = true;
+        } else {
             remarksRequired.style.display = 'none';
-            formError.style.display = 'none';
-            updateRemarksRequired();
+            remarksInput.required = false;
         }
-        function closeModal() {
-            modalBg.style.display = 'none';
-        }
-        openModalBtn.onclick = () => { if (isEditMode) openModal(null); };
-        closeModalBtn.onclick = closeModal;
-        cancelBtn.onclick = closeModal;
-        modalBg.onclick = function(e) { if (e.target === modalBg) closeModal(); };
+    }
 
-        // Multi-select logic
-        function renderParticipantsSelect() {
-            participantsSelect.innerHTML = '';
-            if (selectedParticipants.length === 0) {
-                participantsSelect.innerHTML = '<span style="color:#6b7280;">Click to add participants</span>';
-            } else {
-                selectedParticipants.forEach(p => {
-                    const opt = document.createElement('span');
-                    opt.className = 'multiselect-option';
-                    opt.textContent = p.name;
-                    const remove = document.createElement('span');
-                    remove.className = 'multiselect-remove';
-                    remove.textContent = '×';
-                    remove.onclick = (e) => {
-                        e.stopPropagation();
-                        selectedParticipants = selectedParticipants.filter(sp => sp.id !== p.id);
-                        renderParticipantsSelect();
-                        updateRemarksRequired();
-                    };
-                    opt.appendChild(remove);
-                    participantsSelect.appendChild(opt);
+    entryForm.onsubmit = async function(e) {
+        e.preventDefault();
+        formError.style.display = 'none';
+        const payee = document.getElementById('payee').value.trim();
+        const receiver = document.getElementById('receiver').value.trim();
+        const type = document.getElementById('type').value;
+        const amount = parseFloat(document.getElementById('amount').value);
+        const remarks = remarksInput.value.trim();
+        const onsite = document.getElementById('onsite').checked;
+        updateRemarksRequired();
+        if (!payee) { showError('Payee is required.'); return; }
+        if (!receiver) { showError('Receiver is required.'); return; }
+        if (!amount || amount <= 0) { showError('Amount must be greater than 0.'); return; }
+        if (selectedParticipants.length === 0 && !remarks) { showError('Remarks required if no participants.'); return; }
+        
+        let finalRemarks = remarks;
+        if (selectedParticipants.length > 0) {
+            const participantNames = selectedParticipants.map(p => p.name).join(', ');
+            finalRemarks = `${participantNames} – Each: ${amount.toFixed(2)}${remarks ? ' | ' + remarks : ''}`;
+        }
+        
+        try {
+            if (currentEntryId) {
+                await updateCashbookEntry(currentEntryId, {
+                    payee,
+                    receiver,
+                    amount: selectedParticipants.length > 0 ? amount * selectedParticipants.length : amount,
+                    type,
+                    onsite,
+                    remarks: finalRemarks
                 });
-            }
-        }
-        participantsSelect.onclick = function() {
-            participantsDropdown.style.display = 'block';
-            participantsDropdown.innerHTML = '';
-            participants.forEach(p => {
-                if (!selectedParticipants.some(sp => sp.id === p.id)) {
-                    const opt = document.createElement('div');
-                    opt.className = 'multiselect-dropdown-option';
-                    opt.textContent = p.name;
-                    opt.onclick = function(e) {
-                        e.stopPropagation();
-                        selectedParticipants.push(p);
-                        renderParticipantsSelect();
-                        participantsDropdown.style.display = 'none';
-                        updateRemarksRequired();
-                    };
-                    participantsDropdown.appendChild(opt);
-                }
-            });
-            if (participantsDropdown.innerHTML === '') {
-                participantsDropdown.innerHTML = '<div style="color:#6b7280;padding:0.7rem 1rem;">All selected</div>';
-            }
-        };
-        document.addEventListener('click', function(e) {
-            if (!participantsSelect.contains(e.target) && !participantsDropdown.contains(e.target)) {
-                participantsDropdown.style.display = 'none';
-            }
-        });
-
-        function updateRemarksRequired() {
-            if (selectedParticipants.length === 0) {
-                remarksRequired.style.display = 'inline';
-                remarksInput.required = true;
+                await loadCashbookEntries();
             } else {
-                remarksRequired.style.display = 'none';
-                remarksInput.required = false;
-            }
-        }
-
-        // Validation and Save
-        entryForm.onsubmit = async function(e) {
-            e.preventDefault();
-            formError.style.display = 'none';
-            const payee = document.getElementById('payee').value.trim();
-            const receiver = document.getElementById('receiver').value.trim();
-            const type = document.getElementById('type').value;
-            const amount = parseFloat(document.getElementById('amount').value);
-            const remarks = remarksInput.value.trim();
-            const onsite = document.getElementById('onsite').checked;
-            updateRemarksRequired();
-            if (!payee) { showError('Payee is required.'); return; }
-            if (!receiver) { showError('Receiver is required.'); return; }
-            if (!amount || amount <= 0) { showError('Amount must be greater than 0.'); return; }
-            if (selectedParticipants.length === 0 && !remarks) { showError('Remarks required if no participants.'); return; }
-            
-            // Build remarks with participant info
-            let finalRemarks = remarks;
-            if (selectedParticipants.length > 0) {
-                const participantNames = selectedParticipants.map(p => p.name).join(', ');
-                finalRemarks = `${participantNames} – Each: ${amount.toFixed(2)}${remarks ? ' | ' + remarks : ''}`;
-            }
-            
-            try {
-                if (currentEntryId) {
-                    // Update existing entry
-                    await updateCashbookEntry(currentEntryId, {
-                        payee,
-                        receiver,
-                        amount: selectedParticipants.length > 0 ? amount * selectedParticipants.length : amount,
-                        type,
-                        onsite,
-                        remarks: finalRemarks
-                    });
-                    
-                    // Reload entries from database
-                    await loadCashbookEntries();
-                } else {
-                    // Save new entry to Supabase
-                    const savedEntry = await saveCashbookEntry({
-                        payee,
-                        receiver,
-                        amount: selectedParticipants.length > 0 ? amount * selectedParticipants.length : amount,
-                        type,
-                        onsite,
-                        remarks: finalRemarks
-                    });
-                    
-                    // Add to local array for immediate display
-                    const now = new Date();
-                    const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    let displayAmount = selectedParticipants.length > 0 
-                        ? amount.toFixed(2) + ' × ' + selectedParticipants.length 
-                        : amount.toFixed(2);
-                    
-                    ledgerEntries.unshift({
-                        id: savedEntry.id,
-                        date: dateStr,
-                        payee,
-                        receiver,
-                        amount: displayAmount,
-                        type,
-                        onsite,
-                        remarks: finalRemarks,
-                        participantsDisplay: selectedParticipants.length > 0 
-                            ? selectedParticipants.map(p => p.name).join(', ') + ' – Each: ' + amount.toFixed(2)
-                            : '-'
-                    });
-                    
-                    renderLedgerTable();
-                }
-                closeModal();
-            } catch (error) {
-                showError('Failed to save entry. Please try again.');
-            }
-        };
-        function showError(msg) {
-            formError.textContent = msg;
-            formError.style.display = 'block';
-        }
-        
-        function sortEntries(entries, column, direction) {
-            return [...entries].sort((a, b) => {
-                let aVal, bVal;
+                const savedEntry = await saveCashbookEntry({
+                    payee,
+                    receiver,
+                    amount: selectedParticipants.length > 0 ? amount * selectedParticipants.length : amount,
+                    type,
+                    onsite,
+                    remarks: finalRemarks
+                });
                 
-                switch(column) {
-                    case 'date':
-                        aVal = new Date(a.date);
-                        bVal = new Date(b.date);
-                        break;
-                    case 'amount':
-                        aVal = parseFloat(a.amount.toString().replace(/[^0-9.]/g, ''));
-                        bVal = parseFloat(b.amount.toString().replace(/[^0-9.]/g, ''));
-                        break;
-                    case 'type':
-                        aVal = a.type;
-                        bVal = b.type;
-                        break;
-                    case 'onsite':
-                        aVal = a.onsite ? 1 : 0;
-                        bVal = b.onsite ? 1 : 0;
-                        break;
-                    case 'payee':
-                        aVal = a.payee.toLowerCase();
-                        bVal = b.payee.toLowerCase();
-                        break;
-                    case 'receiver':
-                        aVal = a.receiver.toLowerCase();
-                        bVal = b.receiver.toLowerCase();
-                        break;
-                    default:
-                        return 0;
-                }
+                const now = new Date();
+                const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                let displayAmount = selectedParticipants.length > 0 
+                    ? amount.toFixed(2) + ' × ' + selectedParticipants.length 
+                    : amount.toFixed(2);
                 
-                if (aVal < bVal) return direction === 'asc' ? -1 : 1;
-                if (aVal > bVal) return direction === 'asc' ? 1 : -1;
-                return 0;
-            });
-        }
-        
-        function filterEntries(entries, filters) {
-            return entries.filter(entry => {
-                if (filters.type !== 'all' && entry.type !== filters.type) {
-                    return false;
-                }
-                if (filters.onsite !== 'all') {
-                    const onsiteMatch = filters.onsite === 'yes' ? entry.onsite : !entry.onsite;
-                    if (!onsiteMatch) return false;
-                }
-                return true;
-            });
-        }
-        
-        function getDisplayEntries() {
-            let entries = [...ledgerEntries];
-            
-            // Apply filters
-            entries = filterEntries(entries, currentFilters);
-            
-            // Apply sorting
-            if (currentSortColumn) {
-                entries = sortEntries(entries, currentSortColumn, currentSortDirection);
-            }
-            
-            return entries;
-        }
-        
-        function updateSortIndicators() {
-            document.querySelectorAll('.ledger-table th .sort-indicator').forEach(indicator => {
-                indicator.textContent = '';
-            });
-            
-            if (currentSortColumn) {
-                const th = document.querySelector(`th[data-sort="${currentSortColumn}"] .sort-indicator`);
-                if (th) {
-                    th.textContent = currentSortDirection === 'asc' ? '▲' : '▼';
-                }
-            }
-        }
-        
-        function renderLedgerTable() {
-            const tbody = document.getElementById('ledgerTbody');
-            const displayEntries = getDisplayEntries();
-            
-            if (displayEntries.length === 0) {
-                const message = ledgerEntries.length === 0 ? 'No entries yet.' : 'No entries match the current filters.';
-                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:#6b7280;">${message}</td></tr>`;
-                updateSortIndicators();
-                return;
-            }
-            tbody.innerHTML = '';
-            displayEntries.forEach(entry => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${entry.date}</td>
-                    <td>${entry.payee}</td>
-                    <td>${entry.receiver}</td>
-                    <td>${entry.amount}</td>
-                    <td class="type-${entry.type}">${entry.type.charAt(0).toUpperCase() + entry.type.slice(1)}</td>
-                    <td class="onsite-${entry.onsite ? 'yes' : 'no'}">${entry.onsite ? 'Yes' : 'No'}</td>
-                    <td>${entry.participantsDisplay}</td>
-                    <td>${entry.remarks || '-'}</td>
-                    <td>
-                        <div class="action-buttons">
-                            ${isEditMode ? `<button class="action-btn edit-btn" data-action="edit" data-entry-id="${entry.id}">Edit</button>
-                            <button class="action-btn delete-btn" data-action="delete" data-entry-id="${entry.id}">Delete</button>` : ''}
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-            updateSortIndicators();
-            updateSummaryCards();
-        }
-
-        function updateSummaryCards() {
-            let totalIncome = 0;
-            let totalOnsite = 0;
-            let totalExpense = 0;
-
-            ledgerEntries.forEach(entry => {
-                const amount = parseFloat(entry.amount.toString().replace(/[^0-9.]/g, ''));
-                if (entry.type === 'income') {
-                    totalIncome += amount;
-                    if (entry.onsite) {
-                        totalOnsite += amount;
-                    }
-                } else if (entry.type === 'expense') {
-                    totalExpense += amount;
-                }
-            });
-
-            const balance = totalIncome - totalExpense;
-            document.getElementById('totalIncome').textContent = '₹' + totalIncome.toFixed(2);
-            document.getElementById('totalOnsite').textContent = '₹' + totalOnsite.toFixed(2);
-            document.getElementById('totalExpense').textContent = '₹' + totalExpense.toFixed(2);
-            document.getElementById('balance').textContent = '₹' + balance.toFixed(2);
-        }
-
-
-        // Event delegation for action buttons with prompt for password
-        document.getElementById('ledgerTbody').addEventListener('click', async function(e) {
-            if (!isEditMode) return;
-            const button = e.target.closest('.action-btn');
-            if (button) {
-                const action = button.getAttribute('data-action');
-                const entryId = button.getAttribute('data-entry-id');
-                const password = prompt('Enter password to ' + (action === 'edit' ? 'edit' : 'delete') + ' this entry:');
-                if (password !== ADMIN_PASSWORD) {
-                    alert('Incorrect password!');
-                    return;
-                }
-                if (action === 'edit') {
-                    // Ensure participants are loaded before opening modal
-                    if (!participants || participants.length === 0) {
-                        await loadParticipants();
-                    }
-                    const entry = ledgerEntries.find(e => (e.id + '').trim() === (entryId + '').trim());
-                    if (entry) {
-                        openModal(entry);
-                    } else {
-                        alert('Entry not found for editing.');
-                    }
-                } else if (action === 'delete') {
-                    if (confirm('Are you sure you want to delete this entry?')) {
-                        try {
-                            await deleteCashbookEntry(entryId);
-                            await loadCashbookEntries();
-                        } catch (error) {
-                            alert('Failed to delete entry. Please try again.');
-                        }
-                    }
-                }
-            }
-        });
-
-        // Initialize on page load
-        function updateModeUI() {
-            // Toggle Insert Entry button
-            openModalBtn.style.display = isEditMode ? '' : 'none';
-            // Toggle action buttons in table (re-render)
-            renderLedgerTable();
-            // Toggle button label
-            toggleModeBtn.textContent = isEditMode ? 'Switch to View Only' : 'Switch to Edit Mode';
-        }
-
-        toggleModeBtn.onclick = function() {
-            if (!isEditMode) {
-                // Going to edit mode: prompt for password
-                const pwd = prompt('Enter password to switch to Edit Mode:');
-                if (pwd !== ADMIN_PASSWORD) {
-                    alert('Incorrect password!');
-                    return;
-                }
-                isEditMode = true;
-                setEditModeToStorage(true);
-            } else {
-                // Going to view only
-                isEditMode = false;
-                setEditModeToStorage(false);
-            }
-            updateModeUI();
-        };
-
-        // Add sorting event listeners
-        document.querySelectorAll('.ledger-table th.sortable').forEach(th => {
-            th.addEventListener('click', function() {
-                const column = this.getAttribute('data-sort');
-                
-                if (currentSortColumn === column) {
-                    // Toggle direction
-                    currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
-                } else {
-                    // New column, default to ascending
-                    currentSortColumn = column;
-                    currentSortDirection = 'asc';
-                }
+                ledgerEntries.unshift({
+                    id: savedEntry.id,
+                    date: dateStr,
+                    payee,
+                    receiver,
+                    amount: displayAmount,
+                    type,
+                    onsite,
+                    remarks: finalRemarks,
+                    participantsDisplay: selectedParticipants.length > 0 
+                        ? selectedParticipants.map(p => p.name).join(', ') + ' – Each: ' + amount.toFixed(2)
+                        : '-'
+                });
                 
                 renderLedgerTable();
-            });
-        });
-        
-        // Add filter event listeners
-        document.getElementById('filterType').addEventListener('change', function(e) {
-            currentFilters.type = e.target.value;
-            renderLedgerTable();
-        });
-        
-        document.getElementById('filterOnsite').addEventListener('change', function(e) {
-            currentFilters.onsite = e.target.value;
-            renderLedgerTable();
-        });
-        
-        document.getElementById('clearFiltersBtn').addEventListener('click', function() {
-            currentFilters = { type: 'all', onsite: 'all' };
-            document.getElementById('filterType').value = 'all';
-            document.getElementById('filterOnsite').value = 'all';
-            currentSortColumn = null;
-            currentSortDirection = 'asc';
-            renderLedgerTable();
-        });
-        
-        async function init() {
-            await loadParticipants();
-            await loadCashbookEntries();
-            updateModeUI();
+            }
+            closeModal();
+        } catch (error) {
+            showError('Failed to save entry. Please try again.');
         }
+    };
+    function showError(msg) {
+        formError.textContent = msg;
+        formError.style.display = 'block';
+    }
+    
+    function sortEntries(entries, column, direction) {
+        return [...entries].sort((a, b) => {
+            let aVal, bVal;
+            
+            switch(column) {
+                case 'date':
+                    aVal = new Date(a.date);
+                    bVal = new Date(b.date);
+                    break;
+                case 'amount':
+                    aVal = parseFloat(a.amount.toString().replace(/[^0-9.]/g, ''));
+                    bVal = parseFloat(b.amount.toString().replace(/[^0-9.]/g, ''));
+                    break;
+                case 'type':
+                    aVal = a.type;
+                    bVal = b.type;
+                    break;
+                case 'onsite':
+                    aVal = a.onsite ? 1 : 0;
+                    bVal = b.onsite ? 1 : 0;
+                    break;
+                case 'payee':
+                    aVal = a.payee.toLowerCase();
+                    bVal = b.payee.toLowerCase();
+                    break;
+                case 'receiver':
+                    aVal = a.receiver.toLowerCase();
+                    bVal = b.receiver.toLowerCase();
+                    break;
+                default:
+                    return 0;
+            }
+            
+            if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+            if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }
+    
+    function filterEntries(entries, filters) {
+        return entries.filter(entry => {
+            if (filters.type !== 'all' && entry.type !== filters.type) {
+                return false;
+            }
+            if (filters.onsite !== 'all') {
+                const onsiteMatch = filters.onsite === 'yes' ? entry.onsite : !entry.onsite;
+                if (!onsiteMatch) return false;
+            }
+            return true;
+        });
+    }
+    
+    function getDisplayEntries() {
+        let entries = [...ledgerEntries];
+        entries = filterEntries(entries, currentFilters);
+        if (currentSortColumn) {
+            entries = sortEntries(entries, currentSortColumn, currentSortDirection);
+        }
+        return entries;
+    }
+    
+    function updateSortIndicators() {
+        document.querySelectorAll('.ledger-table th .sort-indicator').forEach(indicator => {
+            indicator.textContent = '';
+        });
+        
+        if (currentSortColumn) {
+            const th = document.querySelector(`th[data-sort="${currentSortColumn}"] .sort-indicator`);
+            if (th) {
+                th.textContent = currentSortDirection === 'asc' ? '▲' : '▼';
+            }
+        }
+    }
+    
+    function renderLedgerTable() {
+        const tbody = document.getElementById('ledgerTbody');
+        const displayEntries = getDisplayEntries();
+        
+        if (displayEntries.length === 0) {
+            const message = ledgerEntries.length === 0 ? 'No entries yet.' : 'No entries match the current filters.';
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:#71717A;padding:24px;">${message}</td></tr>`;
+            updateSortIndicators();
+            return;
+        }
+        tbody.innerHTML = '';
+        displayEntries.forEach(entry => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${entry.date}</td>
+                <td>${entry.payee}</td>
+                <td>${entry.receiver}</td>
+                <td>${entry.amount}</td>
+                <td class="type-${entry.type}">${entry.type.charAt(0).toUpperCase() + entry.type.slice(1)}</td>
+                <td class="onsite-${entry.onsite ? 'yes' : 'no'}">${entry.onsite ? 'Yes' : 'No'}</td>
+                <td>${entry.participantsDisplay}</td>
+                <td>${entry.remarks || '-'}</td>
+                <td>
+                    <div class="action-buttons">
+                        ${isEditMode ? `<button class="action-btn edit-btn" data-action="edit" data-entry-id="${entry.id}">Edit</button>
+                        <button class="action-btn delete-btn" data-action="delete" data-entry-id="${entry.id}">Delete</button>` : ''}
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        updateSortIndicators();
+        updateSummaryCards();
+    }
 
-        init();
-    </script>
+    function updateSummaryCards() {
+        let totalIncome = 0;
+        let totalOnsite = 0;
+        let totalExpense = 0;
+
+        ledgerEntries.forEach(entry => {
+            const amount = parseFloat(entry.amount.toString().replace(/[^0-9.]/g, ''));
+            if (entry.type === 'income') {
+                totalIncome += amount;
+                if (entry.onsite) {
+                    totalOnsite += amount;
+                }
+            } else if (entry.type === 'expense') {
+                totalExpense += amount;
+            }
+        });
+
+        const balance = totalIncome - totalExpense;
+        document.getElementById('totalIncome').textContent = '₹' + totalIncome.toFixed(2);
+        document.getElementById('totalOnsite').textContent = '₹' + totalOnsite.toFixed(2);
+        document.getElementById('totalExpense').textContent = '₹' + totalExpense.toFixed(2);
+        document.getElementById('balance').textContent = '₹' + balance.toFixed(2);
+    }
+
+    document.getElementById('ledgerTbody').addEventListener('click', async function(e) {
+        if (!isEditMode) return;
+        const button = e.target.closest('.action-btn');
+        if (button) {
+            const action = button.getAttribute('data-action');
+            const entryId = button.getAttribute('data-entry-id');
+            const password = prompt('Enter password to ' + (action === 'edit' ? 'edit' : 'delete') + ' this entry:');
+            if (password !== ADMIN_PASSWORD) {
+                alert('Incorrect password!');
+                return;
+            }
+            if (action === 'edit') {
+                if (!participants || participants.length === 0) {
+                    await loadParticipants();
+                }
+                const entry = ledgerEntries.find(e => (e.id + '').trim() === (entryId + '').trim());
+                if (entry) {
+                    openModal(entry);
+                } else {
+                    alert('Entry not found for editing.');
+                }
+            } else if (action === 'delete') {
+                if (confirm('Are you sure you want to delete this entry?')) {
+                    try {
+                        await deleteCashbookEntry(entryId);
+                        await loadCashbookEntries();
+                    } catch (error) {
+                        alert('Failed to delete entry. Please try again.');
+                    }
+                }
+            }
+        }
+    });
+
+    function updateModeUI() {
+        openModalBtn.style.display = isEditMode ? '' : 'none';
+        renderLedgerTable();
+        toggleModeBtn.textContent = isEditMode ? 'Switch to View Only' : 'Switch to Edit Mode';
+    }
+
+    toggleModeBtn.onclick = function() {
+        if (!isEditMode) {
+            const pwd = prompt('Enter password to switch to Edit Mode:');
+            if (pwd !== ADMIN_PASSWORD) {
+                alert('Incorrect password!');
+                return;
+            }
+            isEditMode = true;
+            setEditModeToStorage(true);
+        } else {
+            isEditMode = false;
+            setEditModeToStorage(false);
+        }
+        updateModeUI();
+    };
+
+    document.querySelectorAll('.ledger-table th.sortable').forEach(th => {
+        th.addEventListener('click', function() {
+            const column = this.getAttribute('data-sort');
+            
+            if (currentSortColumn === column) {
+                currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSortColumn = column;
+                currentSortDirection = 'asc';
+            }
+            
+            renderLedgerTable();
+        });
+    });
+    
+    document.getElementById('filterType').addEventListener('change', function(e) {
+        currentFilters.type = e.target.value;
+        renderLedgerTable();
+    });
+    
+    document.getElementById('filterOnsite').addEventListener('change', function(e) {
+        currentFilters.onsite = e.target.value;
+        renderLedgerTable();
+    });
+    
+    document.getElementById('clearFiltersBtn').addEventListener('click', function() {
+        currentFilters = { type: 'all', onsite: 'all' };
+        document.getElementById('filterType').value = 'all';
+        document.getElementById('filterOnsite').value = 'all';
+        currentSortColumn = null;
+        currentSortDirection = 'asc';
+        renderLedgerTable();
+    });
+    
+    async function init() {
+        await loadParticipants();
+        await loadCashbookEntries();
+        updateModeUI();
+    }
+
+    init();
+  </script>
 </body>
 </html>

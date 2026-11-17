@@ -1,0 +1,2595 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Picnic Location Planner</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            color: #333;
+            padding: 16px;
+            min-height: 100vh;
+        }
+
+        /* Marquee banner (modern, accessible replacement for <marquee>) */
+        .marquee-banner {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(6px); /* Frosted glass effect */
+            -webkit-backdrop-filter: blur(6px);
+            border-radius: 14px;
+            padding: 10px 0;
+            margin: 0 0 18px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+        }
+        .marquee-inner {
+            display: inline-block;
+            white-space: nowrap;
+            padding-left: 100%; /* Start off-screen to the right */
+            animation: marquee-scroll 25s linear infinite;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            font-size: 0.95rem;
+            color: #ffffff;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+        .marquee-banner:hover .marquee-inner {
+            animation-play-state: paused; /* Allow user to pause */
+        }
+        @keyframes marquee-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            text-align: center;
+            color: #ffffff;
+            margin: 0 0 32px;
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: -0.5px;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            margin: 0 auto 24px;
+            max-width: 1200px;
+            transition: transform 0.2s ease;
+        }
+
+        .form-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-container h2 {
+            color: #1a202c;
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 0.75rem;
+            letter-spacing: -0.3px;
+        }
+
+        .pickup-form {
+            width: 100%;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+            letter-spacing: 0.3px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            background-color: #f9fafb;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+            background-color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .phone-input-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .phone-prefix {
+            background-color: #e5e7eb;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            color: #6b7280;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        #map {
+            height: 350px;
+            width: 100%;
+            border-radius: 16px;
+            margin: 24px 0;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            border: 4px solid white;
+        }
+
+        .button-group {
+            grid-column: 1 / -1;
+            margin-top: 1rem;
+        }
+
+        .button-group button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 200px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            letter-spacing: 0.5px;
+        }
+
+        .button-group button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .button-group button:active {
+            transform: translateY(0);
+        }
+
+        .totals-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            margin: 24px 0;
+        }
+
+        .totals-container h2 {
+            color: #1a202c;
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 0.75rem;
+            letter-spacing: -0.3px;
+        }
+
+        .totals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .total-item {
+            background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+            padding: 1.25rem;
+            border-radius: 12px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .total-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .total-item span:first-child {
+            font-weight: 600;
+            color: #6b7280;
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .total-item span:last-child {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        .directions-button-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .directions-button {
+            background: linear-gradient(135deg, #4285f4 0%, #3367d6 100%);
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
+            letter-spacing: 0.3px;
+        }
+
+        .directions-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(66, 133, 244, 0.6);
+        }
+
+        .directions-button:active {
+            transform: translateY(0);
+        }
+
+        .directions-button:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .route-section {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            margin: 24px 0;
+        }
+
+        .route-header {
+            color: #1a202c;
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 0.75rem;
+            letter-spacing: -0.3px;
+        }
+
+        .locations-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .locations-table th,
+        .locations-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .locations-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .locations-table th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 1.5rem;
+        }
+
+        .locations-table th.sortable:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+        }
+
+        .locations-table th .sort-indicator {
+            position: absolute;
+            right: 0.5rem;
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+
+        .locations-table tr:hover {
+            background-color: #f9fafb;
+            transition: background-color 0.2s ease;
+        }
+
+        .coordinate-link {
+            color: #0066cc;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .coordinate-link:hover {
+            text-decoration: underline;
+        }
+
+        .veg-type {
+            color: #4CAF50;
+            font-weight: 600;
+        }
+
+        .non-veg-type {
+            color: #ff4444;
+            font-weight: 600;
+        }
+
+        .action-button {
+            padding: 0.625rem 1.25rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            letter-spacing: 0.3px;
+        }
+
+        .edit-button {
+            background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
+            color: white;
+            box-shadow: 0 2px 10px rgba(255, 165, 0, 0.3);
+        }
+
+        .edit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 165, 0, 0.5);
+        }
+
+        .edit-button:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                padding: 0;
+            }
+
+            .totals-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+
+            .form-container,
+            .totals-container,
+            .route-section {
+                padding: 1.5rem;
+                border-radius: 12px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .button-group button {
+                max-width: 100%;
+            }
+
+            .page-title {
+                font-size: 2rem;
+                margin-bottom: 24px;
+            }
+
+            .form-container h2,
+            .totals-container h2,
+            .route-header {
+                font-size: 1.5rem;
+            }
+
+            #map {
+                height: 280px;
+                border-radius: 12px;
+            }
+
+            .totals-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+
+            .total-item {
+                padding: 0.75rem;
+            }
+
+            .total-item span:first-child {
+                font-size: 0.75rem;
+                margin-bottom: 0.25rem;
+            }
+
+            .total-item span:last-child {
+                font-size: 1.5rem;
+            }
+
+            .directions-button-container {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .directions-button {
+                width: 100%;
+                margin-left: 0 !important;
+                justify-content: center;
+            }
+
+            .locations-table {
+                display: block;
+                overflow-x: auto;
+                font-size: 0.875rem;
+            }
+
+            .locations-table th,
+            .locations-table td {
+                padding: 0.75rem 0.5rem;
+                white-space: nowrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+            }
+
+            .page-title {
+                font-size: 1.75rem;
+            }
+
+            .form-container,
+            .totals-container,
+            .route-section {
+                padding: 1rem;
+            }
+
+            #map {
+                height: 250px;
+            }
+
+            .form-group input,
+            .form-group select,
+            .phone-prefix {
+                padding: 0.75rem;
+                font-size: 0.938rem;
+            }
+
+            .button-group button,
+            .directions-button {
+                padding: 0.875rem 1.5rem;
+                font-size: 0.938rem;
+            }
+        }
+
+        /* Loading Overlay */
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(102, 126, 234, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(10px);
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Location Dropdown */
+        .location-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #667eea;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            display: none;
+        }
+
+        .location-dropdown.active {
+            display: block;
+        }
+
+        .location-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #e5e7eb;
+            transition: background-color 0.2s ease;
+        }
+
+        .location-option:last-child {
+            border-bottom: none;
+        }
+
+        .location-option:hover {
+            background-color: #f3f4f6;
+        }
+
+        .location-option-name {
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 4px;
+        }
+
+        .location-option-address {
+            font-size: 0.875rem;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+
+        .location-option-type {
+            display: inline-block;
+            padding: 2px 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 4px;
+            text-transform: capitalize;
+        }
+
+        .no-results {
+            padding: 16px;
+            text-align: center;
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .searching-indicator {
+            padding: 16px;
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        /* Toggle Switch Styles */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.875rem 0;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .switch-label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+            letter-spacing: 0.3px;
+        }
+
+        .switch-description {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        /* Destination Info Styles */
+        .destination-info {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            margin: 0 auto 24px;
+            max-width: 1200px;
+            text-align: center;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .destination-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .destination-name {
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .destination-coords {
+            font-size: 0.938rem;
+            color: #6b7280;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .destination-coords:hover {
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .destination-info {
+                padding: 1.25rem 1.5rem;
+            }
+
+            .destination-name {
+                font-size: 1.5rem;
+            }
+
+            .destination-label {
+                font-size: 0.75rem;
+            }
+
+            .destination-coords {
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 1rem;
+            margin-top: 48px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .footer-description {
+            color: #6b7280;
+            font-size: 0.938rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #667eea, #764ba2, transparent);
+            margin: 1.5rem 0;
+        }
+
+        .footer-bottom {
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+
+        .footer-bottom a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .footer-bottom a:hover {
+            color: #764ba2;
+        }
+
+        @media (max-width: 768px) {
+            .footer {
+                padding: 1.5rem 1rem;
+                margin-top: 32px;
+            }
+
+            .footer-title {
+                font-size: 1.25rem;
+            }
+
+            .footer-description {
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Card style for info and contact sections */
+        .card-style {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.13);
+            padding: 1.5rem 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .card-style {
+                padding: 1.25rem 1rem;
+                border-radius: 12px;
+            }
+        }
+
+        /* Route Plan Styles */
+        .route-plan-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .route-card {
+            background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .route-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15);
+        }
+
+        .route-header {
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .route-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .route-info {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        .route-info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .route-info-item strong {
+            color: #374151;
+        }
+
+        .timeline {
+            margin-top: 1rem;
+        }
+
+        .segment {
+            background: white;
+            border-radius: 8px;
+            padding: 0.875rem;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid #10b981;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .segment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .segment-route {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 0.938rem;
+        }
+
+        .segment-time {
+            font-size: 0.813rem;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .segment-stops {
+            font-size: 0.813rem;
+            color: #6b7280;
+            line-height: 1.6;
+            margin-top: 0.5rem;
+        }
+
+        .stops-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .stop-badge {
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 0.25rem 0.625rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .contact-groups {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .contact-groups-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.75rem;
+        }
+
+        .contact-group {
+            background: #fef3c7;
+            border-left: 3px solid #f59e0b;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .contact-group strong {
+            color: #92400e;
+        }
+
+        .contact-phone {
+            color: #1d4ed8;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .contact-phone:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 1024px) {
+            .route-plan-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .route-card {
+                padding: 1rem;
+            }
+
+            .route-title {
+                font-size: 1.1rem;
+            }
+
+            .segment {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Top marquee banner (text adjustable) -->
+    <div class="marquee-banner" role="status" aria-live="polite">
+        <div class="marquee-inner" id="topMarqueeText">
+            🚍 Picnic 2027 •<b style="color: rgb(255, 197, 71);">❗❗ The Picnic Spot is fixed, Review your transportation requirements ❗❗</b>• Welcome everyone! • Registration is now closed !!!•
+        </div>
+    </div>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay">
+        <div class="loader"></div>
+        <div class="loading-text">Loading Picnic Data...</div>
+    </div>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 32px;">
+            <h1 class="page-title" style="margin: 0;">Picnic Location Planner</h1>
+            <a href="admin.html" style="display: inline-block; padding: 10px 24px; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 0.938rem; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4); transition: all 0.3s ease;">⚙️ Admin Panel</a>
+        </div>
+
+        <div class="destination-info">
+            <div class="destination-label">📍 Picnic Destination</div>
+            <div class="destination-name" onclick="openInGoogleMaps(END_POINT.lat, END_POINT.lng)" style="cursor: pointer;">📌 Loading picnic spot...</div>
+            <!-- <div class="destination-coords" title="Click to open in Google Maps"> -->
+                <!-- Coordinates will be set from admin configuration -->
+            <!-- </div> -->
+        </div>
+
+        <!-- Info Section -->
+        <div class="info-section card-style" style="margin: 0 auto 24px; max-width: 1200px;">
+            <h2 style="color: #1a202c; font-size: 1.35rem; font-weight: 700; margin-bottom: 0.75rem;">ℹ️ Important Information</h2>
+            <ul id="notificationsList" style="margin-left: 1.2em; color: #333; font-size: 1.05rem; line-height: 1.7;">
+                <li>Loading notifications...</li>
+            </ul>
+        </div>
+
+        <div class="form-container">
+            <h2>Add Pickup Location</h2>
+            <form id="pickupForm" class="pickup-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" placeholder="Enter full name" required>
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <div class="switch-container">
+                            <label class="switch">
+                                <input type="checkbox" id="transportRequired" onchange="toggleTransportFields()">
+                                <span class="slider"></span>
+                            </label>
+                            <div>
+                                <span class="switch-label">🚌 Transport Required</span>
+                                <div class="switch-description">Enable if you need pickup from a location</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="locationField" style="display: none;">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" placeholder="Enter pickup location"
+                            autocomplete="off">
+                        <div id="locationDropdown" class="location-dropdown"></div>
+                    </div>
+
+                    <div class="form-group" id="coordsField" style="display: none;">
+                        <label for="coords">Coordinates</label>
+                        <input type="text" id="coords" placeholder="Click on map to set coordinates" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <div class="phone-input-container">
+                            <span class="phone-prefix">+91</span>
+                            <input type="tel" id="phone" placeholder="10-digit number" pattern="[0-9]{10}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="headCount">Head Count</label>
+                        <input type="number" id="headCount" min="1" placeholder="Total members" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="kidsCount">Kids Count</label>
+                        <input type="number" id="kidsCount" min="0" placeholder="Number of kids" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="food">Food Preference</label>
+                        <select id="food">
+                            <option value="" disabled selected>Select your food preference</option>
+                            <option value="Veg">Vegetarian</option>
+                            <option value="Non-Veg">Non-Vegetarian</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group button-group">
+                        <button type="button" onclick="saveData()">Add Location</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div id="map"></div>
+
+        <div class="totals-container">
+            <h2>Summary</h2>
+            <div class="totals-grid">
+                <div class="total-item">
+                    <span>Total Participants</span>
+                    <span id="totalHeadCount">0</span>
+                </div>
+                <div class="total-item">
+                    <span>Adults</span>
+                    <span id="totalAdults">0</span>
+                </div>
+                <div class="total-item">
+                    <span>Kids</span>
+                    <span id="totalKidsCount">0</span>
+                </div>
+                <div class="total-item">
+                    <span>Vegetarian</span>
+                    <span id="vegCount">0</span>
+                </div>
+                <div class="total-item">
+                    <span>Non-Vegetarian</span>
+                    <span id="nonVegCount">0</span>
+                </div>
+            </div>
+            <div class="directions-button-container">
+                <button onclick="openGoogleMapsDirections()" class="directions-button">
+                    Open Route in Google Maps
+                </button>
+                <button onclick="exportToCSV()" class="directions-button"
+                    style="margin-left: 10px; background-color: #28a745;">
+                    Export to CSV
+                </button>
+            </div>
+        </div>
+
+        <!-- Route Plan Section -->
+        <div class="card-style" style="margin: 0 auto 24px; max-width: 1200px;">
+            <h2 style="color: #1a202c; font-size: 1.75rem; font-weight: 700; border-bottom: 3px solid #667eea; padding-bottom: 0.75rem; margin-bottom: 1rem; letter-spacing: -0.3px;">🚌 Bus Route Plan</h2>
+            <div id="routePlanContainer" class="route-plan-container">
+                <p style="text-align: center; color: #6b7280;">Loading route information...</p>
+            </div>
+        </div>
+
+        <!-- Picnic Menu Section -->
+        <div class="card-style" style="margin: 0 auto 24px; max-width: 1200px;">
+            <h2 style="color: #1a202c; font-size: 1.75rem; font-weight: 700; border-bottom: 3px solid #667eea; padding-bottom: 0.75rem; margin-bottom: 1rem; letter-spacing: -0.3px;">🍽️ Picnic Menu (Buffet) 2027</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                <!-- Breakfast -->
+                <div style="background: linear-gradient(135deg, #fef3c7 0%, #fef9e5 100%); border-radius: 12px; padding: 1.5rem; border-left: 5px solid #f59e0b; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);">
+                    <h3 style="color: #92400e; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.5rem;">🌅</span> Breakfast
+                    </h3>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="padding: 0.5rem 0; color: #78350f; font-size: 0.938rem; border-bottom: 1px solid #fde68a; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🥟</span> Koraisutir kachuri
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #78350f; font-size: 0.938rem; border-bottom: 1px solid #fde68a; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🥔</span> Aloor dam
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #78350f; font-size: 0.938rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🍬</span> Moya/MISTI
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Snacks -->
+                <div style="background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%); border-radius: 12px; padding: 1.5rem; border-left: 5px solid #3b82f6; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);">
+                    <h3 style="color: #1e40af; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.5rem;">☕</span> Snacks
+                    </h3>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="padding: 0.5rem 0; color: #1e3a8a; font-size: 0.938rem; border-bottom: 1px solid #bfdbfe; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🥬</span> Veg Pakora
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #1e3a8a; font-size: 0.938rem; border-bottom: 1px solid #bfdbfe; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🌽</span> Crispy chilli baby corn
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #1e3a8a; font-size: 0.938rem; border-bottom: 1px solid #bfdbfe; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🍗</span> Dry chilli Chicken / Chicken sutey
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #1e3a8a; font-size: 0.938rem; border-bottom: 1px solid #bfdbfe; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">☕</span> Coffee & Tea
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #1e3a8a; font-size: 0.938rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🍟</span> French fries
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Lunch -->
+                <div style="background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%); border-radius: 12px; padding: 1.5rem; border-left: 5px solid #10b981; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);">
+                    <h3 style="color: #065f46; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.5rem;">🍛</span> Lunch
+                    </h3>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🐟</span> Fish fry / Paneer Pasanda
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🍚</span> Deradun Rice
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🥔</span> Jhuri Aloo Vaja
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🥘</span> Veg Dal
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🍛</span> Polao
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🐡/🥦</span> Gondhoraj Katla / Fulkopir Rost
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🍖/🍵</span> Mutton / Chanar Kofta Kari
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🥗</span> Chatni & Papard
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🍡</span> Nolengurer Rasogolla
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🍰</span> Sondesh
+                        </li>
+                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem;">🍃</span> Mitha Pan
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="route-section">
+            <h2 class="route-header">Pickup Locations</h2>
+            <table class="locations-table">
+                <thead>
+                    <tr>
+                        <th class="sortable" data-sort="name">Name <span class="sort-indicator"></span></th>
+                        <th class="sortable" data-sort="transport">Transport <span class="sort-indicator"></span></th>
+                        <th class="sortable" data-sort="location">Location <span class="sort-indicator"></span></th>
+                        <th>Coordinates</th>
+                        <th>Phone Number</th>
+                        <th class="sortable" data-sort="headCount">Head Count <span class="sort-indicator"></span></th>
+                        <th class="sortable" data-sort="kidsCount">Kids Count <span class="sort-indicator"></span></th>
+                        <th class="sortable" data-sort="food">Food Type <span class="sort-indicator"></span></th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="locationList"></tbody>
+            </table>
+        </div>
+        <!-- Contact Persons Card -->
+        <div class="contact-card card-style" style="margin: 0 auto 24px; max-width: 1200px;">
+            <h2 style="color: #1a202c; font-size: 1.75rem; font-weight: 700; border-bottom: 3px solid #667eea; padding-bottom: 0.75rem; margin-bottom: 1.5rem; letter-spacing: -0.3px;">📞 Contact Persons</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div class="total-item">
+                    <span style="font-size: 1rem; margin-bottom: 0.75rem;">Arijit</span>
+                    <span style="font-size: 1.25rem;"><a href="tel:+918777698332" style="color: #667eea; text-decoration: none; font-weight: 700;">8777698332</a></span>
+                </div>
+                <div class="total-item">
+                    <span style="font-size: 1rem; margin-bottom: 0.75rem;">Avinaba</span>
+                    <span style="font-size: 1.25rem;"><a href="tel:+918016941498" style="color: #667eea; text-decoration: none; font-weight: 700;">8016941498</a></span>
+                </div>
+                <div class="total-item">
+                    <span style="font-size: 1rem; margin-bottom: 0.75rem;">Kowsik</span>
+                    <span style="font-size: 1.25rem;"><a href="tel:+918274819788" style="color: #667eea; text-decoration: none; font-weight: 700;">8274819788</a></span>
+                </div>
+            </div>
+        </div>
+        <footer class="footer">
+            <div class="footer-content">
+                <p class="footer-description">
+                    Plan your perfect picnic with ease. Manage pickup locations, track participants, and optimize your route for a memorable outing.
+                </p>
+                <div class="footer-divider"></div>
+                <div class="footer-bottom">
+                    <p>&copy; Made with ❤️ for memorable journeys by Arijit and Avinaba.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.83.0/dist/umd/supabase.min.js"></script>
+    <script>
+        let map;
+        let markers = [];
+        let routeLine = null;
+        let locations = JSON.parse(localStorage.getItem('locations') || '[]');
+        let tempMarker = null;
+        let START_POINT = { lat: 22.46610605026677, lng: 88.39275004634959 }; // fallback
+        let END_POINT = { lat: 22.7694162777404, lng: 88.33872289489572 }; // fallback
+
+        let PICNIC_SPOT_NAME = '';
+        let BUS_ASSIGNMENTS = {}; // participantId -> busId
+        let BUS_COLORS = {}; // busId -> color
+        let currentSortColumn = null;
+        let currentSortDirection = 'asc';
+        
+        // Load notifications from Supabase notes table
+        async function loadNotifications() {
+            try {
+                const { data, error } = await window.supabase
+                    .from('notes')
+                    .select('content')
+                    .eq('title', 'Notifications')
+                    .single();
+                
+                if (error) {
+                    console.error('Error loading notifications:', error);
+                    document.getElementById('notificationsList').innerHTML = '<li>No notifications available.</li>';
+                    return;
+                }
+                
+                if (data && data.content) {
+                    // Split content by newlines and create list items
+                    const lines = data.content.split('\n').filter(line => line.trim() !== '');
+                    const listHTML = lines.map(line => `<li>${line.trim()}</li>`).join('');
+                    document.getElementById('notificationsList').innerHTML = listHTML || '<li>No notifications available.</li>';
+                } else {
+                    document.getElementById('notificationsList').innerHTML = '<li>No notifications available.</li>';
+                }
+            } catch (err) {
+                console.error('Failed to load notifications:', err);
+                document.getElementById('notificationsList').innerHTML = '<li>Error loading notifications.</li>';
+            }
+        }
+
+        // Load UI enabler state (registration enabled/disabled)
+        async function loadUIEnablerState() {
+            try {
+                const { data, error } = await window.supabase
+                    .from('notes')
+                    .select('content')
+                    .eq('title', 'UI_Enabler')
+                    .single();
+
+                if (error && error.code !== 'PGRST116') {
+                    console.error('Error loading UI enabler state:', error);
+                    return;
+                }
+
+                let registrationEnabled = true;
+                if (data && data.content) {
+                    try {
+                        const parsed = JSON.parse(data.content);
+                        registrationEnabled = parsed.registration !== 'disabled';
+                    } catch (e) {
+                        console.error('Invalid UI_Enabler JSON:', e);
+                    }
+                }
+
+                const pickupFormElm = document.getElementById('pickupForm');
+                if (!registrationEnabled) {
+                    // Hide the registration form container
+                    if (pickupFormElm) {
+                        pickupFormElm.style.display = 'none';
+                        const info = document.createElement('div');
+                        info.className = 'card-style';
+                        info.style.margin = '0 auto 24px';
+                        info.style.maxWidth = '1200px';
+                        info.innerHTML = '<h2 style="color:#1a202c;font-size:1.35rem;font-weight:700;margin-bottom:0.75rem;">Registration Closed</h2><p style="color:#374151;">Registration is currently disabled. Please check back later.</p>';
+                        pickupFormElm.parentNode.insertBefore(info, pickupFormElm);
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load UI enabler state:', err);
+            }
+        }
+
+        // Load route plan from notes table
+        async function loadRoutePlan() {
+            try {
+                const { data, error } = await window.supabase
+                    .from('notes')
+                    .select('content')
+                    .eq('title', 'Route_Plan')
+                    .single();
+
+                if (error && error.code !== 'PGRST116') {
+                    console.error('Error loading route plan:', error);
+                    document.getElementById('routePlanContainer').innerHTML = '<p style="text-align: center; color: #ef4444;">Error loading route information.</p>';
+                    return;
+                }
+
+                if (data && data.content) {
+                    try {
+                        const routeData = JSON.parse(data.content);
+                        renderRoutePlan(routeData);
+                    } catch (e) {
+                        console.error('Invalid Route_Plan JSON:', e);
+                        document.getElementById('routePlanContainer').innerHTML = '<p style="text-align: center; color: #ef4444;">Invalid route data format.</p>';
+                    }
+                } else {
+                    document.getElementById('routePlanContainer').innerHTML = '<p style="text-align: center; color: #6b7280;">No route information available.</p>';
+                }
+            } catch (err) {
+                console.error('Failed to load route plan:', err);
+                document.getElementById('routePlanContainer').innerHTML = '<p style="text-align: center; color: #ef4444;">Failed to load route information.</p>';
+            }
+        }
+
+        // Render route plan
+        function renderRoutePlan(routeData) {
+            const container = document.getElementById('routePlanContainer');
+            container.innerHTML = '';
+
+            Object.keys(routeData).forEach(routeKey => {
+                const route = routeData[routeKey];
+                const routeCard = document.createElement('div');
+                routeCard.className = 'route-card';
+
+                let contactGroupsHtml = '';
+                if (route.contact_groups) {
+                    contactGroupsHtml = '<div class="contact-groups"><div class="contact-groups-title">📞 Contact Groups</div>';
+                    Object.keys(route.contact_groups).forEach(groupKey => {
+                        const group = route.contact_groups[groupKey];
+                        contactGroupsHtml += `
+                            <div class="contact-group">
+                                <strong>${group.contact_person}</strong>: 
+                                <a href="tel:+91${group.phone}" class="contact-phone">+91 ${group.phone}</a>
+                                <span style="color: #6b7280;"> (Segments: ${group.routes.join(', ')})</span>
+                            </div>
+                        `;
+                    });
+                    contactGroupsHtml += '</div>';
+                }
+
+                let timelineHtml = '';
+                if (route.timeline && route.timeline.length > 0) {
+                    timelineHtml = '<div class="timeline">';
+                    route.timeline.forEach(segment => {
+                        const stops = segment.stops ? segment.stops.join(' → ') : '';
+                        const segmentNum = segment.segment || '';
+                        const pickupTime = segment.pickup_time ? `<div style="margin-top: 0.5rem; color: #10b981; font-weight: 600; font-size: 0.875rem;">⏰ Pickup: ${segment.pickup_time}</div>` : '';
+                        timelineHtml += `
+                            <div class="segment">
+                                <div class="segment-header">
+                                    <div class="segment-route"><strong>#${segmentNum}</strong> 🚍 ${segment.from} → ${segment.to}</div>
+                                    <div class="segment-time">${segment.time} (${segment.duration})</div>
+                                </div>
+                                <div class="segment-stops">
+                                    <strong>Stops:</strong> ${stops}
+                                </div>
+                                ${pickupTime}
+                            </div>
+                        `;
+                    });
+                    timelineHtml += '</div>';
+                }
+
+                routeCard.innerHTML = `
+                    <div class="route-header">
+                        <div class="route-title">${route.route_name}</div>
+                        <div class="route-info">
+                            ${route.planned_start_time ? `<div class="route-info-item"><strong>🕐 Start:</strong> ${route.planned_start_time}</div>` : ''}
+                            ${route.total_estimated_time ? `<div class="route-info-item"><strong>⏱️ Duration:</strong> ${route.total_estimated_time}</div>` : ''}
+                            ${route.final_arrival_time ? `<div class="route-info-item"><strong>🏁 Arrival:</strong> ${route.final_arrival_time}</div>` : ''}
+                        </div>
+                    </div>
+                    ${timelineHtml}
+                    ${contactGroupsHtml}
+                `;
+
+                container.appendChild(routeCard);
+            });
+        }
+        
+        async function loadAdminRoutePoints() {
+            try {
+                const { data, error } = await window.supabase
+                    .from('picnic_TCS_root')
+                    .select('bus_source_coordinates, picnic_spot, picnic_spot_name')
+                    .limit(1)
+                    .single();
+                if (error) throw error;
+                if (data) {
+                    if (Array.isArray(data.bus_source_coordinates) && data.bus_source_coordinates.length === 2) {
+                        START_POINT = { lat: data.bus_source_coordinates[1], lng: data.bus_source_coordinates[0] };
+                    }
+                    if (Array.isArray(data.picnic_spot) && data.picnic_spot.length === 2) {
+                        END_POINT = { lat: data.picnic_spot[1], lng: data.picnic_spot[0] };
+                    }
+                    if (typeof data.picnic_spot_name === 'string') {
+                        PICNIC_SPOT_NAME = data.picnic_spot_name;
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load admin route points:', err);
+            }
+        }
+
+
+        function exportToCSV() {
+            a = prompt("Password to download CSV")
+            if (a !== "Picnic_2027@#TCS") {
+                alert("Incorrect Password")
+                return
+            }
+            
+            // Separate locations with and without transport
+            const transportLocations = locations.filter(loc => loc.transportRequired);
+            const noTransportLocations = locations.filter(loc => !loc.transportRequired);
+            
+            // Optimize the route for transport locations only
+            const optimizedLocations = optimizeRoute(START_POINT, transportLocations, END_POINT);
+            
+            const allLocations = [
+                {
+                    name: "Starting Point",
+                    location: "Start Location",
+                    coords: `${START_POINT.lat}, ${START_POINT.lng}`,
+                    phone: "-",
+                    headCount: "0",
+                    kidsCount: "0",
+                    adults: "0",
+                    food: "N/A",
+                    transportRequired: true,
+                    lat: START_POINT.lat,
+                    lng: START_POINT.lng,
+                    sequence: 0
+                },
+                ...optimizedLocations.map((loc, index) => ({
+                    ...loc,
+                    adults: (parseInt(loc.headCount) - parseInt(loc.kidsCount)) || 0,
+                    sequence: index + 1
+                })),
+                {
+                    name: "Final Destination",
+                    location: "End Location",
+                    coords: `${END_POINT.lat}, ${END_POINT.lng}`,
+                    phone: "-",
+                    headCount: "0",
+                    kidsCount: "0",
+                    adults: "0",
+                    food: "N/A",
+                    transportRequired: true,
+                    lat: END_POINT.lat,
+                    lng: END_POINT.lng,
+                    sequence: optimizedLocations.length + 1
+                },
+                // Add participants without transport at the end
+                ...noTransportLocations.map((loc, index) => ({
+                    ...loc,
+                    adults: (parseInt(loc.headCount) - parseInt(loc.kidsCount)) || 0,
+                    sequence: optimizedLocations.length + 2 + index
+                }))
+            ];
+
+            // Escape CSV values that contain commas, quotes, or newlines
+            const escapeCSV = (value) => {
+                if (value === null || value === undefined) return '';
+                const stringValue = String(value);
+                if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+                    return `"${stringValue.replace(/"/g, '""')}"`;
+                }
+                return stringValue;
+            };
+
+            const headers = ['Sequence', 'Name', 'Transport Required', 'Location', 'Phone Number', 'Coordinates', 'Latitude', 'Longitude', 'Total Head Count', 'Adults', 'Kids', 'Food Preference'];
+            const csvContent = [
+                headers.join(','),
+                ...allLocations.map(loc => [
+                    loc.sequence,
+                    escapeCSV(loc.name),
+                    loc.transportRequired ? 'Yes' : 'No',
+                    escapeCSV(loc.location || '-'),
+                    loc.phone !== '-' ? `+91 ${loc.phone}` : '-',
+                    escapeCSV(loc.coords || '-'),
+                    loc.lat || '-',
+                    loc.lng || '-',
+                    loc.headCount,
+                    loc.adults,
+                    loc.kidsCount,
+                    escapeCSV(loc.food)
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            const timestamp = new Date().toISOString().slice(0, 10);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `picnic_locations_${timestamp}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function createGoogleMapsDirectionsUrl(locations) {
+            // Optimize the route before creating the URL
+            const optimizedLocations = optimizeRoute(START_POINT, locations, END_POINT);
+            
+            const allPoints = [
+                START_POINT,
+                ...optimizedLocations,
+                END_POINT
+            ];
+
+            if (allPoints.length === 0) return '';
+
+            let url = 'https://www.google.com/maps/dir/';
+            allPoints.forEach(loc => {
+                url += `${loc.lat},${loc.lng}/`;
+            });
+
+            url += '@' + allPoints[0].lat + ',' + allPoints[0].lng + ',13z/data=!4m2!4m1!3e0';
+            return url;
+        }
+
+        function openGoogleMapsDirections() {
+            const url = createGoogleMapsDirectionsUrl(locations);
+            window.open(url, '_blank');
+        }
+
+        function toggleTransportFields() {
+            const transportRequired = document.getElementById('transportRequired').checked;
+            const locationField = document.getElementById('locationField');
+            const coordsField = document.getElementById('coordsField');
+            const locationInput = document.getElementById('location');
+            const coordsInput = document.getElementById('coords');
+            const mapElement = document.getElementById('map');
+
+            if (transportRequired) {
+                locationField.style.display = 'block';
+                coordsField.style.display = 'block';
+                locationInput.required = true;
+                coordsInput.required = true;
+                mapElement.style.opacity = '1';
+                mapElement.style.pointerEvents = 'auto';
+                mapElement.style.transition = 'opacity 0.3s ease';
+            } else {
+                locationField.style.display = 'none';
+                coordsField.style.display = 'none';
+                locationInput.required = false;
+                coordsInput.required = false;
+                locationInput.value = '';
+                coordsInput.value = '';
+                mapElement.style.opacity = '1';
+                mapElement.style.pointerEvents = 'auto';
+                mapElement.style.transition = 'opacity 0.3s ease';
+                
+                // Remove temporary marker if exists
+                if (tempMarker && map) {
+                    map.removeLayer(tempMarker);
+                    tempMarker = null;
+                }
+            }
+        }
+
+        function initMap() {
+            try {
+                // Center map on Kolkata
+                map = L.map('map', {
+                    center: [22.5726, 88.3639],
+                    zoom: 11,
+                    minZoom: 2,
+                    maxZoom: 18
+                });
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    // attribution: '© OpenStreetMap contributors',
+                    maxZoom: 19,
+                    minZoom: 2
+                }).addTo(map);
+
+                map.on('click', function (e) {
+                    // Only allow map clicks if transport is required
+                    const transportRequired = document.getElementById('transportRequired').checked;
+                    if (!transportRequired) return;
+
+                    const lat = e.latlng.lat.toFixed(8);
+                    const lng = e.latlng.lng.toFixed(8);
+                    document.getElementById('coords').value = `${lat}, ${lng}`;
+
+                    if (tempMarker) {
+                        map.removeLayer(tempMarker);
+                    }
+
+                    tempMarker = L.circleMarker([lat, lng], {
+                        radius: 8,
+                        color: '#ff7800',
+                        fillColor: '#ff7800',
+                        fillOpacity: 0.8
+                    }).addTo(map);
+                });
+
+                updateMap();
+                
+                // Set initial map state (map is viewable but clicking disabled)
+                document.getElementById('map').style.opacity = '1';
+                document.getElementById('map').style.pointerEvents = 'auto';
+            } catch (error) {
+                console.error('Error initializing map:', error);
+            }
+        }
+
+        // Calculate distance between two points using Haversine formula
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371; // Earth's radius in kilometers
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLng / 2) * Math.sin(dLng / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        // Optimize route using nearest neighbor algorithm
+        function optimizeRoute(startPoint, pickupLocations, endPoint) {
+            // Filter only locations that require transport
+            const transportLocations = pickupLocations.filter(loc => loc.transportRequired);
+            if (transportLocations.length === 0) return [];
+
+            const optimized = [];
+            const remaining = [...transportLocations];
+            let currentPoint = startPoint;
+
+            while (remaining.length > 0) {
+                let nearestIndex = 0;
+                let minDistance = calculateDistance(
+                    currentPoint.lat, currentPoint.lng,
+                    remaining[0].lat, remaining[0].lng
+                );
+
+                for (let i = 1; i < remaining.length; i++) {
+                    const distance = calculateDistance(
+                        currentPoint.lat, currentPoint.lng,
+                        remaining[i].lat, remaining[i].lng
+                    );
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        nearestIndex = i;
+                    }
+                }
+
+                optimized.push(remaining[nearestIndex]);
+                currentPoint = remaining[nearestIndex];
+                remaining.splice(nearestIndex, 1);
+            }
+
+            return optimized;
+        }
+
+        function updateMap() {
+            try {
+                if (!map) return;
+
+                markers.forEach(m => map.removeLayer(m));
+                markers = [];
+
+                if (routeLine) {
+                    map.removeLayer(routeLine);
+                    routeLine = null;
+                }
+
+                // Optimize the route
+                const optimizedLocations = optimizeRoute(START_POINT, locations, END_POINT);
+
+                const allPoints = [
+                    {
+                        ...START_POINT,
+                        name: "Starting Point",
+                        location: "Start Location",
+                        isStartPoint: true
+                    },
+                    ...optimizedLocations,
+                    {
+                        ...END_POINT,
+                        name: "Final Destination",
+                        location: "End Location",
+                        isEndPoint: true
+                    }
+                ];
+
+                let bounds = L.latLngBounds();
+                let waypoints = [];
+
+                allPoints.forEach((loc, index) => {
+                    let lat = parseFloat(loc.lat);
+                    let lng = parseFloat(loc.lng);
+
+                    if (!isNaN(lat) && !isNaN(lng)) {
+                        let color = "#4285f4";
+                        if (loc.isStartPoint) {
+                            color = "blue";
+                        } else if (loc.isEndPoint) {
+                            color = "purple";
+                        } else if (loc.id && BUS_ASSIGNMENTS[String(loc.id)] && BUS_COLORS[BUS_ASSIGNMENTS[String(loc.id)]]) {
+                            color = BUS_COLORS[BUS_ASSIGNMENTS[String(loc.id)]];
+                        } else {
+                            color = loc.food === "Veg" ? "green" : "red";
+                        }
+
+                        let marker = L.circleMarker([lat, lng], {
+                            radius: loc.isStartPoint || loc.isEndPoint ? 10 : 8,
+                            color: color,
+                            fillColor: color,
+                            fillOpacity: 0.8
+                        }).addTo(map);
+
+                        // Add sequence number for pickup locations
+                        const sequenceNumber = loc.isStartPoint || loc.isEndPoint ? '' : `#${index} `;
+
+                        marker.bindPopup(`
+                            <b>${sequenceNumber}${loc.name}</b><br>
+                            ${loc.location}<br>
+                            ${lat}, ${lng}<br>
+                            ${!loc.isStartPoint && !loc.isEndPoint ?
+                                `Phone: +91 ${loc.phone}<br>
+                                Head Count: ${loc.headCount}<br>
+                                Kids: ${loc.kidsCount}` : ''}
+                        `);
+
+                        markers.push(marker);
+                        waypoints.push([lat, lng]);
+                        bounds.extend([lat, lng]);
+                    }
+                });
+
+                if (waypoints.length > 1) {
+                    routeLine = L.polyline(waypoints, {
+                        color: '#4285f4',
+                        weight: 4,
+                        opacity: 0.7,
+                        smoothFactor: 1
+                    }).addTo(map);
+                    map.fitBounds(bounds, { padding: [50, 50] });
+                }
+            } catch (error) {
+                console.error('Error updating map:', error);
+            }
+        }
+
+        function calculateTotals() {
+            let totalHeadCount = 0;
+            let totalKidsCount = 0;
+            let vegCount = 0;
+            let nonVegCount = 0;
+
+            locations.forEach(loc => {
+                totalHeadCount += parseInt(loc.headCount) || 0;
+                totalKidsCount += parseInt(loc.kidsCount) || 0;
+                if (loc.food === 'Veg') {
+                    vegCount += parseInt(loc.headCount) || 0;
+                } else {
+                    nonVegCount += parseInt(loc.headCount) || 0;
+                }
+            });
+
+            return {
+                totalHeadCount,
+                totalKidsCount,
+                vegCount,
+                nonVegCount,
+                totalAdults: totalHeadCount - totalKidsCount
+            };
+        }
+
+        function sortLocations(column, direction) {
+            locations.sort((a, b) => {
+                let aVal, bVal;
+                
+                switch(column) {
+                    case 'name':
+                        aVal = (a.name || '').toLowerCase();
+                        bVal = (b.name || '').toLowerCase();
+                        break;
+                    case 'transport':
+                        aVal = a.transportRequired ? 1 : 0;
+                        bVal = b.transportRequired ? 1 : 0;
+                        break;
+                    case 'location':
+                        aVal = (a.location || '').toLowerCase();
+                        bVal = (b.location || '').toLowerCase();
+                        break;
+                    case 'headCount':
+                        aVal = parseInt(a.headCount) || 0;
+                        bVal = parseInt(b.headCount) || 0;
+                        break;
+                    case 'kidsCount':
+                        aVal = parseInt(a.kidsCount) || 0;
+                        bVal = parseInt(b.kidsCount) || 0;
+                        break;
+                    case 'food':
+                        aVal = (a.food || '').toLowerCase();
+                        bVal = (b.food || '').toLowerCase();
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        function updateSortIndicators() {
+            document.querySelectorAll('.locations-table th .sort-indicator').forEach(indicator => {
+                indicator.textContent = '';
+            });
+            
+            if (currentSortColumn) {
+                const th = document.querySelector(`.locations-table th[data-sort="${currentSortColumn}"] .sort-indicator`);
+                if (th) {
+                    th.textContent = currentSortDirection === 'asc' ? '▲' : '▼';
+                }
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('locationList');
+            tbody.innerHTML = '';
+
+            // Apply current sort if any
+            if (currentSortColumn) {
+                sortLocations(currentSortColumn, currentSortDirection);
+            }
+
+            locations.forEach((loc, index) => {
+                const row = document.createElement('tr');
+                // Mask phone number - show only last 4 digits
+                const maskedPhone = loc.phone ? `+91 ******${loc.phone.slice(-4)}` : 'N/A';
+                
+                // Transport badge
+                const transportBadge = loc.transportRequired ? 
+                    '<span style="color: #10b981; font-weight: 700;">✓ Yes</span>' : 
+                    '<span style="color: #6b7280; font-weight: 600;">✗ No</span>';
+                
+                // Show location and coords only if transport is required
+                const locationDisplay = loc.transportRequired && loc.location ? loc.location : '-';
+                const coordsDisplay = loc.transportRequired && loc.coords && loc.lat && loc.lng ? `
+                    <a class="coordinate-link" 
+                       onclick="openInGoogleMaps(${loc.lat}, ${loc.lng})" 
+                       title="Click to open in Google Maps">
+                        ${loc.coords}
+                    </a>
+                ` : '-';
+                
+                row.innerHTML = `
+                    <td>${loc.name}</td>
+                    <td>${transportBadge}</td>
+                    <td>${locationDisplay}</td>
+                    <td>${coordsDisplay}</td>
+                    <td>${maskedPhone}</td>
+                    <td>${loc.headCount}</td>
+                    <td>${loc.kidsCount}</td>
+                    <td class="${loc.food === 'Veg' ? 'veg-type' : 'non-veg-type'}">${loc.food}</td>
+                    <td>
+                        <button onclick="editLocation(${index})" class="action-button edit-button">Edit</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            const totals = calculateTotals();
+            document.getElementById('totalHeadCount').textContent = totals.totalHeadCount;
+            document.getElementById('totalAdults').textContent = totals.totalAdults;
+            document.getElementById('totalKidsCount').textContent = totals.totalKidsCount;
+            document.getElementById('vegCount').textContent = totals.vegCount;
+            document.getElementById('nonVegCount').textContent = totals.nonVegCount;
+            
+            updateSortIndicators();
+        }
+
+        async function saveData() {
+            let name = document.getElementById('name').value;
+            let transportRequired = document.getElementById('transportRequired').checked;
+            let location = transportRequired ? document.getElementById('location').value : '';
+            let coords = transportRequired ? document.getElementById('coords').value : '';
+            let phone = document.getElementById('phone').value.trim();
+            let headCount = document.getElementById('headCount').value;
+            let kidsCount = document.getElementById('kidsCount').value;
+            let food = document.getElementById('food').value;
+
+            phone = phone.replace('+91', '').trim();
+
+            if (!/^\d{10}$/.test(phone)) {
+                alert("Please enter a valid 10-digit phone number without +91");
+                return;
+            }
+            if (food === "") {
+                alert("Please select a food preference!");
+                return;
+            }
+            if(headCount <= 0){
+                alert("Head Count must be at least 1!");
+                return;
+            }
+
+            // Validate transport-specific fields
+            if (transportRequired && (!location || !coords)) {
+                alert("Please enter location and coordinates when transport is required!");
+                return;
+            }
+
+            if (name && phone && headCount && kidsCount) {
+                let lat = 0, lng = 0;
+                
+                // Parse coordinates only if transport is required
+                if (transportRequired && coords) {
+                    let latLng = coords.split(",").map(coord => coord.trim());
+                    if (latLng.length === 2 && !isNaN(latLng[0]) && !isNaN(latLng[1])) {
+                        lat = parseFloat(latLng[0]);
+                        lng = parseFloat(latLng[1]);
+                    } else {
+                        alert("Please enter valid coordinates in format: latitude,longitude");
+                        return;
+                    }
+                }
+
+                let newEntry = {
+                    name,
+                    transportRequired,
+                    location: location || '',
+                    coords: coords || '',
+                    phone,
+                    headCount,
+                    kidsCount,
+                    food,
+                    lat,
+                    lng
+                };
+
+                try {
+                    // Save to Supabase first
+                    const savedData = await saveLocationsToSupabase(newEntry);
+
+                    // Add the ID from Supabase to the entry
+                    if (savedData && savedData.length > 0) {
+                        newEntry.id = savedData[0].id;
+                    }
+
+                    locations.push(newEntry);
+
+                    // Also save to GitHub as backup
+                    // await saveLocationsToGitHub();
+
+                    renderTable();
+                    updateMap();
+                    document.getElementById('pickupForm').reset();
+                    // Reset transport toggle
+                    document.getElementById('transportRequired').checked = false;
+                    toggleTransportFields();
+                    
+                    if (tempMarker) {
+                        map.removeLayer(tempMarker);
+                        tempMarker = null;
+                    }
+
+                    alert('Registration saved successfully!');
+                } catch (error) {
+                    console.error('Error saving data:', error);
+                    alert('Error saving data. Please try again.');
+                }
+            } else {
+                alert("Please fill all required fields!");
+            }
+        }
+
+
+        function editLocation(index) {
+            const loc = locations[index];
+
+            document.getElementById('name').value = loc.name;
+            document.getElementById('transportRequired').checked = loc.transportRequired || false;
+            toggleTransportFields(); // Update field visibility
+            document.getElementById('location').value = loc.location || '';
+            document.getElementById('coords').value = loc.coords || '';
+            document.getElementById('phone').value = loc.phone;
+            document.getElementById('headCount').value = loc.headCount;
+            document.getElementById('kidsCount').value = loc.kidsCount;
+            document.getElementById('food').value = loc.food;
+
+            document.querySelector('.form-container').scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+
+            const addButton = document.querySelector('button[onclick="saveData()"]');
+            addButton.textContent = 'Update Location';
+            addButton.onclick = function () {
+                updateLocation(index);
+            };
+
+            const [lat, lng] = loc.coords.split(',').map(coord => parseFloat(coord.trim()));
+            if (!isNaN(lat) && !isNaN(lng)) {
+                map.setView([lat, lng], 16);
+            }
+        }
+
+        async function updateLocation(index) {
+            let name = document.getElementById('name').value;
+            let transportRequired = document.getElementById('transportRequired').checked;
+            let location = transportRequired ? document.getElementById('location').value : '';
+            let coords = transportRequired ? document.getElementById('coords').value : '';
+            let phone = document.getElementById('phone').value.trim();
+            let headCount = document.getElementById('headCount').value;
+            let kidsCount = document.getElementById('kidsCount').value;
+            let food = document.getElementById('food').value;
+
+            phone = phone.replace('+91', '').trim();
+
+            if (!/^\d{10}$/.test(phone)) {
+                alert("Please enter a valid 10-digit phone number without +91");
+                return;
+            }
+
+            // Validate transport-specific fields
+            if (transportRequired && (!location || !coords)) {
+                alert("Please enter location and coordinates when transport is required!");
+                return;
+            }
+
+            if (name && phone && headCount && kidsCount) {
+                let lat = 0, lng = 0;
+                
+                // Parse coordinates only if transport is required
+                if (transportRequired && coords) {
+                    let latLng = coords.split(",").map(coord => coord.trim());
+                    if (latLng.length === 2 && !isNaN(latLng[0]) && !isNaN(latLng[1])) {
+                        lat = parseFloat(latLng[0]);
+                        lng = parseFloat(latLng[1]);
+                    } else {
+                        alert("Please enter valid coordinates in format: latitude,longitude");
+                        return;
+                    }
+                }
+
+                locations[index] = {
+                    ...locations[index],
+                    name,
+                    transportRequired,
+                    location: location || '',
+                    coords: coords || '',
+                    phone,
+                    headCount,
+                    kidsCount,
+                    food,
+                    lat,
+                    lng
+                };
+
+                try {
+                    // Update in Supabase if ID exists
+                    if (locations[index].id) {
+                        await updateLocationInSupabase(locations[index].id, {
+                            name,
+                            transportRequired,
+                            location: location || '',
+                            phone,
+                            headCount,
+                            kidsCount,
+                            food,
+                            lat,
+                            lng
+                        });
+                    }
+
+                    // Also update in GitHub
+                    // await saveLocationsToGitHub();
+
+                    renderTable();
+                    updateMap();
+                    document.getElementById('pickupForm').reset();
+                    document.getElementById('transportRequired').checked = false;
+                    toggleTransportFields();
+
+                    const addButton = document.querySelector('button[onclick="saveData()"]');
+                    addButton.textContent = 'Add Location';
+                    addButton.onclick = saveData;
+
+                    alert('Registration updated successfully!');
+                } catch (error) {
+                    console.error('Error updating data:', error);
+                    alert('Error updating data. Please try again.');
+                }
+            } else {
+                alert("Please fill all required fields!");
+            }
+        }
+
+
+        function openInGoogleMaps(lat, lng) {
+            window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
+        }
+
+        window.onload = async function () {
+            showLoading(true);
+            await loadAdminRoutePoints();
+            await loadNotifications();
+            await loadUIEnablerState();
+            await loadRoutePlan();
+            await loadBusAssignments();
+            // Update top banner and destination info with picnic spot name
+            if (PICNIC_SPOT_NAME) {
+                // Update destination info section
+                const destName = document.querySelector('.destination-name');
+                if (destName) {
+                    destName.textContent = `📌 ${PICNIC_SPOT_NAME}`;
+                }
+                // Update marquee banner if it contains a spot name
+                const marquee = document.getElementById('topMarqueeText');
+                if (marquee) {
+                    marquee.innerHTML = marquee.innerHTML.replace(/📌[^•]+/g, `📌 ${PICNIC_SPOT_NAME}`);
+                }
+            }
+            const supabaseData = await loadLocationsFromSupabase();
+            if (supabaseData && supabaseData.length > 0) {
+                locations = supabaseData;
+                console.log('Loaded data from Supabase:', locations.length, 'locations');
+            } else {
+                console.log('No data found. Starting with empty locations.');
+            }
+            initMap();
+            renderTable();
+            showLoading(false);
+
+            document.getElementById('phone').addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.startsWith('91')) {
+                    value = value.substring(2);
+                }
+                if (value.length > 10) {
+                    value = value.slice(0, 10);
+                }
+                e.target.value = value;
+            });
+
+            document.getElementById('coords').addEventListener('click', function () {
+                const coords = this.value;
+                if (coords) {
+                    const [lat, lng] = coords.split(',').map(coord => parseFloat(coord.trim()));
+                    if (!isNaN(lat) && !isNaN(lng)) {
+                        map.setView([lat, lng], 16);
+                    }
+                }
+            });
+
+            // Add location search/geocoding functionality
+            let searchTimeout;
+            const locationInput = document.getElementById('location');
+            const dropdown = document.getElementById('locationDropdown');
+
+            locationInput.addEventListener('input', function (e) {
+                const locationText = e.target.value.trim();
+                clearTimeout(searchTimeout);
+                if (locationText.length <= 2) {
+                    dropdown.classList.remove('active');
+                    dropdown.innerHTML = '';
+                    return;
+                }
+                dropdown.innerHTML = '<div class="searching-indicator">Searching...</div>';
+                dropdown.classList.add('active');
+                if (locationText.length > 2) {
+                    searchTimeout = setTimeout(async () => {
+                        await searchLocations(locationText);
+                    }, 800);
+                }
+            });
+            document.addEventListener('click', function (e) {
+                if (!locationInput.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+
+            // Add sort event listeners
+            document.querySelectorAll('.locations-table th.sortable').forEach(th => {
+                th.addEventListener('click', function() {
+                    const column = this.getAttribute('data-sort');
+                    
+                    if (currentSortColumn === column) {
+                        // Toggle direction
+                        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        // New column, default to ascending
+                        currentSortColumn = column;
+                        currentSortDirection = 'asc';
+                    }
+                    
+                    renderTable();
+                });
+            });
+        };
+
+        // Function to search for locations using Nominatim
+        async function searchLocations(locationName) {
+            const dropdown = document.getElementById('locationDropdown');
+
+            try {
+                // Use geocode.maps.co API to geocode the location
+                const response = await fetch(
+                    `https://geocode.maps.co/search?q=${encodeURIComponent(locationName + ', West Bengal')}&api_key=691d9d3238072619515182nhu4b4034`
+                );
+
+                const data = await response.json();
+
+                if (data && data.length > 0) {
+                    // Display results in dropdown
+                    displayLocationResults(data);
+                } else {
+                    // No results found
+                    dropdown.innerHTML = `
+                        <div class="no-results">
+                            ⚠️ No location found<br>
+                            <small style="font-weight: 400; margin-top: 8px; display: block;">
+                                Please provide a more renowned place nearby in Kolkata
+                            </small>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error searching for location:', error);
+                dropdown.innerHTML = `
+                    <div class="no-results">
+                        ❌ Search error<br>
+                        <small style="font-weight: 400; margin-top: 8px; display: block;">
+                            Please try again
+                        </small>
+                    </div>
+                `;
+            }
+        }
+
+        // Display location search results in dropdown
+        function displayLocationResults(results) {
+            const dropdown = document.getElementById('locationDropdown');
+            dropdown.innerHTML = '';
+
+            results.forEach(result => {
+                const option = document.createElement('div');
+                option.className = 'location-option';
+
+                const name = result.name || result.display_name.split(',')[0];
+                const address = result.display_name;
+                const type = result.type || result.class || '';
+
+                option.innerHTML = `
+                    <div class="location-option-name">${name}</div>
+                    <div class="location-option-address">${address}</div>
+                    ${type ? `<span class="location-option-type">${type}</span>` : ''}
+                `;
+
+                option.addEventListener('click', () => {
+                    selectLocation(result);
+                });
+
+                dropdown.appendChild(option);
+            });
+
+            dropdown.classList.add('active');
+        }
+
+        // Handle location selection
+        function selectLocation(result) {
+            const lat = parseFloat(result.lat);
+            const lng = parseFloat(result.lon);
+
+            // Update location input with selected name
+            const locationName = result.name || result.display_name.split(',')[0];
+            document.getElementById('location').value = locationName;
+
+            // Update coordinates field
+            document.getElementById('coords').value = `${lat.toFixed(8)}, ${lng.toFixed(8)}`;
+
+            // Update the map view
+            map.setView([lat, lng], 16);
+
+            // Add temporary marker
+            if (tempMarker) {
+                map.removeLayer(tempMarker);
+            }
+
+            tempMarker = L.circleMarker([lat, lng], {
+                radius: 8,
+                color: '#ff7800',
+                fillColor: '#ff7800',
+                fillOpacity: 0.8
+            }).addTo(map);
+
+            tempMarker.bindPopup(`<b>${result.display_name}</b>`).openPopup();
+
+            // Hide dropdown
+            document.getElementById('locationDropdown').classList.remove('active');
+
+            console.log('Selected location:', result);
+        }
+
+        // Loading indicator functions
+        function showLoading(show) {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.style.display = show ? 'flex' : 'none';
+            }
+        }
+    </script>
+    <script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js";
+
+        const supabaseUrl = "https://lpvuhqtpkvbmrkhnknaf.supabase.co";
+        const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwdnVocXRwa3ZibXJraG5rbmFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3MDQyMDIsImV4cCI6MjA2OTI4MDIwMn0.fmKlgIAY_Yoi3sFk333lRWlxzNlNNGqRZZAuLzGLnmw";
+
+        window.supabase = createClient(supabaseUrl, supabaseKey);
+
+        // Make Supabase data loading function available globally
+        window.loadLocationsFromSupabase = async function () {
+            try {
+                const { data, error } = await window.supabase.from("picnic_TCS").select("*");
+
+                if (error) {
+                    console.error('Supabase error:', error);
+                    return [];
+                }
+
+                if (!data || data.length === 0) {
+                    console.log('No data found in Supabase');
+                    return [];
+                }
+
+                // Transform Supabase data to match the expected format
+                const locations = data.map(item => {
+                    // Extract lat/lng from coordinates array [lng, lat] or [lat, lng]
+                    const lat = item.coordinates && item.coordinates.length >= 2 ? parseFloat(item.coordinates[1]) : 0;
+                    const lng = item.coordinates && item.coordinates.length >= 2 ? parseFloat(item.coordinates[0]) : 0;
+
+                    return {
+                        id: item.id,
+                        name: item.name || '',
+                        transportRequired: item.transport_required || false,
+                        location: item.location || '',
+                        coords: `${lat}, ${lng}`,
+                        phone: item.phone_number || '',
+                        headCount: item.head_count || 0,
+                        kidsCount: item.kids_count || 0,
+                        food: item.food_type || 'Veg',
+                        lat: lat,
+                        lng: lng
+                    };
+                });
+
+                return locations;
+            } catch (error) {
+                console.error('Error loading data from Supabase:', error);
+                return [];
+            }
+        };
+
+        // Load bus assignments from 'notes' table to color-code markers
+        window.loadBusAssignments = async function () {
+            try {
+                const { data, error } = await window.supabase
+                    .from('notes').select('content').eq('title','Bus_Assignments').maybeSingle();
+                if (error && error.code !== 'PGRST116') { console.error('Error loading bus assignments:', error); return; }
+                if (data && data.content) {
+                    const parsed = JSON.parse(data.content);
+                    BUS_ASSIGNMENTS = parsed.assignments || {};
+                    BUS_COLORS = {};
+                    (parsed.buses || []).forEach(b => { if (b.id && b.color) BUS_COLORS[b.id] = b.color; });
+                }
+            } catch (e) {
+                console.error('Failed to load bus assignments:', e);
+            }
+        }
+
+        // Save locations to Supabase
+        window.saveLocationsToSupabase = async function (locationData) {
+            // validate the food type
+
+            try {
+                const { data, error } = await window.supabase
+                    .from("picnic_TCS")
+                    .insert([{
+                        name: locationData.name,
+                        transport_required: locationData.transportRequired || false,
+                        location: locationData.location || '',
+                        coordinates: [locationData.lng, locationData.lat], // PostGIS format: [longitude, latitude]
+                        phone_number: locationData.phone,
+                        head_count: parseInt(locationData.headCount),
+                        kids_count: parseInt(locationData.kidsCount),
+                        food_type: locationData.food
+                    }])
+                    .select();
+
+                if (error) {
+                    console.error('Supabase insert error:', error);
+                    throw error;
+                }
+
+                console.log('Data saved to Supabase successfully');
+                return data;
+            } catch (error) {
+                console.error('Error saving to Supabase:', error);
+                throw error;
+            }
+        };
+
+        // Update location in Supabase
+        window.updateLocationInSupabase = async function (locationId, locationData) {
+            try {
+                const { data, error } = await window.supabase
+                    .from("picnic_TCS")
+                    .update({
+                        name: locationData.name,
+                        transport_required: locationData.transportRequired || false,
+                        location: locationData.location || '',
+                        coordinates: [locationData.lng, locationData.lat],
+                        phone_number: locationData.phone,
+                        head_count: parseInt(locationData.headCount),
+                        kids_count: parseInt(locationData.kidsCount),
+                        food_type: locationData.food,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', locationId)
+                    .select();
+
+                if (error) {
+                    console.error('Supabase update error:', error);
+                    throw error;
+                }
+
+                console.log('Data updated in Supabase successfully');
+                return data;
+            } catch (error) {
+                console.error('Error updating in Supabase:', error);
+                throw error;
+            }
+        };
+
+        // Delete location from Supabase
+        window.deleteLocationFromSupabase = async function (locationId) {
+            try {
+                const { error } = await window.supabase
+                    .from("picnic_TCS")
+                    .delete()
+                    .eq('id', locationId);
+
+                if (error) {
+                    console.error('Supabase delete error:', error);
+                    throw error;
+                }
+
+                console.log('Data deleted from Supabase successfully');
+            } catch (error) {
+                console.error('Error deleting from Supabase:', error);
+                throw error;
+            }
+        };
+    </script>
+</body>
+
+</html>

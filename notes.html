@@ -1,156 +1,263 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Notes – Picnic 2026</title>
+	<title>Notes – Picnic 2027</title>
+	<!-- Modern Editorial & UI Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+		rel="stylesheet">
 	<style>
+		:root {
+			--bg-canvas: #F8F7F4;
+			--surface: #FFFFFF;
+			--surface-subtle: #F3F2EE;
+			--primary: #0F3D3E;
+			--primary-hover: #165253;
+			--primary-soft: #E6F0F0;
+			--accent: #D97706;
+			--text-main: #18181B;
+			--text-muted: #52525B;
+			--text-light: #71717A;
+			--border-subtle: #E4E4E7;
+			--radius-lg: 20px;
+			--radius-md: 12px;
+			--shadow-card: 0 12px 32px -4px rgba(15, 61, 62, 0.08), 0 2px 6px rgba(0, 0, 0, 0.03);
+		}
+
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
 		body {
-			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			background-color: var(--bg-canvas);
+			background-image: radial-gradient(at 0% 0%, rgba(15, 61, 62, 0.04) 0px, transparent 50%),
+				radial-gradient(at 100% 100%, rgba(217, 119, 6, 0.04) 0px, transparent 50%);
 			min-height: 100vh;
 			margin: 0;
-			font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+			font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+			color: var(--text-main);
 			display: flex;
 			align-items: center;
 			justify-content: center;
+			padding: 24px 16px;
+			-webkit-font-smoothing: antialiased;
 		}
+
 		.notepad-container {
-			background: #fff;
-			border-radius: 18px;
-			box-shadow: 0 10px 40px rgba(102,126,234,0.13);
-			padding: 2.5rem 2rem 2rem 2rem;
-			max-width: 600px;
+			background: var(--surface);
+			border-radius: var(--radius-lg);
+			border: 1px solid var(--border-subtle);
+			box-shadow: var(--shadow-card);
+			padding: 2.5rem;
+			max-width: 720px;
 			width: 100%;
-			margin: 40px auto;
+			margin: 0 auto;
 			display: flex;
 			flex-direction: column;
 			gap: 1.5rem;
+			position: relative;
+			overflow: hidden;
 		}
+
+		.notepad-container::before {
+			content: "";
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 5px;
+			background: linear-gradient(90deg, var(--primary) 0%, #1F6E70 100%);
+		}
+
 		.notepad-title {
-			font-size: 2rem;
+			font-family: 'Plus Jakarta Sans', sans-serif;
+			font-size: 1.75rem;
 			font-weight: 800;
-			color: #667eea;
-			margin-bottom: 0.5rem;
-			text-align: center;
+			color: var(--primary);
+			letter-spacing: -0.03em;
+			padding-bottom: 1rem;
+			border-bottom: 1px solid var(--border-subtle);
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
 		}
+
+		.notepad-title::after {
+			content: "SHARED SCRATCHPAD";
+			font-family: 'Inter', sans-serif;
+			font-size: 0.7rem;
+			font-weight: 700;
+			letter-spacing: 0.08em;
+			color: var(--primary);
+			background: var(--primary-soft);
+			padding: 4px 10px;
+			border-radius: 999px;
+		}
+
 		.notepad-area {
 			width: 100%;
-			min-height: 320px;
-			font-size: 1.1rem;
-			border-radius: 10px;
-			border: 2px solid #e5e7eb;
-			padding: 1.2rem 1rem;
+			min-height: 360px;
+			font-size: 1rem;
+			line-height: 1.75;
+			border-radius: var(--radius-md);
+			border: 1.5px solid var(--border-subtle);
+			padding: 1.25rem 1.35rem;
 			resize: vertical;
 			font-family: inherit;
-			background: #f9fafb;
-			color: #222;
-			box-sizing: border-box;
+			background: var(--surface-subtle);
+			color: var(--text-main);
+			transition: all 0.2s ease;
 		}
+
+		.notepad-area::placeholder {
+			color: #A1A1AA;
+		}
+
 		.notepad-area:focus {
 			outline: none;
-			border-color: #667eea;
-			background: #fff;
+			border-color: var(--primary);
+			background: var(--surface);
+			box-shadow: 0 0 0 4px rgba(15, 61, 62, 0.1);
 		}
+
 		.save-btn {
-			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-			color: #fff;
-			border: none;
-			border-radius: 10px;
-			padding: 0.9rem 2.2rem;
-			font-size: 1.1rem;
-			font-weight: 700;
+			background: var(--primary);
+			color: #FFFFFF;
+			border: 1px solid var(--primary);
+			border-radius: var(--radius-md);
+			padding: 0.85rem 2.25rem;
+			font-size: 0.95rem;
+			font-weight: 600;
+			letter-spacing: 0.01em;
 			cursor: pointer;
-			box-shadow: 0 4px 15px rgba(102, 126, 234, 0.18);
-			transition: all 0.2s;
-			align-self: center;
+			box-shadow: 0 4px 12px rgba(15, 61, 62, 0.16);
+			transition: all 0.2s ease;
+			align-self: flex-end;
+			min-width: 140px;
 		}
-		.save-btn:hover {
-			transform: translateY(-2px);
-			box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25);
+
+		.save-btn:hover:not(:disabled) {
+			background: var(--primary-hover);
+			transform: translateY(-1px);
+			box-shadow: 0 8px 20px rgba(15, 61, 62, 0.22);
 		}
+
+		.save-btn:active:not(:disabled) {
+			transform: translateY(0);
+		}
+
+		.save-btn:disabled {
+			opacity: 0.65;
+			cursor: not-allowed;
+		}
+
 		@media (max-width: 700px) {
 			.notepad-container {
-				padding: 1.2rem 0.5rem;
-				max-width: 98vw;
+				padding: 1.5rem 1.25rem;
+				border-radius: 16px;
 			}
-			.notepad-title { font-size: 1.3rem; }
-			.notepad-area { font-size: 1rem; }
+
+			.notepad-title {
+				font-size: 1.35rem;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 8px;
+			}
+
+			.notepad-area {
+				font-size: 0.95rem;
+				min-height: 280px;
+				padding: 1rem;
+			}
+
+			.save-btn {
+				width: 100%;
+				align-self: stretch;
+			}
 		}
 	</style>
 </head>
+
 <body>
 	<div class="notepad-container">
-		<div class="notepad-title">Notes – Picnic 2026</div>
+		<div class="notepad-title">Notes – Picnic 2027</div>
 		<textarea id="notesArea" class="notepad-area" placeholder="Write your notes here..."></textarea>
 		<button class="save-btn" id="saveBtn">Save</button>
 	</div>
 	<script type="module">
-	import { createClient } from "https://esm.sh/@supabase/supabase-js";
+		import { createClient } from "https://esm.sh/@supabase/supabase-js";
 
-	const supabaseUrl = "https://lpvuhqtpkvbmrkhnknaf.supabase.co";
-	const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwdnVocXRwa3ZibXJraG5rbmFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3MDQyMDIsImV4cCI6MjA2OTI4MDIwMn0.fmKlgIAY_Yoi3sFk333lRWlxzNlNNGqRZZAuLzGLnmw";
-	const supabase = createClient(supabaseUrl, supabaseKey);
+		const supabaseUrl = "https://lpvuhqtpkvbmrkhnknaf.supabase.co";
+		const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwdnVocXRwa3ZibXJraG5rbmFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3MDQyMDIsImV4cCI6MjA2OTI4MDIwMn0.fmKlgIAY_Yoi3sFk333lRWlxzNlNNGqRZZAuLzGLnmw";
+		const supabase = createClient(supabaseUrl, supabaseKey);
 
-	const notesArea = document.getElementById('notesArea');
-	const saveBtn = document.getElementById('saveBtn');
+		const notesArea = document.getElementById('notesArea');
+		const saveBtn = document.getElementById('saveBtn');
 
-	// Load note from Supabase
-	async function loadNote() {
-		saveBtn.disabled = true;
-		saveBtn.textContent = 'Loading...';
-		const { data, error } = await supabase
-			.from('notes')
-			.select('id, content')
-			.eq('title', 'Main Note')
-			.limit(1)
-			.single();
-		if (error && error.code !== 'PGRST116') {
-			alert('Failed to load note from database');
-			notesArea.value = '';
-		} else if (data) {
-			notesArea.value = data.content || '';
-			notesArea.dataset.noteId = data.id;
-		} else {
-			notesArea.value = '';
-			notesArea.dataset.noteId = '';
-		}
-		saveBtn.disabled = false;
-		saveBtn.textContent = 'Save';
-	}
-
-	// Save note to Supabase
-	async function saveNote() {
-		saveBtn.disabled = true;
-		saveBtn.textContent = 'Saving...';
-		const noteId = notesArea.dataset.noteId;
-		const content = notesArea.value;
-		let result;
-		if (noteId) {
-			// Update existing note
-			result = await supabase
+		// Load note from Supabase
+		async function loadNote() {
+			saveBtn.disabled = true;
+			saveBtn.textContent = 'Loading...';
+			const { data, error } = await supabase
 				.from('notes')
-				.update({ content, updated_at: new Date().toISOString() })
-				.eq('id', noteId);
-		} else {
-			// Insert new note
-			result = await supabase
-				.from('notes')
-				.insert([{ title: 'Main Note', content }]);
+				.select('id, content')
+				.eq('title', 'Main Note')
+				.limit(1)
+				.single();
+			if (error && error.code !== 'PGRST116') {
+				alert('Failed to load note from database');
+				notesArea.value = '';
+			} else if (data) {
+				notesArea.value = data.content || '';
+				notesArea.dataset.noteId = data.id;
+			} else {
+				notesArea.value = '';
+				notesArea.dataset.noteId = '';
+			}
+			saveBtn.disabled = false;
+			saveBtn.textContent = 'Save';
 		}
-		if (result.error) {
-			alert('Failed to save note: ' + result.error.message);
-		} else {
-			saveBtn.textContent = 'Saved!';
-			setTimeout(() => saveBtn.textContent = 'Save', 1200);
-			// Reload to get the new note id
-			await loadNote();
-		}
-		saveBtn.disabled = false;
-	}
 
-	saveBtn.onclick = saveNote;
-	window.addEventListener('DOMContentLoaded', loadNote);
+		// Save note to Supabase
+		async function saveNote() {
+			saveBtn.disabled = true;
+			saveBtn.textContent = 'Saving...';
+			const noteId = notesArea.dataset.noteId;
+			const content = notesArea.value;
+			let result;
+			if (noteId) {
+				// Update existing note
+				result = await supabase
+					.from('notes')
+					.update({ content, updated_at: new Date().toISOString() })
+					.eq('id', noteId);
+			} else {
+				// Insert new note
+				result = await supabase
+					.from('notes')
+					.insert([{ title: 'Main Note', content }]);
+			}
+			if (result.error) {
+				alert('Failed to save note: ' + result.error.message);
+			} else {
+				saveBtn.textContent = 'Saved!';
+				setTimeout(() => saveBtn.textContent = 'Save', 1200);
+				// Reload to get the new note id
+				await loadNote();
+			}
+			saveBtn.disabled = false;
+		}
+
+		saveBtn.onclick = saveNote;
+		window.addEventListener('DOMContentLoaded', loadNote);
 	</script>
 </body>
+
 </html>

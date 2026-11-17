@@ -1038,7 +1038,7 @@
     <!-- Top marquee banner (text adjustable) -->
     <div class="marquee-banner" role="status" aria-live="polite">
         <div class="marquee-inner" id="topMarqueeText">
-            🚍 Picnic 2026 •<b style="color: rgb(255, 197, 71);">❗❗ The Picnic Spot is fixed, Review your transportation requirements ❗❗</b>• Welcome everyone! • Registration is now closed !!! •
+            🚍 Picnic 2027 •<b style="color: rgb(255, 197, 71);">❗❗ The Picnic Spot is in search ❗❗</b>• Welcome everyone! • Register Now !!! •
         </div>
     </div>
     <!-- Loading Overlay -->
@@ -1184,7 +1184,7 @@
 
         <!-- Picnic Menu Section -->
         <div class="card-style" style="margin: 0 auto 24px; max-width: 1200px;">
-            <h2 style="color: #1a202c; font-size: 1.75rem; font-weight: 700; border-bottom: 3px solid #667eea; padding-bottom: 0.75rem; margin-bottom: 1rem; letter-spacing: -0.3px;">🍽️ Picnic Menu (Buffet) 2026</h2>
+            <h2 style="color: #1a202c; font-size: 1.75rem; font-weight: 700; border-bottom: 3px solid #667eea; padding-bottom: 0.75rem; margin-bottom: 1rem; letter-spacing: -0.3px;">🍽️ Picnic Menu (Buffet) 2027</h2>
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
                 <!-- Breakfast -->
@@ -1508,7 +1508,7 @@
         async function loadAdminRoutePoints() {
             try {
                 const { data, error } = await window.supabase
-                    .from('picnic_2026_root')
+                    .from('picnic_TCS_root')
                     .select('bus_source_coordinates, picnic_spot, picnic_spot_name')
                     .limit(1)
                     .single();
@@ -1532,7 +1532,7 @@
 
         function exportToCSV() {
             a = prompt("Password to download CSV")
-            if (a !== "TCS_Picnic@#2026") {
+            if (a !== "Picnic_2027@#TCS") {
                 alert("Incorrect Password")
                 return
             }
@@ -2439,7 +2439,7 @@
         // Make Supabase data loading function available globally
         window.loadLocationsFromSupabase = async function () {
             try {
-                const { data, error } = await window.supabase.from("picnic_2026").select("*");
+                const { data, error } = await window.supabase.from("picnic_TCS").select("*");
 
                 if (error) {
                     console.error('Supabase error:', error);
@@ -2485,7 +2485,7 @@
 
             try {
                 const { data, error } = await window.supabase
-                    .from("picnic_2026")
+                    .from("picnic_TCS")
                     .insert([{
                         name: locationData.name,
                         transport_required: locationData.transportRequired || false,
@@ -2515,7 +2515,7 @@
         window.updateLocationInSupabase = async function (locationId, locationData) {
             try {
                 const { data, error } = await window.supabase
-                    .from("picnic_2026")
+                    .from("picnic_TCS")
                     .update({
                         name: locationData.name,
                         transport_required: locationData.transportRequired || false,
@@ -2547,7 +2547,7 @@
         window.deleteLocationFromSupabase = async function (locationId) {
             try {
                 const { error } = await window.supabase
-                    .from("picnic_2026")
+                    .from("picnic_TCS")
                     .delete()
                     .eq('id', locationId);
 

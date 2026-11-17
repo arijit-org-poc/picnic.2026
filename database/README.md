@@ -1,6 +1,6 @@
 # Database Schema Documentation
 
-## Supabase Table: `picnic_2026`
+## Supabase Table: `picnic_TCS`
 
 ### Schema
 
@@ -60,14 +60,14 @@ The application performs the following Supabase operations:
 #### Load All Locations
 ```javascript
 const { data, error } = await supabase
-  .from("picnic_2026")
+  .from("picnic_TCS")
   .select("*");
 ```
 
 #### Insert New Location
 ```javascript
 const { data, error } = await supabase
-  .from("picnic_2026")
+  .from("picnic_TCS")
   .insert([{
     name: "John Doe",
     location: "Park Street",
@@ -82,7 +82,7 @@ const { data, error } = await supabase
 #### Update Location
 ```javascript
 const { data, error } = await supabase
-  .from("picnic_2026")
+  .from("picnic_TCS")
   .update({
     name: "Jane Doe",
     head_count: 5,
@@ -94,7 +94,7 @@ const { data, error } = await supabase
 #### Delete Location
 ```javascript
 const { error } = await supabase
-  .from("picnic_2026")
+  .from("picnic_TCS")
   .delete()
   .eq('id', locationId);
 ```

@@ -767,7 +767,7 @@
         // Toggle between bus source and picnic spot selection
         document.addEventListener('DOMContentLoaded', function () {
             let pass = prompt("Enter the admin password:");
-            if (pass !== "TCS_Picnic@#2026") {
+            if (pass !== "Picnic_2027@#TCS") {
                 alert("Incorrect password! Redirecting to main page.");
                 window.location.href = "index.html";
                 return;
@@ -787,7 +787,7 @@
         async function loadConfiguration() {
             try {
                 const { data, error } = await window.supabase
-                    .from('picnic_2026_root')
+                    .from('picnic_TCS_root')
                     .select('*')
                     .limit(1)
                     .single();
@@ -866,7 +866,7 @@
             try {
                 // Check if record exists
                 const { data: existingData, error: fetchError } = await window.supabase
-                    .from('picnic_2026_root')
+                    .from('picnic_TCS_root')
                     .select('id')
                     .limit(1)
                     .single();
@@ -884,13 +884,13 @@
                 if (existingData) {
                     // Update existing record
                     result = await window.supabase
-                        .from('picnic_2026_root')
+                        .from('picnic_TCS_root')
                         .update(configData)
                         .eq('id', existingData.id);
                 } else {
                     // Insert new record
                     result = await window.supabase
-                        .from('picnic_2026_root')
+                        .from('picnic_TCS_root')
                         .insert([configData]);
                 }
 

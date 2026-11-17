@@ -5,11 +5,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Picnic Planner</title>
+    <!-- Modern Editorial & UI Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+        rel="stylesheet">
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <style>
+        :root {
+            --bg-canvas: #f6f7f5;
+            --bg-surface: #ffffff;
+            --bg-subtle: #f1f5f2;
+            --primary: #0f3d2e;
+            --primary-hover: #175440;
+            --primary-soft: #e6f0ec;
+            --accent: #d97706;
+            --accent-soft: #fef3c7;
+            --danger: #dc2626;
+            --danger-soft: #fee2e2;
+            --success: #059669;
+            --success-soft: #dcfce7;
+            --text-main: #111827;
+            --text-secondary: #4b5563;
+            --text-muted: #6b7280;
+            --border-light: #e5e7eb;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 3px rgba(15, 61, 46, 0.05);
+            --shadow-md: 0 8px 30px rgba(15, 61, 46, 0.06);
+            --shadow-lg: 0 20px 40px rgba(15, 61, 46, 0.09);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -17,258 +49,530 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             line-height: 1.6;
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-            background-attachment: fixed;
-            color: #333;
-            padding: 16px;
+            background-color: var(--bg-canvas);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(15, 61, 46, 0.06) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(217, 119, 6, 0.06) 0px, transparent 50%);
+            color: var(--text-main);
+            padding: 20px;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1,
+        h2,
+        h3,
+        .page-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1280px;
             margin: 0 auto;
         }
 
+        /* Top Admin Bar */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 8px 4px;
         }
 
         .page-title {
-            color: #ffffff;
-            font-size: 2.5rem;
+            color: var(--primary);
+            font-size: 2.15rem;
             font-weight: 800;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-            letter-spacing: -0.5px;
+            letter-spacing: -0.03em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-badge {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: var(--accent-soft);
+            color: #92400e;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid #fde68a;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 18px;
+            background: var(--bg-surface);
+            color: var(--text-main);
+            border: 1px solid var(--border-light);
+            text-decoration: none;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+
+        .nav-pill:hover {
+            background: var(--primary-soft);
+            color: var(--primary);
+            border-color: var(--primary);
+            transform: translateY(-1px);
         }
 
         .back-button {
-            display: inline-block;
-            padding: 10px 24px;
-            background: white;
-            color: #ff6b6b;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 20px;
+            background: var(--primary);
+            color: #ffffff;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 999px;
             font-weight: 600;
-            font-size: 0.938rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
         }
 
         .back-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
 
+        /* Info Banner */
+        .info-box {
+            background: var(--primary-soft);
+            border: 1px solid rgba(15, 61, 46, 0.15);
+            border-left: 4px solid var(--primary);
+            padding: 0.9rem 1.25rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+        }
+
+        .info-box p {
+            color: var(--primary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        /* Admin Section Cards */
         .admin-card {
-            background-color: white;
+            background-color: var(--bg-surface);
             padding: 2rem;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(15, 61, 46, 0.08);
+            box-shadow: var(--shadow-md);
             margin-bottom: 24px;
         }
 
         .admin-card h2 {
-            color: #1a202c;
+            color: var(--text-main);
             margin-bottom: 1.5rem;
-            font-size: 1.5rem;
+            font-size: 1.35rem;
             font-weight: 700;
-            border-bottom: 3px solid #ff6b6b;
-            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 0.85rem;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
+        /* Current Config Snapshot */
+        .current-data {
+            background: var(--bg-subtle);
+            padding: 1.25rem 1.5rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.75rem;
+            border: 1px solid rgba(15, 61, 46, 0.12);
+            border-left: 4px solid var(--success);
+        }
+
+        .current-data h3 {
+            color: var(--primary);
+            font-size: 0.78rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .current-data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.65rem 1.5rem;
+        }
+
+        .current-data p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin: 0;
+        }
+
+        .current-data strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        /* Form Inputs & Textareas */
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.25rem;
         }
 
         .form-group {
-            margin-bottom: 1.25rem;
+            margin-bottom: 1rem;
         }
 
         .form-group label {
             display: block;
             font-weight: 600;
-            color: #374151;
-            font-size: 0.875rem;
-            margin-bottom: 0.5rem;
-            letter-spacing: 0.3px;
+            color: var(--text-main);
+            font-size: 0.85rem;
+            margin-bottom: 0.45rem;
         }
 
         .form-group input,
-        .form-group textarea {
+        .form-group textarea,
+        input[type="text"],
+        input[type="number"],
+        select {
             width: 100%;
-            padding: 0.875rem 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
+            padding: 0.75rem 1rem;
+            border: 1.5px solid var(--border-light);
+            border-radius: var(--radius-md);
+            font-size: 0.925rem;
+            transition: all 0.2s ease;
             font-family: inherit;
+            background-color: #fafafa;
+            color: var(--text-main);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+        }
+
+        textarea#routePlanContent {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.825rem;
+            line-height: 1.55;
         }
 
         .form-group input:focus,
-        .form-group textarea:focus {
+        .form-group textarea:focus,
+        input:focus,
+        select:focus {
             outline: none;
-            border-color: #ff6b6b;
-            box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.15);
-            transform: translateY(-1px);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(15, 61, 46, 0.12);
+            background-color: #ffffff;
         }
 
         .form-group input[readonly] {
-            background-color: #f9fafb;
+            background-color: var(--bg-subtle);
             cursor: pointer;
+            border-style: dashed;
+        }
+
+        .helper-hint {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            display: block;
+            margin-top: 0.45rem;
+        }
+
+        /* Action Toolbar & Buttons */
+        .btn-toolbar {
+            margin-top: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
         }
 
         .btn {
-            padding: 0.875rem 2rem;
+            padding: 0.75rem 1.5rem;
             border: none;
-            border-radius: 10px;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            font-size: 1rem;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            letter-spacing: 0.5px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-decoration: none;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            background-color: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(15, 61, 46, 0.18);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(15, 61, 46, 0.25);
         }
 
         .btn-secondary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-            margin-left: 10px;
+            background-color: #ffffff;
+            color: var(--text-main);
+            border: 1.5px solid var(--border-light);
+            margin-left: 0;
         }
 
         .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            background-color: var(--bg-subtle);
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-1px);
         }
 
+        .btn-validate {
+            background-color: var(--success-soft);
+            color: #065f46;
+            border: 1.5px solid #a7f3d0;
+        }
+
+        .btn-validate:hover {
+            background-color: #bbf7d0;
+        }
+
+        /* Map Container */
         .map-container {
-            height: 400px;
+            height: 380px;
             width: 100%;
-            border-radius: 12px;
+            border-radius: var(--radius-md);
             overflow: hidden;
-            margin: 16px 0;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin: 12px 0;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm);
         }
 
-        .current-data {
-            background: #f9fafb;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            border-left: 4px solid #10b981;
+        /* UI Enabler Switches (compatible with JS-injected markup) */
+        .switch-container {
+            background: var(--bg-subtle) !important;
+            border: 1px solid rgba(15, 61, 46, 0.12) !important;
+            border-radius: var(--radius-md) !important;
+            padding: 1rem 1.25rem !important;
         }
 
-        .current-data h3 {
-            color: #10b981;
-            font-size: 0.875rem;
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .switch input:checked+.slider {
+            background-color: var(--primary);
+        }
+
+        .switch input:checked+.slider:before {
+            transform: translateX(24px);
+        }
+
+        .switch-label {
             font-weight: 700;
-            margin-bottom: 0.75rem;
+            color: var(--text-main);
+        }
+
+        .switch-description {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* KPI Summary Boxes (Payment & Bus Cards) */
+        .totals-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .totals-box {
+            background: var(--bg-subtle);
+            padding: 1.25rem;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(15, 61, 46, 0.08);
+            border-left: 4px solid var(--primary);
+            transition: all 0.2s ease;
+        }
+
+        .totals-box:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .totals-box h3 {
+            margin: 0 0 6px;
+            font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            font-weight: 700;
         }
 
-        .current-data p {
-            color: #6b7280;
-            font-size: 0.875rem;
-            margin: 0.5rem 0;
+        .totals-box .value {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.65rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1.2;
         }
 
-        .current-data strong {
-            color: #374151;
-        }
-
-        .info-box {
-            background: #dbeafe;
-            border-left: 4px solid #3b82f6;
+        /* Bus Creation Row */
+        .bus-add-bar {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            align-items: center;
+            background: var(--bg-subtle);
             padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-light);
+            margin-bottom: 1.25rem;
         }
 
-        .info-box p {
-            color: #1e40af;
-            font-size: 0.875rem;
-            margin: 0;
+        .bus-add-bar input[type="color"] {
+            height: 44px;
+            width: 54px;
+            padding: 4px;
+            border: 1.5px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            background: #ffffff;
         }
 
-        /* Participants table */
-        .participants-card h2 {
-            border-bottom-color: #667eea;
-        }
-
+        /* Participants & Bus Assignment Tables */
         .participants-table-wrapper {
             overflow-x: auto;
-            margin-top: 1rem;
+            margin-top: 1.25rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-light);
         }
 
         table.participants-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.85rem;
+            font-size: 0.875rem;
+            background: #ffffff;
         }
 
         table.participants-table thead {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #fff;
+            background-color: var(--bg-subtle);
+            color: var(--primary);
         }
 
-        table.participants-table th,
-        table.participants-table td {
-            padding: 10px 12px;
+        table.participants-table th {
+            padding: 12px 14px;
             text-align: left;
-            border-bottom: 1px solid #e5e7eb;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border-light);
             white-space: nowrap;
         }
 
+        table.participants-table td {
+            padding: 11px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+            white-space: nowrap;
+            color: var(--text-main);
+        }
+
+        table.participants-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
         table.participants-table tbody tr:hover {
-            background: #f3f4f6;
+            background-color: #f9fafb;
         }
 
         .paid-badge {
             display: inline-block;
-            padding: 4px 8px;
-            border-radius: 6px;
+            padding: 3px 10px;
+            border-radius: 999px;
             font-weight: 600;
-            font-size: 0.7rem;
-            letter-spacing: 0.5px;
-            background: #10b981;
-            color: #fff;
+            font-size: 0.72rem;
+            background: var(--success-soft);
+            color: #065f46;
         }
 
         .unpaid-badge {
             display: inline-block;
-            padding: 4px 8px;
-            border-radius: 6px;
+            padding: 3px 10px;
+            border-radius: 999px;
             font-weight: 600;
-            font-size: 0.7rem;
-            letter-spacing: 0.5px;
-            background: #ef4444;
-            color: #fff;
+            font-size: 0.72rem;
+            background: var(--danger-soft);
+            color: #991b1b;
         }
 
         .switch-cell {
             text-align: center;
         }
 
-        /* Toggle switch */
+        /* Payment Toggle Switch */
         .pay-switch {
             position: relative;
             display: inline-block;
@@ -287,8 +591,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: #ef4444;
-            transition: .3s;
+            background: #e2e8f0;
+            transition: .25s;
             border-radius: 24px;
         }
 
@@ -297,100 +601,45 @@
             content: "";
             height: 18px;
             width: 18px;
-            left: 4px;
+            left: 3px;
             top: 3px;
             background: #fff;
-            transition: .3s;
+            transition: .25s;
             border-radius: 50%;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
         }
 
         .pay-switch input:checked+.pay-slider {
-            background: #10b981;
+            background: var(--success);
         }
 
         .pay-switch input:checked+.pay-slider:before {
             transform: translateX(22px);
         }
 
-        .totals-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .totals-box {
-            background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
-            padding: 1rem;
-            border-radius: 12px;
-            border-left: 5px solid #ff6b6b;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .totals-box h3 {
-            margin: 0 0 6px;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #6b7280;
-        }
-
-        .totals-box .value {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #1f2937;
-        }
-
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                gap: 16px;
-                text-align: center;
-            }
-
-            .page-title {
-                font-size: 2rem;
-            }
-
-            .admin-card {
-                padding: 1.5rem;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .btn-secondary {
-                margin-left: 0;
-                margin-top: 10px;
-                display: block;
-                width: 100%;
-            }
-        }
-
+        /* Loading Overlay */
         #loadingOverlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 107, 107, 0.95);
+            background: rgba(15, 61, 46, 0.92);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(8px);
         }
 
         .loader {
-            width: 60px;
-            height: 60px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-top: 5px solid white;
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255, 255, 255, 0.25);
+            border-top: 4px solid #fde68a;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.9s linear infinite;
         }
 
         @keyframes spin {
@@ -404,10 +653,39 @@
         }
 
         .loading-text {
-            color: white;
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-top: 20px;
+            color: #ffffff;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 16px;
+            letter-spacing: 0.3px;
+        }
+
+        /* Responsive Tweaks */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .page-title {
+                font-size: 1.65rem;
+            }
+
+            .admin-card {
+                padding: 1.25rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-toolbar .btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -420,25 +698,36 @@
     </div>
 
     <div class="container">
-        <div class="header">
-            <h1 class="page-title">⚙️ Admin Panel</h1>
-            <a href="index.html" class="back-button">← Back to Main Page</a>
-        </div>
+        <!-- Top Admin Navigation Bar -->
+        <header class="header">
+            <h1 class="page-title">
+                ⚙️ Admin Panel
+                <span class="admin-badge">Control Center</span>
+            </h1>
+            <div class="header-actions">
+                <a href="cashbook.html" class="nav-pill">📒 Cashbook</a>
+                <a href="notes.html" class="nav-pill">📝 Notes</a>
+                <a href="index.html" class="back-button">← Back to Main Page</a>
+            </div>
+        </header>
 
         <div class="info-box">
-            <p>ℹ️ This table contains a single row with core picnic configuration. Updates will modify the existing
-                record.</p>
+            <p>ℹ️ This configuration controls core picnic settings, registration toggles, bus assignments, and payment
+                tracking. Updates modify the live record immediately upon saving.</p>
         </div>
 
-        <div class="admin-card">
-            <h2>🚀 Bus Source Point</h2>
+        <!-- 1. Route & Destination Configuration -->
+        <section class="admin-card">
+            <h2>🚀 Bus Source &amp; Picnic Destination</h2>
 
             <div id="currentData" class="current-data" style="display: none;">
-                <h3>Current Configuration</h3>
-                <p><strong>Bus Source Name:</strong> <span id="currentBusSourceName">-</span></p>
-                <p><strong>Bus Source Coordinates:</strong> <span id="currentBusSourceCoords">-</span></p>
-                <p><strong>Picnic Spot Name:</strong> <span id="currentPicnicSpotName">-</span></p>
-                <p><strong>Picnic Spot Coordinates:</strong> <span id="currentPicnicSpotCoords">-</span></p>
+                <h3>Live Active Configuration</h3>
+                <div class="current-data-grid">
+                    <p><strong>Bus Source Name:</strong> <span id="currentBusSourceName">-</span></p>
+                    <p><strong>Bus Source Coords:</strong> <span id="currentBusSourceCoords">-</span></p>
+                    <p><strong>Picnic Spot Name:</strong> <span id="currentPicnicSpotName">-</span></p>
+                    <p><strong>Picnic Spot Coords:</strong> <span id="currentPicnicSpotCoords">-</span></p>
+                </div>
             </div>
 
             <form id="adminForm">
@@ -450,7 +739,8 @@
 
                     <div class="form-group">
                         <label for="busSourceCoords">Bus Source Coordinates</label>
-                        <input type="text" id="busSourceCoords" placeholder="Click on map to set" readonly required>
+                        <input type="text" id="busSourceCoords" placeholder="Click field, then click map" readonly
+                            required>
                     </div>
 
                     <div class="form-group">
@@ -460,97 +750,100 @@
 
                     <div class="form-group">
                         <label for="picnicSpotCoords">Picnic Spot Coordinates</label>
-                        <input type="text" id="picnicSpotCoords" placeholder="Click on map to set" readonly required>
+                        <input type="text" id="picnicSpotCoords" placeholder="Click field, then click map" readonly
+                            required>
                     </div>
                 </div>
 
                 <div id="mapContainer" class="map-container"></div>
 
-                <div style="margin-top: 1.5rem;">
+                <div class="btn-toolbar">
                     <button type="submit" class="btn btn-primary">💾 Save Configuration</button>
-                    <button type="button" class="btn btn-secondary" onclick="viewMainPage()">👁️ View Main Page</button>
-                    <a href="cashbook.html"
-                        style="display: inline-block; padding: 10px 24px; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 0.938rem; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4); transition: all 0.3s ease;">Cashbook</a>
-                    <a href="notes.html"
-                        style="display: inline-block; padding: 10px 24px; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 0.938rem; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4); transition: all 0.3s ease;">Notes</a>    
+                    <button type="button" class="btn btn-secondary" onclick="viewMainPage()">👁️ Preview Main
+                        Page</button>
                 </div>
             </form>
-        </div>
+        </section>
 
-        <!-- Notifications Management Section -->
-        <div class="admin-card">
-            <h2>📢 Manage Notifications</h2>
-            <div>
+        <!-- 2. Notifications & UI Enabler Split Grid -->
+        <div class="form-grid" style="margin-bottom: 0;">
+            <!-- Notifications Management -->
+            <section class="admin-card" style="margin-bottom: 24px;">
+                <h2>📢 Manage Notifications</h2>
                 <div class="form-group">
-                    <label for="notificationsContent">Notifications Content</label>
-                    <textarea id="notificationsContent" rows="10" placeholder="Enter each notification on a new line..."
-                        style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem; font-family: inherit; resize: vertical; background-color: #f9fafb;"></textarea>
-                    <small style="color: #6b7280; display: block; margin-top: 0.5rem;">ℹ️ Each line will appear as a bullet point on the main page</small>
+                    <label for="notificationsContent">Bullet Announcements</label>
+                    <textarea id="notificationsContent" rows="8"
+                        placeholder="Enter each notification on a new line..."></textarea>
+                    <span class="helper-hint">ℹ️ Each line automatically renders as a bullet point on the main
+                        page.</span>
                 </div>
-                <div style="margin-top: 1rem;">
-                    <button type="button" class="btn btn-primary" onclick="return saveNotifications()">💾 Save Notifications</button>
+                <div class="btn-toolbar">
+                    <button type="button" class="btn btn-primary" onclick="return saveNotifications()">💾 Save
+                        Notifications</button>
                     <button type="button" class="btn btn-secondary" onclick="loadNotifications()">🔄 Reload</button>
                 </div>
-            </div>
-        </div>
+            </section>
 
-        <div class="admin-card">
-            <h2>🔧 UI Enabler</h2>
-            <div>
-                <div id="uiEnablerSwitches" style="display: flex; flex-direction: column; gap: 1rem;">
-                    <!-- Switches will be dynamically inserted here -->
+            <!-- UI Enabler Switches -->
+            <section class="admin-card" style="margin-bottom: 24px;">
+                <h2>🔧 UI Feature Toggles</h2>
+                <div id="uiEnablerSwitches" style="display: flex; flex-direction: column; gap: 0.85rem;">
+                    <!-- Switches dynamically injected by JS -->
                 </div>
-                <div style="margin-top: 1.5rem;">
-                    <button type="button" class="btn btn-primary" onclick="return saveUIEnabler()">💾 Save UI Enabler</button>
+                <div class="btn-toolbar">
+                    <button type="button" class="btn btn-primary" onclick="return saveUIEnabler()">💾 Save
+                        Toggles</button>
                     <button type="button" class="btn btn-secondary" onclick="loadUIEnabler()">🔄 Reload</button>
                 </div>
-            </div>
+            </section>
         </div>
 
-        <!-- Route Plan Management Section -->
-        <div class="admin-card">
-            <h2>🚌 Manage Route Plan</h2>
-            <div>
-                <div class="form-group">
-                    <label for="routePlanContent">Route Plan JSON</label>
-                    <textarea id="routePlanContent" rows="20" placeholder="Enter route plan JSON..."
-                        style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.875rem; font-family: 'Courier New', monospace; resize: vertical; background-color: #f9fafb;"></textarea>
-                    <small style="color: #6b7280; display: block; margin-top: 0.5rem;">ℹ️ Enter valid JSON format for route plan. Make sure to validate JSON before saving.</small>
-                </div>
-                <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                    <button type="button" class="btn btn-primary" onclick="return saveRoutePlan()">💾 Save Route Plan</button>
-                    <button type="button" class="btn btn-secondary" onclick="loadRoutePlanAdmin()">🔄 Reload</button>
-                    <button type="button" class="btn btn-secondary" onclick="validateRoutePlanJSON()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">✓ Validate JSON</button>
-                </div>
+        <!-- 3. Route Plan JSON Editor -->
+        <section class="admin-card">
+            <h2>🚌 Manage Bus Route Plan</h2>
+            <div class="form-group">
+                <label for="routePlanContent">Route Plan JSON Configuration</label>
+                <textarea id="routePlanContent" rows="16" placeholder="Enter route plan JSON..."></textarea>
+                <span class="helper-hint">ℹ️ Validate JSON formatting before saving to ensure the main page timetable
+                    renders properly.</span>
             </div>
-        </div>
+            <div class="btn-toolbar">
+                <button type="button" class="btn btn-primary" onclick="return saveRoutePlan()">💾 Save Route
+                    Plan</button>
+                <button type="button" class="btn btn-validate" onclick="validateRoutePlanJSON()">✓ Validate &amp; Format
+                    JSON</button>
+                <button type="button" class="btn btn-secondary" onclick="loadRoutePlanAdmin()">🔄 Reload</button>
+            </div>
+        </section>
 
-        <!-- Payment Dashboard -->
-        <div class="admin-card participants-card">
+        <!-- 4. Payment Dashboard -->
+        <section class="admin-card participants-card">
             <h2>💳 Payment Dashboard</h2>
             <div class="totals-summary">
                 <div class="totals-box">
-                    <h3>Total Participants</h3>
+                    <h3>Total Registrations</h3>
                     <div class="value" id="pd_total_participants">0</div>
                 </div>
                 <div class="totals-box">
                     <h3>Total Heads</h3>
                     <div class="value" id="pd_total_heads">0</div>
                 </div>
-                <div class="totals-box">
+                <div class="totals-box" style="border-left-color: var(--success);">
                     <h3>Paid Heads</h3>
-                    <div class="value" id="pd_paid_heads">0</div>
+                    <div class="value" id="pd_paid_heads" style="color: var(--success);">0</div>
                 </div>
-                <div class="totals-box">
+                <div class="totals-box" style="border-left-color: var(--danger);">
                     <h3>Unpaid Heads</h3>
-                    <div class="value" id="pd_unpaid_heads">0</div>
+                    <div class="value" id="pd_unpaid_heads" style="color: var(--danger);">0</div>
                 </div>
             </div>
 
-            <div style="margin-top: 1rem; display: flex; gap: .5rem; flex-wrap: wrap;">
-                <button type="button" class="btn btn-primary" onclick="savePaymentStatusMap()">💾 Save Payment Status</button>
+            <div class="btn-toolbar">
+                <button type="button" class="btn btn-primary" onclick="savePaymentStatusMap()">💾 Save Payment
+                    Status</button>
                 <button type="button" class="btn btn-secondary" onclick="exportPaymentsCSV()">⬇️ Export CSV</button>
-                <button type="button" class="btn btn-secondary" onclick="loadParticipantsAdmin()">🔄 Reload Participants</button>
+                <button type="button" class="btn btn-secondary" onclick="loadParticipantsAdmin()">🔄 Reload
+                    Participants</button>
             </div>
 
             <div class="participants-table-wrapper">
@@ -563,45 +856,46 @@
                             <th>Heads</th>
                             <th>Kids</th>
                             <th>Food</th>
-                            <th class="switch-cell">Paid</th>
+                            <th class="switch-cell">Paid Status</th>
                         </tr>
                     </thead>
                     <tbody id="paymentTableBody"></tbody>
                 </table>
             </div>
-        </div>
+        </section>
 
-        <!-- Bus Capacity Planner -->
-        <div class="admin-card">
-            <h2>🚌 Bus Capacity Planner</h2>
-            <div class="info-box" style="margin-bottom:1rem;">
-                <p>Manage buses and assign participants to buses. Bus details and assignments are stored in notes.</p>
-            </div>
-            
-            <!-- Bus Management Section -->
-            <div style="margin-bottom:1.5rem;">
-                <h3 style="margin-bottom:1rem;">Bus Management</h3>
-                <div style="display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem;">
-                    <input type="text" id="newBusName" placeholder="Bus Name (e.g., Bus 1)" style="padding:0.5rem; border:2px solid #e5e7eb; border-radius:8px; flex:1; min-width:200px;">
-                    <input type="number" id="newBusCapacity" placeholder="Capacity" min="1" style="padding:0.5rem; border:2px solid #e5e7eb; border-radius:8px; width:120px;">
-                    <input type="color" id="newBusColor" value="#667eea" style="padding:0.25rem; border:2px solid #e5e7eb; border-radius:8px; width:60px;">
-                    <button type="button" class="btn btn-secondary" onclick="addNewBus()">➕ Add Bus</button>
-                </div>
+        <!-- 5. Bus Capacity Planner -->
+        <section class="admin-card">
+            <h2>🚍 Bus Capacity Planner</h2>
+            <div class="info-box">
+                <p>Create fleet buses below, monitor seat occupancy in real time, and assign participants to their
+                    designated bus.</p>
             </div>
 
-            <!-- Bus Summary Cards -->
-            <div class="totals-summary" style="margin-bottom:1rem;" id="busSummaryCards">
-                <!-- Bus cards will be injected here -->
+            <!-- Add New Bus Toolbar -->
+            <div class="bus-add-bar">
+                <input type="text" id="newBusName" placeholder="Bus Name (e.g., Bus 1)"
+                    style="flex: 2; min-width: 200px;">
+                <input type="number" id="newBusCapacity" placeholder="Seat Capacity" min="1"
+                    style="flex: 1; min-width: 130px;">
+                <input type="color" id="newBusColor" value="#0f3d2e" title="Pick Bus Marker Color">
+                <button type="button" class="btn btn-primary" onclick="addNewBus()">➕ Add Bus</button>
             </div>
 
-            <!-- Action Buttons -->
-            <div style="display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem;">
-                <button type="button" class="btn btn-primary" onclick="saveBusData()">💾 Save Bus Details</button>
-                <button type="button" class="btn btn-primary" onclick="saveBusAssignmentsData()">💾 Save Assignments</button>
+            <!-- Live Bus Capacity Cards -->
+            <div class="totals-summary" style="margin-bottom: 1.25rem;" id="busSummaryCards">
+                <!-- Bus cards dynamically injected by JS -->
+            </div>
+
+            <!-- Bus Persistence Toolbar -->
+            <div class="btn-toolbar" style="margin-top: 0;">
+                <button type="button" class="btn btn-primary" onclick="saveBusData()">💾 Save Bus Fleet</button>
+                <button type="button" class="btn btn-primary" onclick="saveBusAssignmentsData()">💾 Save
+                    Assignments</button>
                 <button type="button" class="btn btn-secondary" onclick="loadBusData()">🔄 Reload All</button>
             </div>
 
-            <!-- Participant Assignment Table -->
+            <!-- Participant Bus Assignment Table -->
             <div class="participants-table-wrapper">
                 <table class="participants-table" id="busAssignmentTable">
                     <thead>
@@ -616,9 +910,8 @@
                     <tbody id="busAssignmentBody"></tbody>
                 </table>
             </div>
-        </div>
+        </section>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.83.0/dist/umd/supabase.min.js"></script>
     <script type="module">
         import { createClient } from "https://esm.sh/@supabase/supabase-js";
@@ -633,21 +926,21 @@
         let selectedMode = 'busSource'; // 'busSource' or 'picnicSpot'
         let rootConfigId = null;
         let paymentStatusMap = {}; // keyed by phone -> { name, status, timestamp, head_count, kids_count }
-        
+
         // Load notifications from Supabase
-        window.loadNotifications = async function() {
+        window.loadNotifications = async function () {
             try {
                 const { data, error } = await window.supabase
                     .from('notes')
                     .select('content')
                     .eq('title', 'Notifications')
                     .single();
-                
+
                 if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
                     console.error('Error loading notifications:', error);
                     return;
                 }
-                
+
                 if (data && data.content) {
                     document.getElementById('notificationsContent').value = data.content;
                 } else {
@@ -660,7 +953,7 @@
         };
 
         // Load UI enabler (registration state) from notes table with title 'UI_Enabler'
-        window.loadUIEnabler = async function() {
+        window.loadUIEnabler = async function () {
             try {
                 const { data, error } = await window.supabase
                     .from('notes')
@@ -711,10 +1004,10 @@
         };
 
         // Save UI enabler state to notes table with title 'UI_Enabler'
-        window.saveUIEnabler = async function() {
+        window.saveUIEnabler = async function () {
             const container = document.getElementById('uiEnablerSwitches');
             const switches = container.querySelectorAll('input[type="checkbox"]');
-            
+
             const uiConfig = {};
             switches.forEach(switchInput => {
                 const key = switchInput.getAttribute('data-key');
@@ -757,11 +1050,11 @@
                 return false;
             }
         };
-        
+
         // Save notifications to Supabase
         window.saveNotifications = async function () {
             const content = document.getElementById('notificationsContent').value;
-            
+
             try {
                 // Check if Notifications record exists
                 const { data: existing, error: fetchError } = await window.supabase
@@ -769,21 +1062,21 @@
                     .select('id')
                     .eq('title', 'Notifications')
                     .single();
-                
+
                 if (fetchError && fetchError.code !== 'PGRST116') {
                     throw fetchError;
                 }
-                
+
                 if (existing) {
                     // Update existing record
                     const { error: updateError } = await window.supabase
                         .from('notes')
-                        .update({ 
+                        .update({
                             content: content,
                             updated_at: new Date().toISOString()
                         })
                         .eq('title', 'Notifications');
-                    
+
                     if (updateError) throw updateError;
                 } else {
                     // Insert new record
@@ -793,10 +1086,10 @@
                             title: 'Notifications',
                             content: content
                         }]);
-                    
+
                     if (insertError) throw insertError;
                 }
-                
+
                 alert('✅ Notifications saved successfully!');
                 return false;
             } catch (err) {
@@ -805,7 +1098,7 @@
                 return false;
             }
         }
-        
+
         let participants = [];
         let busesData = []; // Array of { id, name, capacity, color }
         let busAssignmentsData = []; // Array of { busId, userId, userName, phone }
@@ -855,7 +1148,7 @@
         // Toggle between bus source and picnic spot selection
         document.addEventListener('DOMContentLoaded', function () {
             let pass = prompt("Enter the admin password:");
-            if (pass !== "TCS_Picnic@#2026") {
+            if (pass !== "Picnic_2027@#TCS") {
                 alert("Incorrect password! Redirecting to main page.");
                 window.location.href = "index.html";
                 return;
@@ -875,7 +1168,7 @@
         async function loadConfiguration() {
             try {
                 const { data, error } = await window.supabase
-                    .from('picnic_2026_root')
+                    .from('picnic_TCS_root')
                     .select('*')
                     .limit(1)
                     .single();
@@ -964,7 +1257,7 @@
             try {
                 // Check if record exists
                 const { data: existingData, error: fetchError } = await window.supabase
-                    .from('picnic_2026_root')
+                    .from('picnic_TCS_root')
                     .select('id')
                     .limit(1)
                     .single();
@@ -981,13 +1274,13 @@
                 if (existingData) {
                     // Update existing record
                     result = await window.supabase
-                        .from('picnic_2026_root')
+                        .from('picnic_TCS_root')
                         .update(configData)
                         .eq('id', existingData.id);
                 } else {
                     // Insert new record
                     result = await window.supabase
-                        .from('picnic_2026_root')
+                        .from('picnic_TCS_root')
                         .insert([configData]);
                 }
 
@@ -1059,7 +1352,7 @@
         window.loadParticipantsAdmin = async function () {
             try {
                 const { data, error } = await window.supabase
-                    .from('picnic_2026')
+                    .from('picnic_TCS')
                     .select('id,name,transport_required,location,coordinates,phone_number,head_count,kids_count,food_type')
                     .order('id', { ascending: true });
                 if (error) throw error;
@@ -1095,12 +1388,12 @@
             keys.forEach(k => {
                 const entry = paymentStatusMap[k];
                 if (!entry) return;
-                const phone = String(entry.phone || '').replace(/\s+/g,'');
+                const phone = String(entry.phone || '').replace(/\s+/g, '');
                 if (phone) byPhone[phone] = entry;
             });
             const remapped = {};
             participants.forEach(p => {
-                const phoneKey = String(p.phone || '').replace(/\s+/g,'');
+                const phoneKey = String(p.phone || '').replace(/\s+/g, '');
                 const entry = byPhone[phoneKey];
                 if (entry) {
                     remapped[String(p.id)] = {
@@ -1179,7 +1472,7 @@
                 if (!rootConfigId) {
                     try {
                         const { data: existingRoot, error: rootErr } = await window.supabase
-                            .from('picnic_2026_root')
+                            .from('picnic_TCS_root')
                             .select('id')
                             .limit(1)
                             .maybeSingle();
@@ -1200,13 +1493,13 @@
                     const body = { ...payload, payment_status: value };
                     if (rootConfigId) {
                         const { error: updateError } = await window.supabase
-                            .from('picnic_2026_root')
+                            .from('picnic_TCS_root')
                             .update(body)
                             .eq('id', rootConfigId);
                         return updateError || null;
                     } else {
                         const { error: insertError } = await window.supabase
-                            .from('picnic_2026_root')
+                            .from('picnic_TCS_root')
                             .insert([body]);
                         return insertError || null;
                     }
@@ -1233,30 +1526,30 @@
         }
 
         window.exportPaymentsCSV = function () {
-            const headers = ['Name','Phone','Heads','Kids','Transport','Food','Paid'];
+            const headers = ['Name', 'Phone', 'Heads', 'Kids', 'Transport', 'Food', 'Paid'];
             const rows = participants.map(p => [
                 p.name,
                 `+91 ${p.phone}`,
                 p.headCount,
                 p.kidsCount,
-                p.transportRequired ? 'Yes':'No',
+                p.transportRequired ? 'Yes' : 'No',
                 p.food,
-                paymentStatusMap && paymentStatusMap[String(p.id)] && paymentStatusMap[String(p.id)].paid ? 'Yes':'No'
+                paymentStatusMap && paymentStatusMap[String(p.id)] && paymentStatusMap[String(p.id)].paid ? 'Yes' : 'No'
             ].join(','));
             const csv = [headers.join(','), ...rows].join('\n');
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `payments_${new Date().toISOString().slice(0,10)}.csv`;
+            a.download = `payments_${new Date().toISOString().slice(0, 10)}.csv`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
         }
 
         // -------- Bus Planner (New Simplified Version) --------
-        
+
         // Add a new bus
-        window.addNewBus = function() {
+        window.addNewBus = function () {
             const name = document.getElementById('newBusName').value.trim();
             const capacity = parseInt(document.getElementById('newBusCapacity').value);
             const color = document.getElementById('newBusColor').value;
@@ -1270,7 +1563,7 @@
                 return;
             }
 
-            const busId = `bus_${Date.now()}_${Math.floor(Math.random()*1000)}`;
+            const busId = `bus_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
             busesData.push({ id: busId, name, capacity, color });
 
             // Clear inputs
@@ -1284,13 +1577,13 @@
         }
 
         // Remove a bus
-        window.removeBus = function(busId) {
+        window.removeBus = function (busId) {
             if (!confirm('Are you sure you want to remove this bus?')) return;
-            
+
             busesData = busesData.filter(b => b.id !== busId);
             // Remove assignments for this bus
             busAssignmentsData = busAssignmentsData.filter(a => a.busId !== busId);
-            
+
             renderBusSummaryCards();
             renderBusAssignmentTable();
         }
@@ -1320,7 +1613,7 @@
                 const used = occupancy[bus.id] || 0;
                 const capacity = bus.capacity || 0;
                 const isOverCapacity = used > capacity;
-                
+
                 const card = document.createElement('div');
                 card.className = 'totals-box';
                 card.style.borderLeft = `4px solid ${bus.color}`;
@@ -1378,7 +1671,7 @@
         }
 
         // Assign participant to bus
-        window.assignParticipantToBus = function(participantId, busId) {
+        window.assignParticipantToBus = function (participantId, busId) {
             const participant = participants.find(p => p.id === participantId);
             if (!participant) return;
 
@@ -1399,12 +1692,12 @@
         }
 
         // Save bus details to notes
-        window.saveBusData = async function() {
+        window.saveBusData = async function () {
             try {
                 const content = JSON.stringify(busesData);
                 const { data: existing, error: fetchError } = await window.supabase
                     .from('notes').select('id').eq('title', 'Bus_Details').maybeSingle();
-                
+
                 if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
 
                 if (existing) {
@@ -1428,12 +1721,12 @@
         }
 
         // Save bus assignments to notes
-        window.saveBusAssignmentsData = async function() {
+        window.saveBusAssignmentsData = async function () {
             try {
                 const content = JSON.stringify(busAssignmentsData);
                 const { data: existing, error: fetchError } = await window.supabase
                     .from('notes').select('id').eq('title', 'Bus_Assignments_Data').maybeSingle();
-                
+
                 if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
 
                 if (existing) {
@@ -1457,12 +1750,12 @@
         }
 
         // Load bus data from notes
-        window.loadBusData = async function() {
+        window.loadBusData = async function () {
             try {
                 // Load bus details
                 const { data: busDetailsData, error: busError } = await window.supabase
                     .from('notes').select('content').eq('title', 'Bus_Details').maybeSingle();
-                
+
                 if (busError && busError.code !== 'PGRST116') throw busError;
 
                 if (busDetailsData && busDetailsData.content) {
@@ -1474,7 +1767,7 @@
                 // Load bus assignments
                 const { data: assignmentsData, error: assignError } = await window.supabase
                     .from('notes').select('content').eq('title', 'Bus_Assignments_Data').maybeSingle();
-                
+
                 if (assignError && assignError.code !== 'PGRST116') throw assignError;
 
                 if (assignmentsData && assignmentsData.content) {
@@ -1492,7 +1785,7 @@
         }
 
         // Load route plan for admin editing
-        window.loadRoutePlanAdmin = async function() {
+        window.loadRoutePlanAdmin = async function () {
             try {
                 const { data, error } = await window.supabase
                     .from('notes')
@@ -1524,9 +1817,9 @@
         };
 
         // Validate route plan JSON
-        window.validateRoutePlanJSON = function() {
+        window.validateRoutePlanJSON = function () {
             const content = document.getElementById('routePlanContent').value.trim();
-            
+
             if (!content) {
                 alert('⚠️ Please enter some JSON content first.');
                 return;
@@ -1543,7 +1836,7 @@
         };
 
         // Save route plan to notes table
-        window.saveRoutePlan = async function() {
+        window.saveRoutePlan = async function () {
             const content = document.getElementById('routePlanContent').value.trim();
 
             if (!content) {

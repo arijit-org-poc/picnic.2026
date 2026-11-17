@@ -1,4 +1,4 @@
-create table public.picnic_2026_root (
+create table public.picnic_TCS_root (
   id serial not null,
   bus_source_coordinates numeric[] null,
   bus_source_name varchar(255) null,

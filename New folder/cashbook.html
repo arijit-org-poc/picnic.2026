@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cashbook – Picnic 2026</title>
+    <title>Cashbook – Picnic 2027</title>
     <style>
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -481,7 +481,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="title">Cashbook – Picnic 2026</div>
+            <div class="title">Cashbook – Picnic 2027</div>
             <div style="display: flex; gap: 1rem; align-items: center;">
                 <button class="primary-btn" id="toggleModeBtn">Switch to Edit Mode</button>
                 <button class="primary-btn" id="openModalBtn">Insert Entry</button>
@@ -608,7 +608,7 @@
     const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwdnVocXRwa3ZibXJraG5rbmFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3MDQyMDIsImV4cCI6MjA2OTI4MDIwMn0.fmKlgIAY_Yoi3sFk333lRWlxzNlNNGqRZZAuLzGLnmw";
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const ADMIN_PASSWORD = "TCS_Picnic@#2026";
+    const ADMIN_PASSWORD = "Picnic_2027@#TCS";
     let participants = [];
     let ledgerEntries = [];
     let selectedParticipants = [];
@@ -641,7 +641,7 @@
     // Load participants from Supabase
     async function loadParticipants() {
         try {
-            const { data, error } = await supabase.from('picnic_2026').select('id, name, phone_number');
+            const { data, error } = await supabase.from('picnic_TCS').select('id, name, phone_number');
             if (error) throw error;
             participants = data || [];
             console.log('Loaded participants:', participants.length);

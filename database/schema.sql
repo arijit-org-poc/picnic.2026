@@ -1,5 +1,5 @@
--- Create picnic_2026 table in Supabase
-CREATE TABLE picnic_2026 (
+-- Create picnic_TCS table in Supabase
+CREATE TABLE picnic_TCS (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
     location VARCHAR(255),
@@ -13,19 +13,19 @@ CREATE TABLE picnic_2026 (
 );
 
 -- Create index on coordinates for faster spatial queries (optional)
-CREATE INDEX idx_picnic_coordinates ON picnic_2026 USING GIN(coordinates);
+CREATE INDEX idx_picnic_coordinates ON picnic_TCS USING GIN(coordinates);
 
 -- Enable Row Level Security (optional but recommended)
-ALTER TABLE picnic_2026 ENABLE ROW LEVEL SECURITY;
+ALTER TABLE picnic_TCS ENABLE ROW LEVEL SECURITY;
 
-ALTER TABLE picnic_2026 ADD COLUMN transport_required BOOLEAN DEFAULT FALSE;
+ALTER TABLE picnic_TCS ADD COLUMN transport_required BOOLEAN DEFAULT FALSE;
 -- Create a policy that allows all operations (adjust based on your security needs)
-CREATE POLICY "Allow all operations on picnic_2026"
-ON picnic_2026
+CREATE POLICY "Allow all operations on picnic_TCS"
+ON picnic_TCS
 FOR ALL
 USING (true)
 WITH CHECK (true);
 
 -- Sample insert query
--- INSERT INTO picnic_2026 (name, location, coordinates, phone_number, head_count, kids_count, food_type)
+-- INSERT INTO picnic_TCS (name, location, coordinates, phone_number, head_count, kids_count, food_type)
 -- VALUES ('John Doe', 'Park Street', ARRAY[88.3639, 22.5726], '9876543210', 4, 2, 'Veg');

@@ -5,12 +5,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Picnic Location Planner</title>
+    <!-- Modern Editorial & UI Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+        rel="stylesheet">
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
+        :root {
+            --bg-canvas: #f6f7f5;
+            --bg-surface: #ffffff;
+            --bg-subtle: #f1f5f2;
+            --primary: #0f3d2e;
+            --primary-hover: #175440;
+            --primary-soft: #e6f0ec;
+            --accent: #d97706;
+            --accent-soft: #fef3c7;
+            --text-main: #111827;
+            --text-secondary: #4b5563;
+            --text-muted: #6b7280;
+            --border-light: #e5e7eb;
+            --border-focus: #0f3d2e;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-sm: 0 1px 3px rgba(15, 61, 46, 0.05);
+            --shadow-md: 0 8px 30px rgba(15, 61, 46, 0.06);
+            --shadow-lg: 0 20px 40px rgba(15, 61, 46, 0.09);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -18,46 +47,63 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             line-height: 1.6;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            background-attachment: fixed;
-            color: #333;
-            padding: 16px;
+            background-color: var(--bg-canvas);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(15, 61, 46, 0.06) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(217, 119, 6, 0.06) 0px, transparent 50%);
+            color: var(--text-main);
+            padding: 20px;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Marquee banner (modern, accessible replacement for <marquee>) */
+        h1,
+        h2,
+        h3,
+        .page-title,
+        .destination-name,
+        .route-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Sleek Announcement Ticker */
         .marquee-banner {
             position: relative;
             overflow: hidden;
             width: 100%;
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.35);
-            backdrop-filter: blur(6px); /* Frosted glass effect */
-            -webkit-backdrop-filter: blur(6px);
-            border-radius: 14px;
+            max-width: 1200px;
+            margin: 0 auto 24px;
+            background: var(--primary);
+            border-radius: 999px;
             padding: 10px 0;
-            margin: 0 0 18px;
-            box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+            box-shadow: var(--shadow-md);
         }
+
         .marquee-inner {
             display: inline-block;
             white-space: nowrap;
-            padding-left: 100%; /* Start off-screen to the right */
-            animation: marquee-scroll 25s linear infinite;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            font-size: 0.95rem;
-            color: #ffffff;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+            padding-left: 100%;
+            animation: marquee-scroll 28s linear infinite;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            font-size: 0.875rem;
+            color: #f3f4f6;
         }
+
         .marquee-banner:hover .marquee-inner {
-            animation-play-state: paused; /* Allow user to pause */
+            animation-play-state: paused;
         }
+
         @keyframes marquee-scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
         }
 
         .container {
@@ -65,83 +111,201 @@
             margin: 0 auto;
         }
 
-        .page-title {
-            text-align: center;
-            color: #ffffff;
-            margin: 0 0 32px;
-            font-size: 2.5rem;
-            font-weight: 800;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-            letter-spacing: -0.5px;
+        /* Top Navigation Header */
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 28px;
+            padding: 8px 4px;
         }
 
-        .form-container {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        .page-title {
+            color: var(--primary);
+            margin: 0;
+            font-size: 2.15rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--bg-surface);
+            color: var(--text-main);
+            border: 1px solid var(--border-light);
+            text-decoration: none;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+
+        .admin-btn:hover {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Hero Destination Card */
+        .destination-info {
+            background: linear-gradient(135deg, #0f3d2e 0%, #1b5e48 100%);
+            padding: 2.25rem 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
             margin: 0 auto 24px;
             max-width: 1200px;
-            transition: transform 0.2s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
 
-        .form-container:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
-        }
-
-        .form-container h2 {
-            color: #1a202c;
-            margin-bottom: 1.5rem;
-            font-size: 1.75rem;
+        .destination-label {
+            display: inline-block;
+            font-size: 0.75rem;
             font-weight: 700;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 0.75rem;
-            letter-spacing: -0.3px;
+            color: #fde68a;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 4px 14px;
+            border-radius: 999px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 0.75rem;
         }
 
+        .destination-name {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 0.35rem;
+            line-height: 1.25;
+            letter-spacing: -0.02em;
+            transition: opacity 0.2s ease;
+        }
+
+        .destination-name:hover {
+            opacity: 0.9;
+        }
+
+        .destination-coords {
+            font-size: 0.875rem;
+            color: #a7f3d0;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* Unified Section Cards */
+        .form-container,
+        .totals-container,
+        .route-section,
+        .card-style {
+            background-color: var(--bg-surface);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(15, 61, 46, 0.08);
+            box-shadow: var(--shadow-md);
+            margin: 0 auto 24px;
+            max-width: 1200px;
+        }
+
+        .section-heading,
+        .form-container h2,
+        .totals-container h2,
+        .route-header {
+            color: var(--text-main);
+            margin-bottom: 1.5rem;
+            font-size: 1.35rem;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 0.85rem;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Notifications List */
+        #notificationsList {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #notificationsList li {
+            position: relative;
+            padding-left: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        #notificationsList li::before {
+            content: "•";
+            position: absolute;
+            left: 0.35rem;
+            color: var(--accent);
+            font-weight: 800;
+            font-size: 1.2rem;
+            line-height: 1.3;
+        }
+
+        /* Form Styling */
         .pickup-form {
             width: 100%;
         }
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.25rem;
             align-items: start;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.45rem;
+            position: relative;
         }
 
         .form-group label {
             font-weight: 600;
-            color: #374151;
-            font-size: 0.875rem;
-            letter-spacing: 0.3px;
+            color: var(--text-main);
+            font-size: 0.85rem;
         }
 
         .form-group input,
         .form-group select {
-            padding: 0.875rem 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
+            padding: 0.75rem 1rem;
+            border: 1.5px solid var(--border-light);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: var(--text-main);
+            transition: all 0.2s ease;
             width: 100%;
-            background-color: #f9fafb;
+            background-color: #fafafa;
         }
 
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(15, 61, 46, 0.12);
             background-color: #ffffff;
-            transform: translateY(-1px);
         }
 
         .phone-input-container {
@@ -151,520 +315,32 @@
         }
 
         .phone-prefix {
-            background-color: #e5e7eb;
-            padding: 0.875rem 1rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            color: #6b7280;
-            font-size: 1rem;
+            background-color: var(--bg-subtle);
+            padding: 0.75rem 0.95rem;
+            border: 1.5px solid var(--border-light);
+            border-radius: var(--radius-md);
+            color: var(--primary);
+            font-size: 0.95rem;
             font-weight: 600;
         }
 
-        #map {
-            height: 350px;
-            width: 100%;
-            border-radius: 16px;
-            margin: 24px 0;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            overflow: hidden;
-            border: 4px solid white;
-        }
-
-        .button-group {
-            grid-column: 1 / -1;
-            margin-top: 1rem;
-        }
-
-        .button-group button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            width: 100%;
-            max-width: 200px;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-            letter-spacing: 0.5px;
-        }
-
-        .button-group button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-        }
-
-        .button-group button:active {
-            transform: translateY(0);
-        }
-
-        .totals-container {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            margin: 24px 0;
-        }
-
-        .totals-container h2 {
-            color: #1a202c;
-            margin-bottom: 1.5rem;
-            font-size: 1.75rem;
-            font-weight: 700;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 0.75rem;
-            letter-spacing: -0.3px;
-        }
-
-        .totals-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .total-item {
-            background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
-            padding: 1.25rem;
-            border-radius: 12px;
-            border-left: 5px solid #667eea;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-        }
-
-        .total-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
-        }
-
-        .total-item span:first-child {
-            font-weight: 600;
-            color: #6b7280;
-            display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .total-item span:last-child {
-            font-size: 2rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 800;
-        }
-
-        .directions-button-container {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .directions-button {
-            background: linear-gradient(135deg, #4285f4 0%, #3367d6 100%);
-            color: white;
-            padding: 14px 28px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
-            letter-spacing: 0.3px;
-        }
-
-        .directions-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(66, 133, 244, 0.6);
-        }
-
-        .directions-button:active {
-            transform: translateY(0);
-        }
-
-        .directions-button:disabled {
-            background: #d1d5db;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-        }
-
-        .route-section {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            margin: 24px 0;
-        }
-
-        .route-header {
-            color: #1a202c;
-            margin-bottom: 1.5rem;
-            font-size: 1.75rem;
-            font-weight: 700;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 0.75rem;
-            letter-spacing: -0.3px;
-        }
-
-        .locations-table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .locations-table th,
-        .locations-table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .locations-table th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            font-weight: 700;
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .locations-table th.sortable {
-            cursor: pointer;
-            user-select: none;
-            position: relative;
-            padding-right: 1.5rem;
-        }
-
-        .locations-table th.sortable:hover {
-            background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
-        }
-
-        .locations-table th .sort-indicator {
-            position: absolute;
-            right: 0.5rem;
-            font-size: 0.7rem;
-            opacity: 0.7;
-        }
-
-        .locations-table tr:hover {
-            background-color: #f9fafb;
-            transition: background-color 0.2s ease;
-        }
-
-        .coordinate-link {
-            color: #0066cc;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .coordinate-link:hover {
-            text-decoration: underline;
-        }
-
-        .veg-type {
-            color: #4CAF50;
-            font-weight: 600;
-        }
-
-        .non-veg-type {
-            color: #ff4444;
-            font-weight: 600;
-        }
-
-        .action-button {
-            padding: 0.625rem 1.25rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            font-size: 0.875rem;
-            letter-spacing: 0.3px;
-        }
-
-        .edit-button {
-            background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
-            color: white;
-            box-shadow: 0 2px 10px rgba(255, 165, 0, 0.3);
-        }
-
-        .edit-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(255, 165, 0, 0.5);
-        }
-
-        .edit-button:active {
-            transform: translateY(0);
-        }
-
-        @media (max-width: 1024px) {
-            .container {
-                padding: 0;
-            }
-
-            .totals-grid {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            }
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 12px;
-            }
-
-            .form-container,
-            .totals-container,
-            .route-section {
-                padding: 1.5rem;
-                border-radius: 12px;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .button-group button {
-                max-width: 100%;
-            }
-
-            .page-title {
-                font-size: 2rem;
-                margin-bottom: 24px;
-            }
-
-            .form-container h2,
-            .totals-container h2,
-            .route-header {
-                font-size: 1.5rem;
-            }
-
-            #map {
-                height: 280px;
-                border-radius: 12px;
-            }
-
-            .totals-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.5rem;
-            }
-
-            .total-item {
-                padding: 0.75rem;
-            }
-
-            .total-item span:first-child {
-                font-size: 0.75rem;
-                margin-bottom: 0.25rem;
-            }
-
-            .total-item span:last-child {
-                font-size: 1.5rem;
-            }
-
-            .directions-button-container {
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-            }
-
-            .directions-button {
-                width: 100%;
-                margin-left: 0 !important;
-                justify-content: center;
-            }
-
-            .locations-table {
-                display: block;
-                overflow-x: auto;
-                font-size: 0.875rem;
-            }
-
-            .locations-table th,
-            .locations-table td {
-                padding: 0.75rem 0.5rem;
-                white-space: nowrap;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 8px;
-            }
-
-            .page-title {
-                font-size: 1.75rem;
-            }
-
-            .form-container,
-            .totals-container,
-            .route-section {
-                padding: 1rem;
-            }
-
-            #map {
-                height: 250px;
-            }
-
-            .form-group input,
-            .form-group select,
-            .phone-prefix {
-                padding: 0.75rem;
-                font-size: 0.938rem;
-            }
-
-            .button-group button,
-            .directions-button {
-                padding: 0.875rem 1.5rem;
-                font-size: 0.938rem;
-            }
-        }
-
-        /* Loading Overlay */
-        #loadingOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(102, 126, 234, 0.95);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            backdrop-filter: blur(10px);
-        }
-
-        .loader {
-            width: 60px;
-            height: 60px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-top: 5px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .loading-text {
-            color: white;
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-top: 20px;
-            letter-spacing: 0.5px;
-        }
-
-        /* Location Dropdown */
-        .location-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 2px solid #667eea;
-            border-top: none;
-            border-radius: 0 0 10px 10px;
-            max-height: 300px;
-            overflow-y: auto;
-            z-index: 1000;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-            display: none;
-        }
-
-        .location-dropdown.active {
-            display: block;
-        }
-
-        .location-option {
-            padding: 12px 16px;
-            cursor: pointer;
-            border-bottom: 1px solid #e5e7eb;
-            transition: background-color 0.2s ease;
-        }
-
-        .location-option:last-child {
-            border-bottom: none;
-        }
-
-        .location-option:hover {
-            background-color: #f3f4f6;
-        }
-
-        .location-option-name {
-            font-weight: 600;
-            color: #1a202c;
-            margin-bottom: 4px;
-        }
-
-        .location-option-address {
-            font-size: 0.875rem;
-            color: #6b7280;
-            line-height: 1.4;
-        }
-
-        .location-option-type {
-            display: inline-block;
-            padding: 2px 8px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-top: 4px;
-            text-transform: capitalize;
-        }
-
-        .no-results {
-            padding: 16px;
-            text-align: center;
-            color: #ef4444;
-            font-weight: 600;
-        }
-
-        .searching-indicator {
-            padding: 16px;
-            text-align: center;
-            color: #667eea;
-            font-weight: 600;
-        }
-
-        .form-group {
-            position: relative;
-        }
-
-        /* Toggle Switch Styles */
+        /* Toggle Switch Box */
         .switch-container {
             display: flex;
             align-items: center;
             gap: 1rem;
-            padding: 0.875rem 0;
+            padding: 1rem 1.25rem;
+            background: var(--bg-subtle);
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(15, 61, 46, 0.1);
         }
 
         .switch {
             position: relative;
             display: inline-block;
-            width: 60px;
-            height: 34px;
+            width: 52px;
+            height: 28px;
+            flex-shrink: 0;
         }
 
         .switch input {
@@ -680,225 +356,196 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
+            background-color: #cbd5e1;
+            transition: .3s;
             border-radius: 34px;
         }
 
         .slider:before {
             position: absolute;
             content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
             background-color: white;
-            transition: .4s;
+            transition: .3s;
             border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
 
-        input:checked + .slider {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        input:checked+.slider {
+            background-color: var(--primary);
         }
 
-        input:checked + .slider:before {
-            transform: translateX(26px);
+        input:checked+.slider:before {
+            transform: translateX(24px);
         }
 
         .switch-label {
             font-weight: 600;
-            color: #374151;
-            font-size: 0.875rem;
-            letter-spacing: 0.3px;
+            color: var(--text-main);
+            font-size: 0.9rem;
         }
 
         .switch-description {
-            font-size: 0.75rem;
-            color: #6b7280;
-            margin-top: 0.25rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
         }
 
-        /* Destination Info Styles */
-        .destination-info {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 1.5rem 2rem;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            margin: 0 auto 24px;
-            max-width: 1200px;
-            text-align: center;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+        /* Primary Submit Button */
+        .button-group {
+            grid-column: 1 / -1;
+            margin-top: 0.5rem;
         }
 
-        .destination-label {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #667eea;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.5rem;
-        }
-
-        .destination-name {
-            font-size: 1.75rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 0.5rem;
-            line-height: 1.3;
-        }
-
-        .destination-coords {
-            font-size: 0.938rem;
-            color: #6b7280;
-            font-weight: 500;
+        .button-group button {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .destination-coords:hover {
-            color: #667eea;
-        }
-
-        @media (max-width: 768px) {
-            .destination-info {
-                padding: 1.25rem 1.5rem;
-            }
-
-            .destination-name {
-                font-size: 1.5rem;
-            }
-
-            .destination-label {
-                font-size: 0.75rem;
-            }
-
-            .destination-coords {
-                font-size: 0.875rem;
-            }
-        }
-
-        /* Footer Styles */
-        .footer {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 1rem 1rem;
-            margin-top: 48px;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            text-align: center;
-        }
-
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .footer-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 1rem;
-        }
-
-        .footer-description {
-            color: #6b7280;
-            font-size: 0.938rem;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-        }
-
-        .footer-divider {
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #667eea, #764ba2, transparent);
-            margin: 1.5rem 0;
-        }
-
-        .footer-bottom {
-            color: #9ca3af;
-            font-size: 0.875rem;
-        }
-
-        .footer-bottom a {
-            color: #667eea;
-            text-decoration: none;
+            font-size: 0.95rem;
             font-weight: 600;
-            transition: color 0.3s ease;
+            transition: all 0.2s ease;
+            width: 100%;
+            max-width: 220px;
+            box-shadow: 0 4px 12px rgba(15, 61, 46, 0.2);
         }
 
-        .footer-bottom a:hover {
-            color: #764ba2;
+        .button-group button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(15, 61, 46, 0.28);
         }
 
-        @media (max-width: 768px) {
-            .footer {
-                padding: 1.5rem 1rem;
-                margin-top: 32px;
-            }
-
-            .footer-title {
-                font-size: 1.25rem;
-            }
-
-            .footer-description {
-                font-size: 0.875rem;
-            }
+        /* Map Canvas */
+        #map {
+            height: 380px;
+            width: 100%;
+            border-radius: var(--radius-lg);
+            margin: 0 auto 24px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            border: 1px solid rgba(15, 61, 46, 0.12);
         }
 
-        /* Card style for info and contact sections */
-        .card-style {
-            background: rgba(255, 255, 255, 0.97);
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.13);
-            padding: 1.5rem 2rem;
+        /* Summary KPI Cards */
+        .totals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
         }
 
-        @media (max-width: 768px) {
-            .card-style {
-                padding: 1.25rem 1rem;
-                border-radius: 12px;
-            }
+        .total-item {
+            background: var(--bg-subtle);
+            padding: 1.25rem;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(15, 61, 46, 0.08);
+            transition: all 0.2s ease;
         }
 
-        /* Route Plan Styles */
+        .total-item:hover {
+            transform: translateY(-2px);
+            background: #ffffff;
+            border-color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .total-item span:first-child {
+            font-weight: 600;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .total-item span:last-child {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        /* Action Toolbar Buttons */
+        .directions-button-container {
+            margin-top: 24px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .directions-button {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .directions-button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .directions-button.btn-export {
+            background-color: #ffffff;
+            color: var(--primary);
+            border: 1.5px solid var(--primary);
+        }
+
+        .directions-button.btn-export:hover {
+            background-color: var(--primary-soft);
+        }
+
+        /* Bus Route Plan Cards */
         .route-plan-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
             gap: 1.5rem;
-            margin-top: 1.5rem;
+            margin-top: 1.25rem;
         }
 
         .route-card {
-            background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
-            border-radius: 12px;
+            background: #fafafa;
+            border-radius: var(--radius-md);
             padding: 1.5rem;
-            border-left: 5px solid #667eea;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
+            border: 1px solid var(--border-light);
+            border-top: 4px solid var(--primary);
+            transition: all 0.2s ease;
         }
 
         .route-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15);
+            background: #ffffff;
+            box-shadow: var(--shadow-md);
         }
 
-        .route-header {
+        .route-card .route-header {
             margin-bottom: 1rem;
             padding-bottom: 0.75rem;
-            border-bottom: 2px solid #e5e7eb;
+            border-bottom: 1px solid var(--border-light);
+            display: block;
         }
 
         .route-title {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--primary);
             margin-bottom: 0.5rem;
         }
 
@@ -906,105 +553,84 @@
             display: flex;
             gap: 1rem;
             flex-wrap: wrap;
-            font-size: 0.875rem;
-            color: #6b7280;
-            margin-bottom: 0.5rem;
-        }
-
-        .route-info-item {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
+            font-size: 0.825rem;
+            color: var(--text-secondary);
         }
 
         .route-info-item strong {
-            color: #374151;
+            color: var(--text-main);
         }
 
         .timeline {
             margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
         }
 
         .segment {
-            background: white;
-            border-radius: 8px;
-            padding: 0.875rem;
-            margin-bottom: 0.75rem;
-            border-left: 3px solid #10b981;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            background: #ffffff;
+            border-radius: var(--radius-sm);
+            padding: 0.9rem 1rem;
+            border: 1px solid var(--border-light);
+            border-left: 3px solid var(--accent);
         }
 
         .segment-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.5rem;
+            gap: 8px;
+            margin-bottom: 0.35rem;
         }
 
         .segment-route {
             font-weight: 600;
-            color: #1f2937;
-            font-size: 0.938rem;
+            color: var(--text-main);
+            font-size: 0.9rem;
         }
 
         .segment-time {
-            font-size: 0.813rem;
-            color: #667eea;
+            font-size: 0.78rem;
+            background: var(--primary-soft);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 999px;
             font-weight: 600;
+            white-space: nowrap;
         }
 
         .segment-stops {
-            font-size: 0.813rem;
-            color: #6b7280;
-            line-height: 1.6;
-            margin-top: 0.5rem;
-        }
-
-        .stops-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-
-        .stop-badge {
-            background: #e0e7ff;
-            color: #4338ca;
-            padding: 0.25rem 0.625rem;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            font-size: 0.825rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
         }
 
         .contact-groups {
-            margin-top: 1.5rem;
+            margin-top: 1.25rem;
             padding-top: 1rem;
-            border-top: 2px solid #e5e7eb;
+            border-top: 1px solid var(--border-light);
         }
 
         .contact-groups-title {
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 0.75rem;
+            color: var(--text-main);
+            margin-bottom: 0.6rem;
         }
 
         .contact-group {
-            background: #fef3c7;
-            border-left: 3px solid #f59e0b;
-            padding: 0.75rem;
-            border-radius: 8px;
+            background: var(--accent-soft);
+            padding: 0.65rem 0.9rem;
+            border-radius: var(--radius-sm);
             margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-        }
-
-        .contact-group strong {
-            color: #92400e;
+            font-size: 0.85rem;
+            color: #78350f;
         }
 
         .contact-phone {
-            color: #1d4ed8;
-            font-weight: 600;
+            color: var(--primary);
+            font-weight: 700;
             text-decoration: none;
         }
 
@@ -1012,35 +638,388 @@
             text-decoration: underline;
         }
 
-        @media (max-width: 1024px) {
-            .route-plan-container {
-                grid-template-columns: 1fr;
+        /* Menu Grid */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .menu-card {
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            border: 1px solid var(--border-light);
+            background: #fafafa;
+        }
+
+        .menu-card.breakfast {
+            border-top: 4px solid #f59e0b;
+        }
+
+        .menu-card.snacks {
+            border-top: 4px solid #0284c7;
+        }
+
+        .menu-card.lunch {
+            border-top: 4px solid #059669;
+        }
+
+        .menu-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .menu-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .menu-list li {
+            padding: 0.55rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            border-bottom: 1px dashed var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .menu-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* Modern Data Table */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-light);
+        }
+
+        .locations-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            font-size: 0.9rem;
+        }
+
+        .locations-table th,
+        .locations-table td {
+            padding: 0.95rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .locations-table th {
+            background-color: var(--bg-subtle);
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+
+        .locations-table th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 1.5rem;
+            transition: background-color 0.15s ease;
+        }
+
+        .locations-table th.sortable:hover {
+            background-color: var(--primary-soft);
+        }
+
+        .locations-table th .sort-indicator {
+            position: absolute;
+            right: 0.5rem;
+            font-size: 0.7rem;
+            opacity: 0.8;
+        }
+
+        .locations-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .locations-table tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .coordinate-link {
+            color: var(--primary);
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            border-bottom: 1px dotted var(--primary);
+        }
+
+        .coordinate-link:hover {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .veg-type {
+            display: inline-block;
+            background: #dcfce7;
+            color: #166534;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .non-veg-type {
+            display: inline-block;
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .action-button {
+            padding: 0.45rem 0.95rem;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            font-size: 0.8rem;
+        }
+
+        .edit-button {
+            background: #ffffff;
+            color: var(--text-main);
+        }
+
+        .edit-button:hover {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+
+        /* Contact Cards */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+        }
+
+        .contact-item a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .contact-item a:hover {
+            color: var(--accent);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--primary);
+            color: #e5e7eb;
+            padding: 2rem 1.5rem;
+            margin: 36px auto 12px;
+            max-width: 1200px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+        }
+
+        .footer-description {
+            color: #d1fae5;
+            font-size: 0.9rem;
+            max-width: 600px;
+            margin: 0 auto 1.25rem;
+        }
+
+        .footer-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.15);
+            margin: 1.25rem 0;
+        }
+
+        .footer-bottom {
+            color: #a7f3d0;
+            font-size: 0.825rem;
+        }
+
+        /* Loading Overlay */
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 61, 46, 0.92);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(8px);
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255, 255, 255, 0.25);
+            border-top: 4px solid #fde68a;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
             }
         }
 
+        .loading-text {
+            color: #ffffff;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 16px;
+            letter-spacing: 0.3px;
+        }
+
+        /* Location Autocomplete Dropdown */
+        .location-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            max-height: 280px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+            display: none;
+        }
+
+        .location-dropdown.active {
+            display: block;
+        }
+
+        .location-option {
+            padding: 10px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-light);
+            transition: background-color 0.15s ease;
+        }
+
+        .location-option:last-child {
+            border-bottom: none;
+        }
+
+        .location-option:hover {
+            background-color: var(--bg-subtle);
+        }
+
+        .location-option-name {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.9rem;
+        }
+
+        .location-option-address {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .location-option-type {
+            display: inline-block;
+            padding: 2px 8px;
+            background: var(--primary-soft);
+            color: var(--primary);
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 4px;
+            text-transform: capitalize;
+        }
+
+        .no-results {
+            padding: 14px;
+            text-align: center;
+            color: #dc2626;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .searching-indicator {
+            padding: 14px;
+            text-align: center;
+            color: var(--primary);
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        /* Responsive Tweaks */
         @media (max-width: 768px) {
-            .route-card {
-                padding: 1rem;
+            body {
+                padding: 12px;
             }
 
-            .route-title {
-                font-size: 1.1rem;
+            .page-title {
+                font-size: 1.65rem;
             }
 
-            .segment {
-                padding: 0.75rem;
+            .destination-name {
+                font-size: 1.5rem;
+            }
+
+            .form-container,
+            .totals-container,
+            .route-section,
+            .card-style {
+                padding: 1.25rem;
+            }
+
+            .route-plan-container {
+                grid-template-columns: 1fr;
+            }
+
+            .totals-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            #map {
+                height: 280px;
+            }
+
+            .directions-button {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
 </head>
 
 <body>
-    <!-- Top marquee banner (text adjustable) -->
+    <!-- Top marquee banner -->
     <div class="marquee-banner" role="status" aria-live="polite">
         <div class="marquee-inner" id="topMarqueeText">
-            🚍 Picnic 2026 •<b style="color: rgb(255, 197, 71);">❗❗ The Picnic Spot is fixed, Review your transportation requirements ❗❗</b>• Welcome everyone! • Registration is now closed !!!•
+            🚍 Picnic 2027 &nbsp;•&nbsp; <strong style="color: #fde68a;">The Picnic Spot is in search </strong> &nbsp;•&nbsp; Welcome everyone! &nbsp;•&nbsp; Register Yourself
         </div>
     </div>
+
     <!-- Loading Overlay -->
     <div id="loadingOverlay">
         <div class="loader"></div>
@@ -1048,59 +1027,40 @@
     </div>
 
     <div class="container">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 32px;">
-            <h1 class="page-title" style="margin: 0;">Picnic Location Planner</h1>
-            <a href="admin.html" style="display: inline-block; padding: 10px 24px; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 0.938rem; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4); transition: all 0.3s ease;">⚙️ Admin Panel</a>
-        </div>
+        <!-- Header Bar -->
+        <header class="top-header">
+            <h1 class="page-title">🌿 Picnic Location Planner</h1>
+            <a href="admin.html" class="admin-btn">⚙️ Admin Panel</a>
+        </header>
 
-        <div class="destination-info">
+        <!-- Hero Destination Banner -->
+        <section class="destination-info">
             <div class="destination-label">📍 Picnic Destination</div>
-            <div class="destination-name" onclick="openInGoogleMaps(END_POINT.lat, END_POINT.lng)" style="cursor: pointer;">📌 Loading picnic spot...</div>
-            <!-- <div class="destination-coords" title="Click to open in Google Maps"> -->
-                <!-- Coordinates will be set from admin configuration -->
-            <!-- </div> -->
-        </div>
+            <div class="destination-name" onclick="openInGoogleMaps(END_POINT.lat, END_POINT.lng)"
+                style="cursor: pointer;" title="Click to open destination in Google Maps">
+                📌 Loading picnic spot...
+            </div>
+            <div class="destination-coords" onclick="openInGoogleMaps(END_POINT.lat, END_POINT.lng)">
+                Click location title to view on Google Maps ↗
+            </div>
+        </section>
 
-        <!-- Info Section -->
-        <div class="info-section card-style" style="margin: 0 auto 24px; max-width: 1200px;">
-            <h2 style="color: #1a202c; font-size: 1.35rem; font-weight: 700; margin-bottom: 0.75rem;">ℹ️ Important Information</h2>
-            <ul id="notificationsList" style="margin-left: 1.2em; color: #333; font-size: 1.05rem; line-height: 1.7;">
+        <!-- Important Information Card -->
+        <section class="info-section card-style">
+            <h2 class="section-heading">ℹ️ Important Information</h2>
+            <ul id="notificationsList">
                 <li>Loading notifications...</li>
             </ul>
-        </div>
+        </section>
 
-        <div class="form-container">
+        <!-- Pickup Registration Form -->
+        <section class="form-container">
             <h2>Add Pickup Location</h2>
             <form id="pickupForm" class="pickup-form">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="name">Name</label>
+                        <label for="name">Full Name</label>
                         <input type="text" id="name" placeholder="Enter full name" required>
-                    </div>
-
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <div class="switch-container">
-                            <label class="switch">
-                                <input type="checkbox" id="transportRequired" onchange="toggleTransportFields()">
-                                <span class="slider"></span>
-                            </label>
-                            <div>
-                                <span class="switch-label">🚌 Transport Required</span>
-                                <div class="switch-description">Enable if you need pickup from a location</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group" id="locationField" style="display: none;">
-                        <label for="location">Location</label>
-                        <input type="text" id="location" placeholder="Enter pickup location"
-                            autocomplete="off">
-                        <div id="locationDropdown" class="location-dropdown"></div>
-                    </div>
-
-                    <div class="form-group" id="coordsField" style="display: none;">
-                        <label for="coords">Coordinates</label>
-                        <input type="text" id="coords" placeholder="Click on map to set coordinates" readonly>
                     </div>
 
                     <div class="form-group">
@@ -1124,10 +1084,35 @@
                     <div class="form-group">
                         <label for="food">Food Preference</label>
                         <select id="food">
-                            <option value="" disabled selected>Select your food preference</option>
+                            <option value="" disabled selected>Select food preference</option>
                             <option value="Veg">Vegetarian</option>
                             <option value="Non-Veg">Non-Vegetarian</option>
                         </select>
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <div class="switch-container">
+                            <label class="switch">
+                                <input type="checkbox" id="transportRequired" onchange="toggleTransportFields()">
+                                <span class="slider"></span>
+                            </label>
+                            <div>
+                                <div class="switch-label">🚌 Transport Required</div>
+                                <div class="switch-description">Enable if you need bus pickup from a specific location
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="locationField" style="display: none;">
+                        <label for="location">Pickup Location</label>
+                        <input type="text" id="location" placeholder="Search landmark or area..." autocomplete="off">
+                        <div id="locationDropdown" class="location-dropdown"></div>
+                    </div>
+
+                    <div class="form-group" id="coordsField" style="display: none;">
+                        <label for="coords">Coordinates</label>
+                        <input type="text" id="coords" placeholder="Click on map to pin exact spot" readonly>
                     </div>
 
                     <div class="form-group button-group">
@@ -1135,12 +1120,14 @@
                     </div>
                 </div>
             </form>
-        </div>
+        </section>
 
+        <!-- Interactive Map -->
         <div id="map"></div>
 
-        <div class="totals-container">
-            <h2>Summary</h2>
+        <!-- Participant Summary KPIs -->
+        <section class="totals-container">
+            <h2>📊 Summary</h2>
             <div class="totals-grid">
                 <div class="total-item">
                     <span>Total Participants</span>
@@ -1165,155 +1152,119 @@
             </div>
             <div class="directions-button-container">
                 <button onclick="openGoogleMapsDirections()" class="directions-button">
-                    Open Route in Google Maps
+                    🗺️ Open Route in Google Maps
                 </button>
-                <button onclick="exportToCSV()" class="directions-button"
-                    style="margin-left: 10px; background-color: #28a745;">
-                    Export to CSV
+                <button onclick="exportToCSV()" class="directions-button btn-export">
+                    📥 Export to CSV
                 </button>
             </div>
-        </div>
-
+        </section>
         <!-- Route Plan Section -->
-        <div class="card-style" style="margin: 0 auto 24px; max-width: 1200px;">
-            <h2 style="color: #1a202c; font-size: 1.75rem; font-weight: 700; border-bottom: 3px solid #667eea; padding-bottom: 0.75rem; margin-bottom: 1rem; letter-spacing: -0.3px;">🚌 Bus Route Plan</h2>
+        <section class="card-style">
+            <h2 class="section-heading">🚌 Bus Route Plan</h2>
             <div id="routePlanContainer" class="route-plan-container">
                 <p style="text-align: center; color: #6b7280;">Loading route information...</p>
             </div>
-        </div>
+        </section>
 
         <!-- Picnic Menu Section -->
-        <div class="card-style" style="margin: 0 auto 24px; max-width: 1200px;">
-            <h2 style="color: #1a202c; font-size: 1.75rem; font-weight: 700; border-bottom: 3px solid #667eea; padding-bottom: 0.75rem; margin-bottom: 1rem; letter-spacing: -0.3px;">🍽️ Picnic Menu (Buffet) 2026</h2>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+        <section class="card-style">
+            <h2 class="section-heading">🍽️ Picnic Menu (Buffet) 2027</h2>
+
+            <div class="menu-grid">
                 <!-- Breakfast -->
-                <div style="background: linear-gradient(135deg, #fef3c7 0%, #fef9e5 100%); border-radius: 12px; padding: 1.5rem; border-left: 5px solid #f59e0b; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);">
-                    <h3 style="color: #92400e; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="font-size: 1.5rem;">🌅</span> Breakfast
-                    </h3>
-                    <ul style="list-style: none; padding: 0; margin: 0;">
-                        <li style="padding: 0.5rem 0; color: #78350f; font-size: 0.938rem; border-bottom: 1px solid #fde68a; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.25rem;">🥟</span> Koraisutir kachuri
-                        </li>
-                        <li style="padding: 0.5rem 0; color: #78350f; font-size: 0.938rem; border-bottom: 1px solid #fde68a; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.25rem;">🥔</span> Aloor dam
-                        </li>
-                        <li style="padding: 0.5rem 0; color: #78350f; font-size: 0.938rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.25rem;">🍬</span> Moya/MISTI
-                        </li>
+                <div class="menu-card breakfast">
+                    <h3><span>🌅</span> Breakfast</h3>
+                    <ul class="menu-list">
+                        <li><span>🥟</span> Koraisutir kachuri</li>
+                        <li><span>🥔</span> Aloor dam</li>
+                        <li><span>🍬</span> Moya / Misti</li>
                     </ul>
                 </div>
 
                 <!-- Snacks -->
-                <div style="background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%); border-radius: 12px; padding: 1.5rem; border-left: 5px solid #3b82f6; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);">
-                    <h3 style="color: #1e40af; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="font-size: 1.5rem;">☕</span> Snacks
-                    </h3>
-                    <ul style="list-style: none; padding: 0; margin: 0;">
-                        <li style="padding: 0.5rem 0; color: #1e3a8a; font-size: 0.938rem; border-bottom: 1px solid #bfdbfe; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.25rem;">🥬</span> Veg Pakora
-                        </li>
-                        <li style="padding: 0.5rem 0; color: #1e3a8a; font-size: 0.938rem; border-bottom: 1px solid #bfdbfe; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.25rem;">🌽</span> Crispy chilli baby corn
-                        </li>
-                        <li style="padding: 0.5rem 0; color: #1e3a8a; font-size: 0.938rem; border-bottom: 1px solid #bfdbfe; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.25rem;">🍗</span> Dry chilli Chicken / Chicken sutey
-                        </li>
-                        <li style="padding: 0.5rem 0; color: #1e3a8a; font-size: 0.938rem; border-bottom: 1px solid #bfdbfe; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.25rem;">☕</span> Coffee & Tea
-                        </li>
-                        <li style="padding: 0.5rem 0; color: #1e3a8a; font-size: 0.938rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.25rem;">🍟</span> French fries
-                        </li>
+                <div class="menu-card snacks">
+                    <h3><span>☕</span> Snacks</h3>
+                    <ul class="menu-list">
+                        <li><span>🥬</span> Veg Pakora</li>
+                        <li><span>🌽</span> Crispy chilli baby corn</li>
+                        <li><span>🍗</span> Dry chilli Chicken / Chicken sutey</li>
+                        <li><span>☕</span> Coffee &amp; Tea</li>
+                        <li><span>🍟</span> French fries</li>
                     </ul>
                 </div>
 
                 <!-- Lunch -->
-                <div style="background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%); border-radius: 12px; padding: 1.5rem; border-left: 5px solid #10b981; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);">
-                    <h3 style="color: #065f46; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="font-size: 1.5rem;">🍛</span> Lunch
-                    </h3>
-                    <ul style="list-style: none; padding: 0; margin: 0;">
-                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.25rem;">🐟</span> Fish fry / Paneer Pasanda
-                        </li>
-                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.25rem;">🍚</span> Deradun Rice
-                        </li>
-                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.25rem;">🥔</span> Jhuri Aloo Vaja
-                        </li>
-                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.25rem;">🥘</span> Veg Dal
-                        </li>
-                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.25rem;">🍛</span> Polao
-                        </li>
-                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.25rem;">🐡/🥦</span> Gondhoraj Katla / Fulkopir Rost
-                        </li>
-                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.25rem;">🍖/🍵</span> Mutton / Chanar Kofta Kari
-                        </li>
-                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.25rem;">🥗</span> Chatni & Papard
-                        </li>
-                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.25rem;">🍡</span> Nolengurer Rasogolla
-                        </li>
-                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; border-bottom: 1px solid #bbf7d0; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.25rem;">🍰</span> Sondesh
-                        </li>
-                        <li style="padding: 0.5rem 0; color: #064e3b; font-size: 0.938rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="font-size: 1.25rem;">🍃</span> Mitha Pan
-                        </li>
+                <div class="menu-card lunch">
+                    <h3><span>🍛</span> Lunch</h3>
+                    <ul class="menu-list">
+                        <li><span>🐟</span> Fish fry / Paneer Pasanda</li>
+                        <li><span>🍚</span> Dehradun Rice</li>
+                        <li><span>🥔</span> Jhuri Aloo Vaja</li>
+                        <li><span>🥘</span> Veg Dal</li>
+                        <li><span>🍛</span> Polao</li>
+                        <li><span>🐡</span> Gondhoraj Katla / Fulkopir Roast</li>
+                        <li><span>🍖</span> Mutton / Chanar Kofta Kari</li>
+                        <li><span>🥗</span> Chatni &amp; Papad</li>
+                        <li><span>🍡</span> Nolengurer Rasogolla</li>
+                        <li><span>🍰</span> Sondesh</li>
+                        <li><span>🍃</span> Mitha Pan</li>
                     </ul>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div class="route-section">
-            <h2 class="route-header">Pickup Locations</h2>
-            <table class="locations-table">
-                <thead>
-                    <tr>
-                        <th class="sortable" data-sort="name">Name <span class="sort-indicator"></span></th>
-                        <th class="sortable" data-sort="transport">Transport <span class="sort-indicator"></span></th>
-                        <th class="sortable" data-sort="location">Location <span class="sort-indicator"></span></th>
-                        <th>Coordinates</th>
-                        <th>Phone Number</th>
-                        <th class="sortable" data-sort="headCount">Head Count <span class="sort-indicator"></span></th>
-                        <th class="sortable" data-sort="kidsCount">Kids Count <span class="sort-indicator"></span></th>
-                        <th class="sortable" data-sort="food">Food Type <span class="sort-indicator"></span></th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="locationList"></tbody>
-            </table>
-        </div>
+        <!-- Pickup Locations Table -->
+        <section class="route-section">
+            <h2 class="route-header">📍 Pickup Locations</h2>
+            <div class="table-wrapper">
+                <table class="locations-table">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-sort="name">Name <span class="sort-indicator"></span></th>
+                            <th class="sortable" data-sort="transport">Transport <span class="sort-indicator"></span>
+                            </th>
+                            <th class="sortable" data-sort="location">Location <span class="sort-indicator"></span></th>
+                            <th>Coordinates</th>
+                            <th>Phone Number</th>
+                            <th class="sortable" data-sort="headCount">Head Count <span class="sort-indicator"></span>
+                            </th>
+                            <th class="sortable" data-sort="kidsCount">Kids Count <span class="sort-indicator"></span>
+                            </th>
+                            <th class="sortable" data-sort="food">Food Type <span class="sort-indicator"></span></th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="locationList"></tbody>
+                </table>
+            </div>
+        </section>
+
         <!-- Contact Persons Card -->
-        <div class="contact-card card-style" style="margin: 0 auto 24px; max-width: 1200px;">
-            <h2 style="color: #1a202c; font-size: 1.75rem; font-weight: 700; border-bottom: 3px solid #667eea; padding-bottom: 0.75rem; margin-bottom: 1.5rem; letter-spacing: -0.3px;">📞 Contact Persons</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
-                <div class="total-item">
-                    <span style="font-size: 1rem; margin-bottom: 0.75rem;">Arijit</span>
-                    <span style="font-size: 1.25rem;"><a href="tel:+918777698332" style="color: #667eea; text-decoration: none; font-weight: 700;">8777698332</a></span>
+        <section class="contact-card card-style">
+            <h2 class="section-heading">📞 Contact Persons</h2>
+            <div class="contact-grid">
+                <div class="total-item contact-item">
+                    <span>Arijit</span>
+                    <span><a href="tel:+918777698332">+91 87776 98332</a></span>
                 </div>
-                <div class="total-item">
-                    <span style="font-size: 1rem; margin-bottom: 0.75rem;">Avinaba</span>
-                    <span style="font-size: 1.25rem;"><a href="tel:+918016941498" style="color: #667eea; text-decoration: none; font-weight: 700;">8016941498</a></span>
+                <div class="total-item contact-item">
+                    <span>Avinaba</span>
+                    <span><a href="tel:+918016941498">+91 80169 41498</a></span>
                 </div>
-                <div class="total-item">
-                    <span style="font-size: 1rem; margin-bottom: 0.75rem;">Kowsik</span>
-                    <span style="font-size: 1.25rem;"><a href="tel:+918274819788" style="color: #667eea; text-decoration: none; font-weight: 700;">8274819788</a></span>
+                <div class="total-item contact-item">
+                    <span>Kowsik</span>
+                    <span><a href="tel:+918274819788">+91 82748 19788</a></span>
                 </div>
             </div>
-        </div>
+        </section>
+
+        <!-- Footer -->
         <footer class="footer">
             <div class="footer-content">
                 <p class="footer-description">
-                    Plan your perfect picnic with ease. Manage pickup locations, track participants, and optimize your route for a memorable outing.
+                    Plan your perfect picnic with ease. Manage pickup locations, track participants, and optimize your
+                    route for a memorable outing.
                 </p>
                 <div class="footer-divider"></div>
                 <div class="footer-bottom">
@@ -1337,7 +1288,7 @@
         let BUS_COLORS = {}; // busId -> color
         let currentSortColumn = null;
         let currentSortDirection = 'asc';
-        
+
         // Load notifications from Supabase notes table
         async function loadNotifications() {
             try {
@@ -1346,13 +1297,13 @@
                     .select('content')
                     .eq('title', 'Notifications')
                     .single();
-                
+
                 if (error) {
                     console.error('Error loading notifications:', error);
                     document.getElementById('notificationsList').innerHTML = '<li>No notifications available.</li>';
                     return;
                 }
-                
+
                 if (data && data.content) {
                     // Split content by newlines and create list items
                     const lines = data.content.split('\n').filter(line => line.trim() !== '');
@@ -1506,11 +1457,11 @@
                 container.appendChild(routeCard);
             });
         }
-        
+
         async function loadAdminRoutePoints() {
             try {
                 const { data, error } = await window.supabase
-                    .from('picnic_2026_root')
+                    .from('picnic_TCS_root')
                     .select('bus_source_coordinates, picnic_spot, picnic_spot_name')
                     .limit(1)
                     .single();
@@ -1534,18 +1485,18 @@
 
         function exportToCSV() {
             a = prompt("Password to download CSV")
-            if (a !== "TCS_Picnic@#2026") {
+            if (a !== "Picnic_2027@#TCS") {
                 alert("Incorrect Password")
                 return
             }
-            
+
             // Separate locations with and without transport
             const transportLocations = locations.filter(loc => loc.transportRequired);
             const noTransportLocations = locations.filter(loc => !loc.transportRequired);
-            
+
             // Optimize the route for transport locations only
             const optimizedLocations = optimizeRoute(START_POINT, transportLocations, END_POINT);
-            
+
             const allLocations = [
                 {
                     name: "Starting Point",
@@ -1632,7 +1583,7 @@
         function createGoogleMapsDirectionsUrl(locations) {
             // Optimize the route before creating the URL
             const optimizedLocations = optimizeRoute(START_POINT, locations, END_POINT);
-            
+
             const allPoints = [
                 START_POINT,
                 ...optimizedLocations,
@@ -1681,7 +1632,7 @@
                 mapElement.style.opacity = '1';
                 mapElement.style.pointerEvents = 'auto';
                 mapElement.style.transition = 'opacity 0.3s ease';
-                
+
                 // Remove temporary marker if exists
                 if (tempMarker && map) {
                     map.removeLayer(tempMarker);
@@ -1728,7 +1679,7 @@
                 });
 
                 updateMap();
-                
+
                 // Set initial map state (map is viewable but clicking disabled)
                 document.getElementById('map').style.opacity = '1';
                 document.getElementById('map').style.pointerEvents = 'auto';
@@ -1903,8 +1854,8 @@
         function sortLocations(column, direction) {
             locations.sort((a, b) => {
                 let aVal, bVal;
-                
-                switch(column) {
+
+                switch (column) {
                     case 'name':
                         aVal = (a.name || '').toLowerCase();
                         bVal = (b.name || '').toLowerCase();
@@ -1932,7 +1883,7 @@
                     default:
                         return 0;
                 }
-                
+
                 if (aVal < bVal) return direction === 'asc' ? -1 : 1;
                 if (aVal > bVal) return direction === 'asc' ? 1 : -1;
                 return 0;
@@ -1943,7 +1894,7 @@
             document.querySelectorAll('.locations-table th .sort-indicator').forEach(indicator => {
                 indicator.textContent = '';
             });
-            
+
             if (currentSortColumn) {
                 const th = document.querySelector(`.locations-table th[data-sort="${currentSortColumn}"] .sort-indicator`);
                 if (th) {
@@ -1965,12 +1916,12 @@
                 const row = document.createElement('tr');
                 // Mask phone number - show only last 4 digits
                 const maskedPhone = loc.phone ? `+91 ******${loc.phone.slice(-4)}` : 'N/A';
-                
+
                 // Transport badge
-                const transportBadge = loc.transportRequired ? 
-                    '<span style="color: #10b981; font-weight: 700;">✓ Yes</span>' : 
+                const transportBadge = loc.transportRequired ?
+                    '<span style="color: #10b981; font-weight: 700;">✓ Yes</span>' :
                     '<span style="color: #6b7280; font-weight: 600;">✗ No</span>';
-                
+
                 // Show location and coords only if transport is required
                 const locationDisplay = loc.transportRequired && loc.location ? loc.location : '-';
                 const coordsDisplay = loc.transportRequired && loc.coords && loc.lat && loc.lng ? `
@@ -1980,7 +1931,7 @@
                         ${loc.coords}
                     </a>
                 ` : '-';
-                
+
                 row.innerHTML = `
                     <td>${loc.name}</td>
                     <td>${transportBadge}</td>
@@ -2003,7 +1954,7 @@
             document.getElementById('totalKidsCount').textContent = totals.totalKidsCount;
             document.getElementById('vegCount').textContent = totals.vegCount;
             document.getElementById('nonVegCount').textContent = totals.nonVegCount;
-            
+
             updateSortIndicators();
         }
 
@@ -2027,7 +1978,7 @@
                 alert("Please select a food preference!");
                 return;
             }
-            if(headCount <= 0){
+            if (headCount <= 0) {
                 alert("Head Count must be at least 1!");
                 return;
             }
@@ -2040,7 +1991,7 @@
 
             if (name && phone && headCount && kidsCount) {
                 let lat = 0, lng = 0;
-                
+
                 // Parse coordinates only if transport is required
                 if (transportRequired && coords) {
                     let latLng = coords.split(",").map(coord => coord.trim());
@@ -2086,7 +2037,7 @@
                     // Reset transport toggle
                     document.getElementById('transportRequired').checked = false;
                     toggleTransportFields();
-                    
+
                     if (tempMarker) {
                         map.removeLayer(tempMarker);
                         tempMarker = null;
@@ -2158,7 +2109,7 @@
 
             if (name && phone && headCount && kidsCount) {
                 let lat = 0, lng = 0;
-                
+
                 // Parse coordinates only if transport is required
                 if (transportRequired && coords) {
                     let latLng = coords.split(",").map(coord => coord.trim());
@@ -2310,9 +2261,9 @@
 
             // Add sort event listeners
             document.querySelectorAll('.locations-table th.sortable').forEach(th => {
-                th.addEventListener('click', function() {
+                th.addEventListener('click', function () {
                     const column = this.getAttribute('data-sort');
-                    
+
                     if (currentSortColumn === column) {
                         // Toggle direction
                         currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
@@ -2321,7 +2272,7 @@
                         currentSortColumn = column;
                         currentSortDirection = 'asc';
                     }
-                    
+
                     renderTable();
                 });
             });
@@ -2449,7 +2400,7 @@
         // Make Supabase data loading function available globally
         window.loadLocationsFromSupabase = async function () {
             try {
-                const { data, error } = await window.supabase.from("picnic_2026").select("*");
+                const { data, error } = await window.supabase.from("picnic_TCS").select("*");
 
                 if (error) {
                     console.error('Supabase error:', error);
@@ -2493,7 +2444,7 @@
         window.loadBusAssignments = async function () {
             try {
                 const { data, error } = await window.supabase
-                    .from('notes').select('content').eq('title','Bus_Assignments').maybeSingle();
+                    .from('notes').select('content').eq('title', 'Bus_Assignments').maybeSingle();
                 if (error && error.code !== 'PGRST116') { console.error('Error loading bus assignments:', error); return; }
                 if (data && data.content) {
                     const parsed = JSON.parse(data.content);
@@ -2512,7 +2463,7 @@
 
             try {
                 const { data, error } = await window.supabase
-                    .from("picnic_2026")
+                    .from("picnic_TCS")
                     .insert([{
                         name: locationData.name,
                         transport_required: locationData.transportRequired || false,
@@ -2542,7 +2493,7 @@
         window.updateLocationInSupabase = async function (locationId, locationData) {
             try {
                 const { data, error } = await window.supabase
-                    .from("picnic_2026")
+                    .from("picnic_TCS")
                     .update({
                         name: locationData.name,
                         transport_required: locationData.transportRequired || false,
@@ -2574,7 +2525,7 @@
         window.deleteLocationFromSupabase = async function (locationId) {
             try {
                 const { error } = await window.supabase
-                    .from("picnic_2026")
+                    .from("picnic_TCS")
                     .delete()
                     .eq('id', locationId);
 
