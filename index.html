@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Picnic Location Planner</title>
+    <title>TCS Picnic 2027</title>
     <!-- Modern Editorial & UI Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,25 +19,36 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <style>
         :root {
-            --bg-canvas: #f6f7f5;
+            /* Canvas & Surface */
+            --bg-canvas: #f4f6f8;
             --bg-surface: #ffffff;
-            --bg-subtle: #f1f5f2;
-            --primary: #0f3d2e;
-            --primary-hover: #175440;
-            --primary-soft: #e6f0ec;
-            --accent: #d97706;
-            --accent-soft: #fef3c7;
+            --bg-subtle: #edf1f5;
+            
+            /* Pantone Classic Blue (19-4052) */
+            --primary: #0f4c81;
+            --primary-hover: #0b3b66;
+            --primary-soft: #e6f0f9;
+            
+            /* Pantone Living Coral (16-1546) */
+            --accent: #ff6f61;
+            --accent-soft: #ffe5e2;
+            
+            /* Typography & Borders */
             --text-main: #111827;
             --text-secondary: #4b5563;
             --text-muted: #6b7280;
             --border-light: #e5e7eb;
-            --border-focus: #0f3d2e;
-            --radius-lg: 20px;
-            --radius-md: 12px;
-            --radius-sm: 8px;
-            --shadow-sm: 0 1px 3px rgba(15, 61, 46, 0.05);
-            --shadow-md: 0 8px 30px rgba(15, 61, 46, 0.06);
-            --shadow-lg: 0 20px 40px rgba(15, 61, 46, 0.09);
+            --border-focus: #0f4c81;
+            
+            /* Border Radii (Kept from your grid revamp) */
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 10px;
+            
+            /* Modernized layered shadows (Updated to Classic Blue RGB: 15, 76, 129) */
+            --shadow-sm: 0 2px 4px rgba(15, 76, 129, 0.04), 0 1px 2px rgba(15, 76, 129, 0.02);
+            --shadow-md: 0 10px 25px -5px rgba(15, 76, 129, 0.08), 0 8px 10px -6px rgba(15, 76, 129, 0.04);
+            --shadow-lg: 0 25px 50px -12px rgba(15, 76, 129, 0.15);
         }
 
         * {
@@ -51,20 +62,16 @@
             line-height: 1.6;
             background-color: var(--bg-canvas);
             background-image:
-                radial-gradient(at 0% 0%, rgba(15, 61, 46, 0.06) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(217, 119, 6, 0.06) 0px, transparent 50%);
+                radial-gradient(circle at 15% 0%, rgba(15, 61, 46, 0.04) 0%, transparent 40%),
+                radial-gradient(circle at 85% 100%, rgba(217, 119, 6, 0.04) 0%, transparent 40%);
+            background-attachment: fixed;
             color: var(--text-main);
-            padding: 20px;
+            padding: 32px 20px;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
         }
 
-        h1,
-        h2,
-        h3,
-        .page-title,
-        .destination-name,
-        .route-title {
+        h1, h2, h3, .page-title, .destination-name, .route-title {
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
@@ -74,41 +81,38 @@
             overflow: hidden;
             width: 100%;
             max-width: 1200px;
-            margin: 0 auto 24px;
+            margin: 0 auto 32px;
             background: var(--primary);
             border-radius: 999px;
-            padding: 10px 0;
+            padding: 12px 0;
             box-shadow: var(--shadow-md);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .marquee-inner {
             display: inline-block;
             white-space: nowrap;
             padding-left: 100%;
-            animation: marquee-scroll 28s linear infinite;
-            font-weight: 500;
-            letter-spacing: 0.3px;
+            animation: marquee-scroll 32s linear infinite;
+            font-weight: 600;
+            letter-spacing: 0.5px;
             font-size: 0.875rem;
             color: #f3f4f6;
         }
 
-        .marquee-banner:hover .marquee-inner {
-            animation-play-state: paused;
-        }
+        .marquee-banner:hover .marquee-inner { animation-play-state: paused; }
 
         @keyframes marquee-scroll {
-            0% {
-                transform: translateX(0);
-            }
-
-            100% {
-                transform: translateX(-100%);
-            }
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
         }
 
         /* Top Navigation Header */
@@ -118,104 +122,117 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 16px;
-            margin-bottom: 28px;
-            padding: 8px 4px;
+            padding: 0 8px;
         }
 
         .page-title {
             color: var(--primary);
             margin: 0;
-            font-size: 2.15rem;
+            font-size: 2.25rem;
             font-weight: 800;
-            letter-spacing: -0.03em;
+            letter-spacing: -0.04em;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .admin-btn {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 20px;
+            padding: 10px 24px;
             background: var(--bg-surface);
-            color: var(--text-main);
-            border: 1px solid var(--border-light);
+            color: var(--primary);
+            border: 2px solid transparent;
             text-decoration: none;
             border-radius: 999px;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 0.875rem;
             box-shadow: var(--shadow-sm);
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .admin-btn:hover {
-            background: var(--primary);
-            color: #ffffff;
-            border-color: var(--primary);
-            transform: translateY(-1px);
+            background: var(--primary-soft);
+            transform: translateY(-2px);
             box-shadow: var(--shadow-md);
         }
 
         /* Hero Destination Card */
         .destination-info {
-            background: linear-gradient(135deg, #0f3d2e 0%, #1b5e48 100%);
-            padding: 2.25rem 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, #1b5e48 100%);
+            padding: 3rem 2.5rem;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-lg);
-            margin: 0 auto 24px;
-            max-width: 1200px;
             text-align: center;
             position: relative;
             overflow: hidden;
         }
 
+        .destination-info::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at top right, rgba(255,255,255,0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
         .destination-label {
             display: inline-block;
             font-size: 0.75rem;
-            font-weight: 700;
-            color: #fde68a;
-            background: rgba(255, 255, 255, 0.12);
-            padding: 4px 14px;
+            font-weight: 800;
+            color: var(--primary);
+            background: #fde68a;
+            padding: 6px 16px;
             border-radius: 999px;
             text-transform: uppercase;
-            letter-spacing: 1.2px;
-            margin-bottom: 0.75rem;
+            letter-spacing: 1.5px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(253, 230, 138, 0.2);
         }
 
         .destination-name {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 800;
             color: #ffffff;
-            margin-bottom: 0.35rem;
-            line-height: 1.25;
-            letter-spacing: -0.02em;
-            transition: opacity 0.2s ease;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+            letter-spacing: -0.03em;
+            transition: transform 0.3s ease, opacity 0.3s ease;
         }
 
         .destination-name:hover {
-            opacity: 0.9;
+            opacity: 0.95;
+            transform: scale(1.01);
         }
 
         .destination-coords {
-            font-size: 0.875rem;
+            font-size: 0.9rem;
             color: #a7f3d0;
             font-weight: 500;
             cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(4px);
+            transition: background 0.2s ease;
         }
+        
+        .destination-coords:hover { background: rgba(255,255,255,0.15); }
 
-        /* Unified Section Cards */
         .form-container,
         .totals-container,
         .route-section,
         .card-style {
             background-color: var(--bg-surface);
-            padding: 2rem;
+            padding: 2.5rem;
             border-radius: var(--radius-lg);
-            border: 1px solid rgba(15, 61, 46, 0.08);
+            border: 1px solid rgba(15, 61, 46, 0.05);
             box-shadow: var(--shadow-md);
-            margin: 0 auto 24px;
-            max-width: 1200px;
+            width: 100%;
         }
 
         .section-heading,
@@ -223,43 +240,52 @@
         .totals-container h2,
         .route-header {
             color: var(--text-main);
-            margin-bottom: 1.5rem;
-            font-size: 1.35rem;
-            font-weight: 700;
-            border-bottom: 1px solid var(--border-light);
-            padding-bottom: 0.85rem;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            border-bottom: 2px solid var(--bg-subtle);
+            padding-bottom: 1rem;
             letter-spacing: -0.02em;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
         }
 
         /* Notifications List */
         #notificationsList {
             list-style: none;
-            margin: 0;
-            padding: 0;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
         #notificationsList li {
             position: relative;
-            padding-left: 1.5rem;
             color: var(--text-secondary);
             font-size: 0.95rem;
-            line-height: 1.6;
+            background: var(--bg-subtle);
+            padding: 14px 16px 14px 3rem;
+            border-radius: var(--radius-md);
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        #notificationsList li:hover {
+            background: #ffffff;
+            border-color: var(--border-light);
+            box-shadow: var(--shadow-sm);
         }
 
         #notificationsList li::before {
             content: "•";
             position: absolute;
-            left: 0.35rem;
+            left: 1.2rem;
             color: var(--accent);
             font-weight: 800;
-            font-size: 1.2rem;
-            line-height: 1.3;
+            font-size: 1.5rem;
+            line-height: 1;
+            top: 50%;
+            transform: translateY(-50%);
         }
 
         /* Form Styling */
@@ -269,77 +295,85 @@
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 1.25rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
             align-items: start;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 0.45rem;
+            gap: 0.5rem;
             position: relative;
         }
 
         .form-group label {
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-main);
-            font-size: 0.85rem;
+            font-size: 0.875rem;
+            margin-left: 4px;
         }
 
         .form-group input,
         .form-group select {
-            padding: 0.75rem 1rem;
-            border: 1.5px solid var(--border-light);
+            padding: 0.875rem 1.25rem;
+            border: 2px solid var(--bg-subtle);
             border-radius: var(--radius-md);
             font-size: 0.95rem;
             font-family: inherit;
             color: var(--text-main);
             transition: all 0.2s ease;
             width: 100%;
-            background-color: #fafafa;
+            background-color: var(--bg-subtle);
         }
 
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(15, 61, 46, 0.12);
             background-color: #ffffff;
+            box-shadow: 0 0 0 4px var(--primary-soft);
         }
 
         .phone-input-container {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 8px;
         }
 
         .phone-prefix {
             background-color: var(--bg-subtle);
-            padding: 0.75rem 0.95rem;
-            border: 1.5px solid var(--border-light);
+            padding: 0.875rem 1.25rem;
+            border: 2px solid var(--bg-subtle);
             border-radius: var(--radius-md);
             color: var(--primary);
             font-size: 0.95rem;
-            font-weight: 600;
+            font-weight: 700;
         }
 
         /* Toggle Switch Box */
         .switch-container {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            padding: 1rem 1.25rem;
+            gap: 1.25rem;
+            padding: 1.25rem;
             background: var(--bg-subtle);
             border-radius: var(--radius-md);
-            border: 1px solid rgba(15, 61, 46, 0.1);
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .switch-container:hover {
+            background: #ffffff;
+            border-color: var(--border-light);
+            box-shadow: var(--shadow-sm);
         }
 
         .switch {
             position: relative;
             display: inline-block;
-            width: 52px;
-            height: 28px;
+            width: 56px;
+            height: 32px;
             flex-shrink: 0;
         }
 
@@ -352,145 +386,139 @@
         .slider {
             position: absolute;
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background-color: #cbd5e1;
-            transition: .3s;
-            border-radius: 34px;
+            transition: .4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 999px;
         }
 
         .slider:before {
             position: absolute;
             content: "";
-            height: 22px;
-            width: 22px;
-            left: 3px;
-            bottom: 3px;
+            height: 24px;
+            width: 24px;
+            left: 4px;
+            bottom: 4px;
             background-color: white;
-            transition: .3s;
+            transition: .4s cubic-bezier(0.4, 0, 0.2, 1);
             border-radius: 50%;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
-        input:checked+.slider {
-            background-color: var(--primary);
-        }
-
-        input:checked+.slider:before {
-            transform: translateX(24px);
-        }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(24px); }
 
         .switch-label {
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-main);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
         .switch-description {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
+            margin-top: 2px;
         }
 
         /* Primary Submit Button */
         .button-group {
             grid-column: 1 / -1;
-            margin-top: 0.5rem;
+            margin-top: 1rem;
         }
 
         .button-group button {
             background-color: var(--primary);
             color: white;
-            padding: 0.875rem 2rem;
+            padding: 1rem 2.5rem;
             border: none;
-            border-radius: var(--radius-md);
+            border-radius: 999px;
             cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
+            font-size: 1rem;
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             width: 100%;
-            max-width: 220px;
-            box-shadow: 0 4px 12px rgba(15, 61, 46, 0.2);
+            max-width: 260px;
+            box-shadow: 0 4px 12px rgba(15, 61, 46, 0.15);
         }
 
         .button-group button:hover {
             background-color: var(--primary-hover);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(15, 61, 46, 0.28);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(15, 61, 46, 0.25);
         }
 
         /* Map Canvas */
         #map {
-            height: 380px;
+            height: 420px;
             width: 100%;
             border-radius: var(--radius-lg);
-            margin: 0 auto 24px;
             box-shadow: var(--shadow-md);
             overflow: hidden;
-            border: 1px solid rgba(15, 61, 46, 0.12);
-        }
-
-        /* Summary KPI Cards */
+            border: 1px solid rgba(15, 61, 46, 0.08);
+            z-index: 1;
+        }/* Summary KPI Cards */
         .totals-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1.25rem;
             margin-top: 1rem;
         }
 
         .total-item {
-            background: var(--bg-subtle);
-            padding: 1.25rem;
+            background: var(--bg-surface);
+            padding: 1.5rem;
             border-radius: var(--radius-md);
-            border: 1px solid rgba(15, 61, 46, 0.08);
-            transition: all 0.2s ease;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
         }
 
         .total-item:hover {
-            transform: translateY(-2px);
-            background: #ffffff;
-            border-color: var(--primary);
-            box-shadow: var(--shadow-sm);
+            transform: translateY(-4px);
+            border-color: var(--primary-soft);
+            box-shadow: var(--shadow-md);
         }
 
         .total-item span:first-child {
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-muted);
-            display: block;
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.5rem;
             font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.1em;
         }
 
         .total-item span:last-child {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 2rem;
+            font-size: 2.25rem;
             color: var(--primary);
             font-weight: 800;
-            line-height: 1.1;
+            line-height: 1;
         }
 
         /* Action Toolbar Buttons */
         .directions-button-container {
-            margin-top: 24px;
+            margin-top: 32px;
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 16px;
         }
 
         .directions-button {
             background-color: var(--primary);
             color: white;
-            padding: 12px 24px;
+            padding: 0.875rem 1.75rem;
             border: none;
-            border-radius: var(--radius-md);
+            border-radius: 999px;
             cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -499,14 +527,15 @@
 
         .directions-button:hover {
             background-color: var(--primary-hover);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
             box-shadow: var(--shadow-md);
         }
 
         .directions-button.btn-export {
             background-color: #ffffff;
             color: var(--primary);
-            border: 1.5px solid var(--primary);
+            border: 2px solid var(--primary);
+            padding: calc(0.875rem - 2px) calc(1.75rem - 2px);
         }
 
         .directions-button.btn-export:hover {
@@ -516,183 +545,136 @@
         /* Bus Route Plan Cards */
         .route-plan-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.25rem;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.75rem;
+            margin-top: 1.5rem;
         }
 
         .route-card {
-            background: #fafafa;
+            background: #ffffff;
             border-radius: var(--radius-md);
-            padding: 1.5rem;
+            padding: 2rem;
             border: 1px solid var(--border-light);
             border-top: 4px solid var(--primary);
-            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
         }
 
         .route-card:hover {
-            background: #ffffff;
+            transform: translateY(-2px);
             box-shadow: var(--shadow-md);
         }
 
         .route-card .route-header {
-            margin-bottom: 1rem;
-            padding-bottom: 0.75rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
             border-bottom: 1px solid var(--border-light);
             display: block;
         }
 
         .route-title {
-            font-size: 1.2rem;
-            font-weight: 700;
+            font-size: 1.35rem;
+            font-weight: 800;
             color: var(--primary);
             margin-bottom: 0.5rem;
         }
 
         .route-info {
             display: flex;
-            gap: 1rem;
+            gap: 1.25rem;
             flex-wrap: wrap;
-            font-size: 0.825rem;
+            font-size: 0.875rem;
             color: var(--text-secondary);
+            font-weight: 500;
         }
 
-        .route-info-item strong {
-            color: var(--text-main);
-        }
+        .route-info-item strong { color: var(--text-main); }
 
         .timeline {
-            margin-top: 1rem;
+            margin-top: 1.5rem;
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 1rem;
         }
 
         .segment {
-            background: #ffffff;
+            background: var(--bg-canvas);
             border-radius: var(--radius-sm);
-            padding: 0.9rem 1rem;
+            padding: 1.25rem;
             border: 1px solid var(--border-light);
-            border-left: 3px solid var(--accent);
+            border-left: 4px solid var(--accent);
+            transition: all 0.2s ease;
+        }
+        
+        .segment:hover {
+            background: #ffffff;
+            box-shadow: var(--shadow-sm);
         }
 
         .segment-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 0.35rem;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 0.5rem;
         }
 
         .segment-route {
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-main);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
         .segment-time {
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             background: var(--primary-soft);
             color: var(--primary);
-            padding: 2px 8px;
+            padding: 4px 10px;
             border-radius: 999px;
-            font-weight: 600;
+            font-weight: 700;
             white-space: nowrap;
         }
 
         .segment-stops {
-            font-size: 0.825rem;
+            font-size: 0.875rem;
             color: var(--text-secondary);
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
         .contact-groups {
-            margin-top: 1.25rem;
-            padding-top: 1rem;
+            margin-top: 1.75rem;
+            padding-top: 1.25rem;
             border-top: 1px solid var(--border-light);
         }
 
         .contact-groups-title {
-            font-size: 0.9rem;
-            font-weight: 700;
+            font-size: 0.95rem;
+            font-weight: 800;
             color: var(--text-main);
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.75rem;
         }
 
         .contact-group {
             background: var(--accent-soft);
-            padding: 0.65rem 0.9rem;
+            padding: 0.875rem 1rem;
             border-radius: var(--radius-sm);
             margin-bottom: 0.5rem;
-            font-size: 0.85rem;
+            font-size: 0.875rem;
             color: #78350f;
+            border: 1px solid rgba(217, 119, 6, 0.1);
         }
 
         .contact-phone {
             color: var(--primary);
-            font-weight: 700;
+            font-weight: 800;
             text-decoration: none;
+            padding: 2px 6px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 4px;
+            margin: 0 4px;
         }
 
-        .contact-phone:hover {
-            text-decoration: underline;
-        }
-
-        /* Menu Grid */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .menu-card {
-            border-radius: var(--radius-md);
-            padding: 1.5rem;
-            border: 1px solid var(--border-light);
-            background: #fafafa;
-        }
-
-        .menu-card.breakfast {
-            border-top: 4px solid #f59e0b;
-        }
-
-        .menu-card.snacks {
-            border-top: 4px solid #0284c7;
-        }
-
-        .menu-card.lunch {
-            border-top: 4px solid #059669;
-        }
-
-        .menu-card h3 {
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: var(--text-main);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .menu-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .menu-list li {
-            padding: 0.55rem 0;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            border-bottom: 1px dashed var(--border-light);
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-        }
-
-        .menu-list li:last-child {
-            border-bottom: none;
-        }
+        .contact-phone:hover { text-decoration: underline; background: #fff; }
 
         /* Modern Data Table */
         .table-wrapper {
@@ -700,29 +682,31 @@
             overflow-x: auto;
             border-radius: var(--radius-md);
             border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm);
+            background: #ffffff;
         }
 
         .locations-table {
             width: 100%;
             border-collapse: collapse;
             background-color: white;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            text-align: left;
         }
 
         .locations-table th,
         .locations-table td {
-            padding: 0.95rem 1rem;
-            text-align: left;
+            padding: 1.25rem 1.5rem;
             border-bottom: 1px solid var(--border-light);
         }
 
         .locations-table th {
             background-color: var(--bg-subtle);
             color: var(--primary);
-            font-weight: 700;
-            font-size: 0.78rem;
+            font-weight: 800;
+            font-size: 0.8rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.08em;
             white-space: nowrap;
         }
 
@@ -730,35 +714,32 @@
             cursor: pointer;
             user-select: none;
             position: relative;
-            padding-right: 1.5rem;
-            transition: background-color 0.15s ease;
+            padding-right: 2rem;
+            transition: background-color 0.2s ease;
         }
 
-        .locations-table th.sortable:hover {
-            background-color: var(--primary-soft);
-        }
+        .locations-table th.sortable:hover { background-color: var(--primary-soft); }
 
         .locations-table th .sort-indicator {
             position: absolute;
-            right: 0.5rem;
-            font-size: 0.7rem;
+            right: 0.75rem;
+            font-size: 0.75rem;
             opacity: 0.8;
+            top: 50%;
+            transform: translateY(-50%);
         }
 
-        .locations-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .locations-table tbody tr:hover {
-            background-color: #f9fafb;
-        }
+        .locations-table tbody tr { transition: background-color 0.2s ease; }
+        .locations-table tbody tr:last-child td { border-bottom: none; }
+        .locations-table tbody tr:hover { background-color: var(--bg-subtle); }
 
         .coordinate-link {
             color: var(--primary);
-            font-weight: 500;
+            font-weight: 600;
             text-decoration: none;
             cursor: pointer;
-            border-bottom: 1px dotted var(--primary);
+            border-bottom: 2px dotted var(--primary-soft);
+            transition: all 0.2s ease;
         }
 
         .coordinate-link:hover {
@@ -766,248 +747,496 @@
             border-bottom-color: var(--accent);
         }
 
-        .veg-type {
+        .veg-type, .non-veg-type {
             display: inline-block;
-            background: #dcfce7;
-            color: #166534;
-            padding: 3px 10px;
+            padding: 4px 12px;
             border-radius: 999px;
-            font-size: 0.78rem;
-            font-weight: 600;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
         }
 
-        .non-veg-type {
-            display: inline-block;
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 3px 10px;
-            border-radius: 999px;
-            font-size: 0.78rem;
-            font-weight: 600;
-        }
+        .veg-type { background: #dcfce7; color: #166534; }
+        .non-veg-type { background: #fee2e2; color: #991b1b; }
 
         .action-button {
-            padding: 0.45rem 0.95rem;
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-sm);
+            padding: 0.6rem 1.25rem;
+            border: 2px solid var(--border-light);
+            border-radius: 999px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
             transition: all 0.2s ease;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
         }
 
-        .edit-button {
-            background: #ffffff;
-            color: var(--text-main);
-        }
-
+        .edit-button { background: #ffffff; color: var(--text-main); }
         .edit-button:hover {
             background: var(--primary);
             color: #ffffff;
             border-color: var(--primary);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
         }
 
         /* Contact Cards */
+        /* Contact Cards */
         .contact-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .contact-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            transition: all 0.3s ease;
+        }
+
+        .contact-item:hover {
+            background: #ffffff;
+            border-color: var(--primary-soft);
+            box-shadow: var(--shadow-sm);
+            transform: translateY(-2px);
+        }
+        
+        .contact-item span:first-child {
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 1.1rem;
         }
 
         .contact-item a {
             color: var(--primary);
             text-decoration: none;
-            font-weight: 700;
-            font-size: 1.2rem;
+            font-weight: 800;
+            font-size: 1rem;
+            background: var(--primary-soft);
+            padding: 8px 16px;
+            border-radius: 999px;
+            transition: all 0.2s ease;
         }
 
         .contact-item a:hover {
-            color: var(--accent);
+            color: #ffffff;
+            background: var(--primary);
+            box-shadow: var(--shadow-sm);
         }
 
         /* Footer */
         .footer {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary) 0%, #1b5e48 100%);
             color: #e5e7eb;
-            padding: 2rem 1.5rem;
-            margin: 36px auto 12px;
+            padding: 3rem 2rem;
+            margin: 40px auto 16px;
             max-width: 1200px;
             border-radius: var(--radius-lg);
             text-align: center;
+            box-shadow: var(--shadow-md);
         }
 
         .footer-description {
             color: #d1fae5;
-            font-size: 0.9rem;
+            font-size: 1rem;
             max-width: 600px;
-            margin: 0 auto 1.25rem;
+            margin: 0 auto 1.5rem;
+            line-height: 1.7;
         }
 
         .footer-divider {
             height: 1px;
-            background: rgba(255, 255, 255, 0.15);
-            margin: 1.25rem 0;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+            margin: 1.5rem auto;
+            max-width: 800px;
         }
 
         .footer-bottom {
             color: #a7f3d0;
-            font-size: 0.825rem;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
 
         /* Loading Overlay */
         #loadingOverlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 61, 46, 0.92);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 61, 46, 0.85);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
         .loader {
-            width: 48px;
-            height: 48px;
-            border: 4px solid rgba(255, 255, 255, 0.25);
+            width: 56px;
+            height: 56px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
             border-top: 4px solid #fde68a;
             border-radius: 50%;
-            animation: spin 0.9s linear infinite;
+            animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         }
 
         @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .loading-text {
             color: #ffffff;
-            font-size: 1.05rem;
-            font-weight: 600;
-            margin-top: 16px;
-            letter-spacing: 0.3px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-top: 20px;
+            letter-spacing: 0.5px;
         }
 
         /* Location Autocomplete Dropdown */
         .location-dropdown {
             position: absolute;
-            top: calc(100% + 4px);
-            left: 0;
-            right: 0;
+            top: calc(100% + 8px);
+            left: 0; right: 0;
             background: white;
             border: 1px solid var(--border-light);
             border-radius: var(--radius-md);
-            max-height: 280px;
+            max-height: 320px;
             overflow-y: auto;
             z-index: 1000;
             box-shadow: var(--shadow-lg);
             display: none;
+            padding: 8px;
         }
 
-        .location-dropdown.active {
-            display: block;
-        }
+        .location-dropdown.active { display: block; }
 
         .location-option {
-            padding: 10px 14px;
+            padding: 12px 16px;
             cursor: pointer;
-            border-bottom: 1px solid var(--border-light);
-            transition: background-color 0.15s ease;
+            border-radius: var(--radius-sm);
+            transition: background-color 0.2s ease;
+            margin-bottom: 2px;
         }
 
-        .location-option:last-child {
-            border-bottom: none;
-        }
-
-        .location-option:hover {
-            background-color: var(--bg-subtle);
-        }
+        .location-option:last-child { margin-bottom: 0; }
+        .location-option:hover { background-color: var(--bg-subtle); }
 
         .location-option-name {
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-main);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
         .location-option-address {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
+            margin-top: 2px;
         }
 
         .location-option-type {
             display: inline-block;
-            padding: 2px 8px;
+            padding: 4px 10px;
             background: var(--primary-soft);
             color: var(--primary);
             border-radius: 999px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin-top: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-top: 6px;
             text-transform: capitalize;
         }
 
         .no-results {
-            padding: 14px;
+            padding: 20px 14px;
             text-align: center;
             color: #dc2626;
-            font-size: 0.875rem;
-            font-weight: 600;
+            font-size: 0.95rem;
+            font-weight: 700;
+            background: #fef2f2;
+            border-radius: var(--radius-sm);
         }
 
         .searching-indicator {
-            padding: 14px;
+            padding: 20px 14px;
             text-align: center;
             color: var(--primary);
-            font-size: 0.875rem;
-            font-weight: 600;
+            font-size: 0.95rem;
+            font-weight: 700;
+            background: var(--primary-soft);
+            border-radius: var(--radius-sm);
         }
 
         /* Responsive Tweaks */
         @media (max-width: 768px) {
-            body {
-                padding: 12px;
+            body { padding: 16px 12px; }
+            .container { gap: 16px; }
+            .page-title { font-size: 1.75rem; }
+            .destination-info { padding: 2rem 1.5rem; }
+            .destination-name { font-size: 1.75rem; }
+            .form-container, .totals-container, .route-section, .card-style {
+                padding: 1.5rem;
             }
+            .route-plan-container { grid-template-columns: 1fr; }
+            .totals-grid { grid-template-columns: repeat(2, 1fr); }
+            #map { height: 320px; }
+            .directions-button { width: 100%; justify-content: center; }
+            .contact-item { flex-direction: column; gap: 12px; text-align: center; }
+        }
 
-            .page-title {
-                font-size: 1.65rem;
-            }
+        /* ====================================================
+           DASHBOARD GRID LAYOUT REVAMP
+           ==================================================== */
+        .container {
+            max-width: 1440px !important; /* Wider for a true dashboard feel */
+            margin: 0 auto;
+            display: grid !important;
+            grid-template-columns: 1.8fr 1fr !important; /* Left column wider than right */
+            gap: 24px !important;
+            align-items: start !important;
+        }
 
-            .destination-name {
-                font-size: 1.5rem;
-            }
+        /* Reset old margins because CSS Grid handles the gaps automatically */
+        .top-header, .destination-info, .info-section, .form-container, 
+        #map, .totals-container, .route-section, .contact-card, 
+        .card-style {
+            margin: 0 !important; 
+        }
 
-            .form-container,
-            .totals-container,
-            .route-section,
-            .card-style {
-                padding: 1.25rem;
-            }
+        /* 1. Header & Hero (Full Width, Top) */
+        .top-header { grid-column: 1 / -1 !important; grid-row: 1 !important; }
+        .destination-info { grid-column: 1 / -1 !important; grid-row: 2 !important; }
 
-            .route-plan-container {
-                grid-template-columns: 1fr;
-            }
+        /* 2. Map & Summary KPIs (Row 3) */
+        #map { 
+            grid-column: 1 / 2 !important; 
+            grid-row: 3 !important; 
+            height: 100% !important; 
+            min-height: 420px !important; 
+        }
+        .totals-container { 
+            grid-column: 2 / 3 !important; 
+            grid-row: 3 !important; 
+            height: 100% !important; 
+            display: flex !important; 
+            flex-direction: column !important; 
+            justify-content: center !important;
+        }
 
-            .totals-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        /* 3. Form & Sidebar Info/Contact (Rows 4 & 5) */
+        .form-container { 
+            grid-column: 1 / 2 !important; 
+            grid-row: 4 / 6 !important; /* Spans two rows to match sidebar height */
+            height: 100% !important;
+        }
+        .info-section { 
+            grid-column: 2 / 3 !important; 
+            grid-row: 4 !important; 
+        }
+        .contact-card { 
+            grid-column: 2 / 3 !important; 
+            grid-row: 5 !important; 
+        }
 
-            #map {
-                height: 280px;
-            }
+        /* 4. Bottom Sections (Full Width) */
+        .card-style:not(.info-section):not(.contact-card) { 
+            /* This targets the Bus Route Plan specifically */
+            grid-column: 1 / -1 !important; 
+            grid-row: 6 !important; 
+        }
+        .route-section { 
+            grid-column: 1 / -1 !important; 
+            grid-row: 7 !important; 
+        }
+        .footer { 
+            grid-column: 1 / -1 !important; 
+            grid-row: 8 !important; 
+        }
 
-            .directions-button {
-                width: 100%;
-                justify-content: center;
+        /* Adjust the top Marquee banner for the new width */
+        .marquee-banner { max-width: 1440px !important; }
+
+        /* Tablet & Mobile Fallback: Revert to vertical stack for small screens */
+        @media (max-width: 1024px) {
+            .container {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 20px !important;
             }
+            #map { min-height: 350px !important; }
+            .form-container, .totals-container { height: auto !important; }
+        }
+        /* ====================================================
+           DASHBOARD INTERNAL COMPONENT REFINEMENTS
+           ==================================================== */
+        
+        /* 1. Refine the KPI Grid for Sidebar Display */
+        .totals-container .totals-grid {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important; /* Force a 2-column layout in sidebar */
+            gap: 16px !important;
+            align-content: center;
+        }
+        
+        .totals-container .total-item {
+            padding: 1.25rem 1rem !important;
+        }
+        
+        .totals-container .total-item span:last-child {
+            font-size: 2rem !important; /* Slightly smaller for the sidebar grid */
+        }
+        
+        /* Stack the map buttons neatly in the sidebar */
+        .directions-button-container {
+            margin-top: 24px !important;
+            flex-direction: column !important;
+            gap: 12px !important;
+            width: 100%;
+        }
+        
+        .directions-button, .directions-button.btn-export {
+            width: 100% !important;
+            justify-content: center;
+        }
+
+        /* 2. Form Grid Optimization */
+        .form-grid {
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+            gap: 1.25rem !important;
+        }
+        
+        .form-group input, .form-group select {
+            padding: 0.75rem 1rem !important; /* Tighter, more precise inputs */
+        }
+        
+        .button-group {
+            display: flex;
+            justify-content: flex-end; /* Align submit button to the right */
+            margin-top: 1rem;
+        }
+
+        /* 3. Professional Data Table (SaaS Style) */
+        .table-wrapper {
+            max-height: 500px; /* Make the table a scrollable frame */
+            overflow-y: auto;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+        }
+        
+        .locations-table th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: var(--bg-subtle) !important;
+            box-shadow: 0 1px 0 var(--border-light);
+            padding: 1rem 1.25rem !important;
+        }
+        
+        .locations-table td {
+            padding: 1rem 1.25rem !important;
+            font-size: 0.9rem !important;
+        }
+        
+        /* 4. Custom Dashboard Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-canvas);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* ====================================================
+           PICNIC MENU GRID CARDS
+           ==================================================== */
+        .menu-grid {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important;
+            gap: 24px !important;
+            margin-top: 1rem;
+        }
+
+        .menu-card {
+            background: #ffffff;
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-soft);
+        }
+
+        /* Top colored accent borders */
+        .menu-card.breakfast { border-top: 5px solid #f59e0b; }
+        .menu-card.snacks { border-top: 5px solid #0284c7; }
+        .menu-card.lunch { border-top: 5px solid #059669; }
+
+        .menu-card h3 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .menu-icon {
+            background: var(--bg-canvas);
+            padding: 8px;
+            border-radius: var(--radius-sm);
+            font-size: 1.25rem;
+            line-height: 1;
+        }
+
+        .menu-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .menu-list li {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: var(--bg-canvas);
+            border-radius: var(--radius-sm);
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .menu-list li:hover {
+            background: #ffffff;
+            border-color: var(--border-light);
+            color: var(--text-main);
+            box-shadow: 0 2px 4px rgba(15, 61, 46, 0.02);
+            transform: translateX(4px);
         }
     </style>
 </head>
@@ -1038,7 +1267,7 @@
             <div class="destination-label">📍 Picnic Destination</div>
             <div class="destination-name" onclick="openInGoogleMaps(END_POINT.lat, END_POINT.lng)"
                 style="cursor: pointer;" title="Click to open destination in Google Maps">
-                📌 Loading picnic spot...
+                📌 Picnic Spot is in Selection Process
             </div>
             <div class="destination-coords" onclick="openInGoogleMaps(END_POINT.lat, END_POINT.lng)">
                 Click location title to view on Google Maps ↗
@@ -1071,23 +1300,25 @@
                         </div>
                     </div>
 
+
                     <div class="form-group">
-                        <label for="headCount">Head Count</label>
-                        <input type="number" id="headCount" min="1" placeholder="Total members" required>
+                        <label for="vegCount">Vegetarian Count</label>
+                        <input type="number" id="vegCount" min="0" value="0" oninput="autoCalcHeadCount()" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="kidsCount">Kids Count</label>
-                        <input type="number" id="kidsCount" min="0" placeholder="Number of kids" required>
+                        <label for="nonVegCount">Non-Vegetarian Count</label>
+                        <input type="number" id="nonVegCount" min="0" value="0" oninput="autoCalcHeadCount()" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="food">Food Preference</label>
-                        <select id="food">
-                            <option value="" disabled selected>Select food preference</option>
-                            <option value="Veg">Vegetarian</option>
-                            <option value="Non-Veg">Non-Vegetarian</option>
-                        </select>
+                        <label for="headCount">Total Head Count</label>
+                        <input type="number" id="headCount" readonly style="background-color: var(--border-light); cursor: not-allowed;" placeholder="0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="kidsCount">Kids Count (Included in Total)</label>
+                        <input type="number" id="kidsCount" min="0" value="0" required>
                     </div>
 
                     <div class="form-group" style="grid-column: 1 / -1;">
@@ -1143,11 +1374,11 @@
                 </div>
                 <div class="total-item">
                     <span>Vegetarian</span>
-                    <span id="vegCount">0</span>
+                    <span id="totalVegCount">0</span>
                 </div>
                 <div class="total-item">
                     <span>Non-Vegetarian</span>
-                    <span id="nonVegCount">0</span>
+                    <span id="totalNonVegCount">0</span>
                 </div>
             </div>
             <div class="directions-button-container">
@@ -1168,13 +1399,13 @@
         </section>
 
         <!-- Picnic Menu Section -->
-        <section class="card-style">
+        <section class="menu-section card-style" style="grid-column: 1 / -1;">
             <h2 class="section-heading">🍽️ Picnic Menu (Buffet) 2027</h2>
 
             <div class="menu-grid">
-                <!-- Breakfast -->
+                <!-- Breakfast Card -->
                 <div class="menu-card breakfast">
-                    <h3><span>🌅</span> Breakfast</h3>
+                    <h3><span class="menu-icon">🌅</span> Breakfast</h3>
                     <ul class="menu-list">
                         <li><span>🥟</span> Koraisutir kachuri</li>
                         <li><span>🥔</span> Aloor dam</li>
@@ -1182,21 +1413,21 @@
                     </ul>
                 </div>
 
-                <!-- Snacks -->
+                <!-- Snacks Card -->
                 <div class="menu-card snacks">
-                    <h3><span>☕</span> Snacks</h3>
+                    <h3><span class="menu-icon">☕</span> Snacks</h3>
                     <ul class="menu-list">
                         <li><span>🥬</span> Veg Pakora</li>
                         <li><span>🌽</span> Crispy chilli baby corn</li>
                         <li><span>🍗</span> Dry chilli Chicken / Chicken sutey</li>
-                        <li><span>☕</span> Coffee &amp; Tea</li>
+                        <li><span>☕</span> Coffee & Tea</li>
                         <li><span>🍟</span> French fries</li>
                     </ul>
                 </div>
 
-                <!-- Lunch -->
+                <!-- Lunch Card -->
                 <div class="menu-card lunch">
-                    <h3><span>🍛</span> Lunch</h3>
+                    <h3><span class="menu-icon">🍛</span> Lunch</h3>
                     <ul class="menu-list">
                         <li><span>🐟</span> Fish fry / Paneer Pasanda</li>
                         <li><span>🍚</span> Dehradun Rice</li>
@@ -1205,7 +1436,7 @@
                         <li><span>🍛</span> Polao</li>
                         <li><span>🐡</span> Gondhoraj Katla / Fulkopir Roast</li>
                         <li><span>🍖</span> Mutton / Chanar Kofta Kari</li>
-                        <li><span>🥗</span> Chatni &amp; Papad</li>
+                        <li><span>🥗</span> Chatni & Papad</li>
                         <li><span>🍡</span> Nolengurer Rasogolla</li>
                         <li><span>🍰</span> Sondesh</li>
                         <li><span>🍃</span> Mitha Pan</li>
@@ -1231,7 +1462,7 @@
                             </th>
                             <th class="sortable" data-sort="kidsCount">Kids Count <span class="sort-indicator"></span>
                             </th>
-                            <th class="sortable" data-sort="food">Food Type <span class="sort-indicator"></span></th>
+                            <th class="sortable" data-sort="food">Food (Veg / Non-Veg) <span class="sort-indicator"></span></th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -1280,8 +1511,9 @@
         let routeLine = null;
         let locations = JSON.parse(localStorage.getItem('locations') || '[]');
         let tempMarker = null;
-        let START_POINT = { lat: 22.46610605026677, lng: 88.39275004634959 }; // fallback
-        let END_POINT = { lat: 22.7694162777404, lng: 88.33872289489572 }; // fallback
+        let START_POINT = { lat: 22.586254779481745, lng: 88.48916972873252 }; // fallback Ecospace : 22.586254779481745, 88.48916972873252
+        let END_POINT = { lat: 22.586254779481745, lng: 88.48916972873252 }; // fallback Ecospace : 22.586254779481745, 88.48916972873252
+        
 
         let PICNIC_SPOT_NAME = '';
         let BUS_ASSIGNMENTS = {}; // participantId -> busId
@@ -1289,6 +1521,12 @@
         let currentSortColumn = null;
         let currentSortDirection = 'asc';
 
+
+        function autoCalcHeadCount() {
+            const veg = parseInt(document.getElementById('vegCount').value) || 0;
+            const nonVeg = parseInt(document.getElementById('nonVegCount').value) || 0;
+            document.getElementById('headCount').value = veg + nonVeg;
+        }
         // Load notifications from Supabase notes table
         async function loadNotifications() {
             try {
@@ -1835,11 +2073,8 @@
             locations.forEach(loc => {
                 totalHeadCount += parseInt(loc.headCount) || 0;
                 totalKidsCount += parseInt(loc.kidsCount) || 0;
-                if (loc.food === 'Veg') {
-                    vegCount += parseInt(loc.headCount) || 0;
-                } else {
-                    nonVegCount += parseInt(loc.headCount) || 0;
-                }
+                vegCount += parseInt(loc.vegCount) || 0;
+                nonVegCount += parseInt(loc.nonVegCount) || 0;
             });
 
             return {
@@ -1940,7 +2175,10 @@
                     <td>${maskedPhone}</td>
                     <td>${loc.headCount}</td>
                     <td>${loc.kidsCount}</td>
-                    <td class="${loc.food === 'Veg' ? 'veg-type' : 'non-veg-type'}">${loc.food}</td>
+                    <td>
+                        ${loc.vegCount > 0 ? `<span class="veg-type">${loc.vegCount} V</span>` : ''}
+                        ${loc.nonVegCount > 0 ? `<span class="non-veg-type">${loc.nonVegCount} NV</span>` : ''}
+                    </td>
                     <td>
                         <button onclick="editLocation(${index})" class="action-button edit-button">Edit</button>
                     </td>
@@ -1952,8 +2190,8 @@
             document.getElementById('totalHeadCount').textContent = totals.totalHeadCount;
             document.getElementById('totalAdults').textContent = totals.totalAdults;
             document.getElementById('totalKidsCount').textContent = totals.totalKidsCount;
-            document.getElementById('vegCount').textContent = totals.vegCount;
-            document.getElementById('nonVegCount').textContent = totals.nonVegCount;
+            document.getElementById('totalVegCount').textContent = totals.vegCount;        // Updated ID
+            document.getElementById('totalNonVegCount').textContent = totals.nonVegCount;  // Updated ID
 
             updateSortIndicators();
         }
@@ -1964,9 +2202,11 @@
             let location = transportRequired ? document.getElementById('location').value : '';
             let coords = transportRequired ? document.getElementById('coords').value : '';
             let phone = document.getElementById('phone').value.trim();
-            let headCount = document.getElementById('headCount').value;
+            // let headCount = document.getElementById('headCount').value;
             let kidsCount = document.getElementById('kidsCount').value;
-            let food = document.getElementById('food').value;
+            let vegCount = parseInt(document.getElementById('vegCount').value) || 0;
+            let nonVegCount = parseInt(document.getElementById('nonVegCount').value) || 0;
+            let headCount = vegCount + nonVegCount;
 
             phone = phone.replace('+91', '').trim();
 
@@ -1974,10 +2214,10 @@
                 alert("Please enter a valid 10-digit phone number without +91");
                 return;
             }
-            if (food === "") {
-                alert("Please select a food preference!");
-                return;
-            }
+            // if (food === "") {
+            //     alert("Please select a food preference!");
+            //     return;
+            // }
             if (headCount <= 0) {
                 alert("Head Count must be at least 1!");
                 return;
@@ -2012,7 +2252,8 @@
                     phone,
                     headCount,
                     kidsCount,
-                    food,
+                    vegCount,
+                    nonVegCount,
                     lat,
                     lng
                 };
@@ -2063,9 +2304,16 @@
             document.getElementById('location').value = loc.location || '';
             document.getElementById('coords').value = loc.coords || '';
             document.getElementById('phone').value = loc.phone;
-            document.getElementById('headCount').value = loc.headCount;
+            // document.getElementById('headCount').value = loc.headCount;
             document.getElementById('kidsCount').value = loc.kidsCount;
-            document.getElementById('food').value = loc.food;
+            let vegCount = parseInt(document.getElementById('vegCount').value) || 0;
+            let nonVegCount = parseInt(document.getElementById('nonVegCount').value) || 0;
+            let headCount = vegCount + nonVegCount;
+            autoCalcHeadCount();
+            document.getElementById('headCount').value = headCount;
+            document.getElementById('vegCount').value = vegCount || 0;
+            document.getElementById('nonVegCount').value = nonVegCount || 0;
+
 
             document.querySelector('.form-container').scrollIntoView({
                 behavior: 'smooth',
@@ -2090,9 +2338,11 @@
             let location = transportRequired ? document.getElementById('location').value : '';
             let coords = transportRequired ? document.getElementById('coords').value : '';
             let phone = document.getElementById('phone').value.trim();
-            let headCount = document.getElementById('headCount').value;
+            //let headCount = document.getElementById('headCount').value;
             let kidsCount = document.getElementById('kidsCount').value;
-            let food = document.getElementById('food').value;
+            let vegCount = parseInt(document.getElementById('vegCount').value) || 0;
+            let nonVegCount = parseInt(document.getElementById('nonVegCount').value) || 0;
+            let headCount = vegCount + nonVegCount;
 
             phone = phone.replace('+91', '').trim();
 
@@ -2131,7 +2381,8 @@
                     phone,
                     headCount,
                     kidsCount,
-                    food,
+                    vegCount,
+                    nonVegCount,
                     lat,
                     lng
                 };
@@ -2146,7 +2397,8 @@
                             phone,
                             headCount,
                             kidsCount,
-                            food,
+                            vegCount,
+                            nonVegCount,
                             lat,
                             lng
                         });
@@ -2427,7 +2679,8 @@
                         phone: item.phone_number || '',
                         headCount: item.head_count || 0,
                         kidsCount: item.kids_count || 0,
-                        food: item.food_type || 'Veg',
+                        vegCount: item.veg_count || 0,
+                        nonVegCount: item.non_veg_count || 0,
                         lat: lat,
                         lng: lng
                     };
@@ -2472,7 +2725,8 @@
                         phone_number: locationData.phone,
                         head_count: parseInt(locationData.headCount),
                         kids_count: parseInt(locationData.kidsCount),
-                        food_type: locationData.food
+                        veg_count: parseInt(locationData.vegCount),
+                        non_veg_count: parseInt(locationData.nonVegCount),
                     }])
                     .select();
 
@@ -2502,7 +2756,8 @@
                         phone_number: locationData.phone,
                         head_count: parseInt(locationData.headCount),
                         kids_count: parseInt(locationData.kidsCount),
-                        food_type: locationData.food,
+                        veg_count: parseInt(locationData.vegCount),
+                        non_veg_count: parseInt(locationData.nonVegCount),
                         updated_at: new Date().toISOString()
                     })
                     .eq('id', locationId)
