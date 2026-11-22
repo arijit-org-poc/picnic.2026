@@ -1,16 +1,26 @@
-name: Manual Deploy to Vercel
+name: Deploy to Vercel
 
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 on:
-  workflow_dispatch: # Enables the manual "Run workflow" button on GitHub
+  # 1. Manual trigger
+  workflow_dispatch:
+
+  # 2. Trigger ONLY when a PR targeting main is closed
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
 
 jobs:
   Deploy-Production:
-    # Strictly prevents running if a feature branch is chosen in the dropdown
-    if: github.ref == 'refs/heads/main'
+    # Run ONLY if: (Manual click on main) OR (PR was successfully merged into main)
+    if: >
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
