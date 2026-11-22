@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Notes – Picnic 2027</title>
+	<!-- Modern Editorial & UI Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+		rel="stylesheet">
+	<style>
+        /* ==========================================================
+           Picnic · Organizer notes (v2)
+           Visual layer only. No IDs, classes or hooks were changed.
+           ========================================================== */
+
+        :root {
+            --ink: #14253a;
+            --ink-soft: #3c4e66;
+            --muted: #6b7a90;
+            --canvas: #f5f7fc;
+            --surface: #ffffff;
+            --line: #e3e8f2;
+            --paper: #fffdf6;
+            --sky: #2563eb;
+            --sky-dark: #1d4fc4;
+            --teal: #0d9488;
+            --sun: #f5a524;
+            --sun-tint: #fff4dc;
+            --pill: 999px;
+            --radius-xl: 22px;
+            --radius: 16px;
+            --shadow-lift: 0 4px 8px rgba(20, 37, 58, 0.06), 0 18px 36px rgba(20, 37, 58, 0.12);
+            --focus-ring: 0 0 0 4px rgba(37, 99, 235, 0.25);
+            --font-display: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 40px 20px;
+            font-family: var(--font-body);
+            color: var(--ink);
+            background:
+                radial-gradient(900px 460px at 90% -10%, rgba(245, 165, 36, 0.14), transparent 60%),
+                radial-gradient(900px 460px at -10% 110%, rgba(37, 99, 235, 0.10), transparent 60%),
+                var(--canvas);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ---------- Notepad card ---------- */
+        .notepad-container {
+            position: relative;
+            width: 100%;
+            max-width: 760px;
+            padding: 34px 36px 30px;
+            background: var(--paper);
+            border-radius: var(--radius-xl);
+            border-top: 8px solid var(--sun);
+            box-shadow: var(--shadow-lift);
+            overflow: hidden;
+            animation: card-in 0.5s ease-out both;
+        }
+
+        @keyframes card-in {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: none; }
+        }
+
+        .notepad-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle at 100% 0%, rgba(245, 165, 36, 0.22), transparent 70%);
+            pointer-events: none;
+        }
+
+        .notepad-title {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            font-family: var(--font-display);
+            font-size: clamp(20px, 3vw, 26px);
+            font-weight: 800;
+            letter-spacing: -0.015em;
+            color: var(--ink);
+        }
+
+        .notepad-title::after {
+            content: "";
+            flex: 1;
+            height: 4px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--sun), var(--teal));
+        }
+
+        /* ---------- Textarea ---------- */
+        .notepad-area {
+            display: block;
+            width: 100%;
+            min-height: 380px;
+            padding: 20px 22px;
+            border: 2px solid #efe6cf;
+            border-radius: var(--radius);
+            background-color: #ffffff;
+            background-image: repeating-linear-gradient(
+                to bottom,
+                transparent 0,
+                transparent 31px,
+                #f1ecdc 31px,
+                #f1ecdc 32px
+            );
+            background-attachment: local;
+            color: var(--ink);
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 32px;
+            resize: vertical;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .notepad-area::placeholder {
+            color: #a6a08c;
+            font-style: italic;
+        }
+
+        .notepad-area:hover {
+            border-color: #e5d7b0;
+        }
+
+        .notepad-area:focus {
+            outline: none;
+            border-color: var(--sun);
+            box-shadow: 0 0 0 4px rgba(245, 165, 36, 0.25);
+        }
+
+        /* ---------- Save button ---------- */
+        .save-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 18px;
+            min-width: 140px;
+            height: 50px;
+            padding: 0 28px;
+            border: none;
+            border-radius: var(--pill);
+            background: linear-gradient(135deg, var(--sky) 0%, var(--teal) 100%);
+            color: #ffffff;
+            font-family: var(--font-body);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.28);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+        }
+
+        .save-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.34);
+        }
+
+        .save-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .save-btn:disabled {
+            opacity: 0.6;
+            cursor: wait;
+            box-shadow: none;
+        }
+
+        .save-btn:focus-visible {
+            outline: none;
+            box-shadow: var(--focus-ring);
+        }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 700px) {
+            body {
+                padding: 16px 12px;
+            }
+
+            .notepad-container {
+                padding: 24px 18px 22px;
+                border-radius: 18px;
+            }
+
+            .notepad-area {
+                min-height: 300px;
+                padding: 16px;
+                font-size: 15px;
+            }
+
+            .save-btn {
+                width: 100%;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+	<div class="notepad-container">
+		<div class="notepad-title">Notes – Picnic 2027</div>
+		<textarea id="notesArea" class="notepad-area" placeholder="Write your notes here..."></textarea>
+		<button class="save-btn" id="saveBtn">Save</button>
+	</div>
+	<script type="module">
+		import { createClient } from "https://esm.sh/@supabase/supabase-js";
+
+		const supabaseUrl = "https://lpvuhqtpkvbmrkhnknaf.supabase.co";
+		const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwdnVocXRwa3ZibXJraG5rbmFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3MDQyMDIsImV4cCI6MjA2OTI4MDIwMn0.fmKlgIAY_Yoi3sFk333lRWlxzNlNNGqRZZAuLzGLnmw";
+		const supabase = createClient(supabaseUrl, supabaseKey);
+
+		const notesArea = document.getElementById('notesArea');
+		const saveBtn = document.getElementById('saveBtn');
+
+		// Load note from Supabase
+		async function loadNote() {
+			saveBtn.disabled = true;
+			saveBtn.textContent = 'Loading...';
+			const { data, error } = await supabase
+				.from('notes')
+				.select('id, content')
+				.eq('title', 'Main Note')
+				.limit(1)
+				.single();
+			if (error && error.code !== 'PGRST116') {
+				alert('Failed to load note from database');
+				notesArea.value = '';
+			} else if (data) {
+				notesArea.value = data.content || '';
+				notesArea.dataset.noteId = data.id;
+			} else {
+				notesArea.value = '';
+				notesArea.dataset.noteId = '';
+			}
+			saveBtn.disabled = false;
+			saveBtn.textContent = 'Save';
+		}
+
+		// Save note to Supabase
+		async function saveNote() {
+			saveBtn.disabled = true;
+			saveBtn.textContent = 'Saving...';
+			const noteId = notesArea.dataset.noteId;
+			const content = notesArea.value;
+			let result;
+			if (noteId) {
+				// Update existing note
+				result = await supabase
+					.from('notes')
+					.update({ content, updated_at: new Date().toISOString() })
+					.eq('id', noteId);
+			} else {
+				// Insert new note
+				result = await supabase
+					.from('notes')
+					.insert([{ title: 'Main Note', content }]);
+			}
+			if (result.error) {
+				alert('Failed to save note: ' + result.error.message);
+			} else {
+				saveBtn.textContent = 'Saved!';
+				setTimeout(() => saveBtn.textContent = 'Save', 1200);
+				// Reload to get the new note id
+				await loadNote();
+			}
+			saveBtn.disabled = false;
+		}
+
+		saveBtn.onclick = saveNote;
+		window.addEventListener('DOMContentLoaded', loadNote);
+	</script>
+</body>
+
+</html>

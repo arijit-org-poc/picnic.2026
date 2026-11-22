@@ -1,0 +1,374 @@
+{
+    "route-1": {
+        "planned_start_time": "7:00 AM",
+        "route_name": "Kamalgazi → Barrackpore → Universal Park & Café (via EM Bypass – VIP Road)",
+        "total_estimated_time": "2 hr 20 min including final leg",
+        "timeline": [
+            {
+                "segment": 1,
+                "from": "Kamalgazi",
+                "to": "Ruby Hospital More",
+                "stops": [
+                    "Kamalgazi More",
+                    "Garia Station",
+                    "Hindustan More",
+                    "Kalikapur",
+                    "Avishikta",
+                    "Ruby"
+                ],
+                "time": "7:00 AM – 7:20 AM",
+                "duration": "20 min"
+            },
+            {
+                "segment": 2,
+                "from": "Ruby",
+                "to": "Science City",
+                "stops": [
+                    "Ruby",
+                    "China Mandir",
+                    "Science City"
+                ],
+                "time": "7:20 AM – 7:30 AM",
+                "duration": "10 min"
+            },
+            {
+                "segment": 3,
+                "from": "Science City",
+                "to": "Chingrighata",
+                "stops": [
+                    "Science City",
+                    "Parama",
+                    "Metropolitan",
+                    "Chingrighata"
+                ],
+                "time": "7:30 AM – 7:38 AM",
+                "duration": "8 min"
+            },
+            {
+                "segment": 4,
+                "from": "Chingrighata",
+                "to": "HUDCO (Ultadanga)",
+                "stops": [
+                    "Chingrighata",
+                    "Salt Lake Stadium",
+                    "HUDCO More (Ultadanga)"
+                ],
+                "time": "7:38 AM – 7:55 AM",
+                "duration": "15–17 min"
+            },
+            {
+                "segment": 5,
+                "from": "HUDCO",
+                "to": "Baguiati",
+                "stops": [
+                    "HUDCO",
+                    "Dakshindari",
+                    "Lake Town",
+                    "Jaya Cinema",
+                    "Bangur",
+                    "Dum Dum Park",
+                    "Kestopur",
+                    "Baguiati"
+                ],
+                "time": "7:55 AM – 8:15 AM",
+                "duration": "20 min"
+            },
+            {
+                "segment": 6,
+                "from": "Baguiati",
+                "to": "Haldiram",
+                "stops": [
+                    "Baguiati",
+                    "Baishakhi",
+                    "Teghoria",
+                    "Haldiram"
+                ],
+                "time": "8:15 AM – 8:23 AM",
+                "duration": "8 min"
+            },
+            {
+                "segment": 7,
+                "from": "Haldiram",
+                "to": "Airport (Gate 1, 2, 2.5, 3)",
+                "stops": [
+                    "Haldiram",
+                    "Airport Gate 1",
+                    "Gate 2",
+                    "Gate 2.5",
+                    "Gate 3"
+                ],
+                "time": "8:23 AM – 8:35 AM",
+                "duration": "12 min"
+            },
+            {
+                "segment": 8,
+                "from": "Airport",
+                "to": "Madhyamgram",
+                "stops": [
+                    "Airport",
+                    "New Barrackpore Crossing",
+                    "Madhyamgram Chowmatha",
+                    "Madhyamgram"
+                ],
+                "time": "8:35 AM – 8:55 AM",
+                "duration": "20 min"
+            },
+            {
+                "segment": 9,
+                "from": "Madhyamgram",
+                "to": "Universal Park & Café (Debpukur, Barrackpore, Teleni Para)",
+                "stops": [
+                    "Madhyamgram",
+                    "Barrackpore",
+                    "Debpukur",
+                    "Universal Park & Café"
+                ],
+                "time": "8:55 AM – 9:25 AM",
+                "duration": "25–30 min"
+            }
+        ],
+        "final_arrival_time": "9:20 AM – 9:30 AM",
+        "contact_groups": {
+            "group_1": {
+                "routes": [
+                    1,
+                    2
+                ],
+                "contact_person": "Partha Pratim Ghorai",
+                "phone": "9433295517"
+            },
+            "group_2": {
+                "routes": [
+                    3,
+                    4,
+                    5
+                ],
+                "contact_person": "Suvadip Jana",
+                "phone": "7439850568"
+            },
+            "group_3": {
+                "routes": [
+                    6,
+                    7
+                ],
+                "contact_person": "Suvo Seal",
+                "phone": "9952938973"
+            },
+            "group_4": {
+                "routes": [
+                    8,
+                    9
+                ],
+                "contact_person": "Samit Dutta",
+                "phone": "9831616928"
+            }
+        }
+    },
+    "route-2": {
+        "planned_start_time": "7:00 AM",
+        "route_name": "Karunamoyee → Barrackpore → Universal Park & Café (Debpukur, Teleni Para)",
+        "total_estimated_time": "≈ 2 hr 40 min",
+        "timeline": [
+            {
+                "segment": 1,
+                "from": "Karunamoyee",
+                "to": "College More",
+                "stops": [
+                    "Karunamoyee",
+                    "Karunamoyee Bus Stand",
+                    "Sech Bhawan",
+                    "College More"
+                ],
+                "time": "7:00 AM – 7:08 AM",
+                "duration": "8 min"
+            },
+            {
+                "segment": 2,
+                "from": "College More",
+                "to": "DLF 1",
+                "stops": [
+                    "College More",
+                    "Sector 5 Wipro",
+                    "Webel More",
+                    "DLF 1"
+                ],
+                "time": "7:08 AM – 7:15 AM",
+                "duration": "7 min"
+            },
+            {
+                "segment": 3,
+                "from": "DLF 1",
+                "to": "Narkel Bagan",
+                "stops": [
+                    "DLF 1",
+                    "Technopolis",
+                    "Nabadiganta",
+                    "Narkel Bagan"
+                ],
+                "time": "7:15 AM – 7:22 AM",
+                "duration": "7 min"
+            },
+            {
+                "segment": 4,
+                "from": "Narkel Bagan",
+                "to": "GP (Candor/Unitech)",
+                "stops": [
+                    "Narkel Bagan",
+                    "Akankha More",
+                    "Jatragachi",
+                    "GP"
+                ],
+                "time": "7:22 AM – 7:32 AM",
+                "duration": "10 min"
+            },
+            {
+                "segment": 5,
+                "from": "GP",
+                "to": "Ecospace",
+                "stops": [
+                    "GP",
+                    "TCS Gitanjali Park",
+                    "Ecospace (Gate 1/2/3)"
+                ],
+                "time": "7:32 AM – 7:40 AM",
+                "duration": "8 min"
+            },
+            {
+                "segment": 6,
+                "from": "Ecospace",
+                "to": "Eco Park",
+                "stops": [
+                    "Ecospace",
+                    "New Town Bus Stand",
+                    "Eco Park (Gate 1/2)"
+                ],
+                "time": "7:40 AM – 7:48 AM",
+                "duration": "8 min"
+            },
+            {
+                "segment": 7,
+                "from": "Eco Park",
+                "to": "Chinar Park",
+                "stops": [
+                    "Eco Park",
+                    "City Centre 2",
+                    "Chinar Park"
+                ],
+                "time": "7:48 AM – 7:58 AM",
+                "duration": "10 min"
+            },
+            {
+                "segment": 8,
+                "from": "Chinar Park",
+                "to": "Airport Gates",
+                "stops": [
+                    "Chinar Park",
+                    "Haldiram",
+                    "Airport Gate 1",
+                    "Gate 2",
+                    "Gate 2.5",
+                    "Gate 3"
+                ],
+                "time": "7:58 AM – 8:12 AM",
+                "duration": "14 min"
+            },
+            {
+                "segment": 9,
+                "from": "Airport",
+                "to": "Dunlop",
+                "stops": [
+                    "Airport",
+                    "Jessore Road",
+                    "Birati",
+                    "Madhusudan Nagar",
+                    "Belghoria Expressway",
+                    "Dunlop"
+                ],
+                "time": "8:12 AM – 8:32 AM",
+                "duration": "20 min"
+            },
+            {
+                "segment": 10,
+                "from": "Dunlop",
+                "to": "Dakshineswar",
+                "stops": [
+                    "Dunlop",
+                    "Ariadaha",
+                    "Dakshineswar"
+                ],
+                "time": "8:32 AM – 8:42 AM",
+                "duration": "10 min"
+            },
+            {
+                "segment": 11,
+                "from": "Dakshineswar",
+                "to": "Sodepur",
+                "stops": [
+                    "Dakshineswar",
+                    "Adyapeath",
+                    "Sodepur"
+                ],
+                "time": "8:42 AM – 8:55 AM",
+                "duration": "13 min"
+            },
+            {
+                "segment": 12,
+                "from": "Sodepur",
+                "to": "Barrackpore",
+                "stops": [
+                    "Sodepur",
+                    "Titagarh",
+                    "Talpukur",
+                    "Barrackpore"
+                ],
+                "time": "8:55 AM – 9:15 AM",
+                "duration": "20 min"
+            },
+            {
+                "segment": "Final",
+                "from": "Barrackpore",
+                "to": "Universal Park & Café",
+                "stops": [
+                    "Barrackpore",
+                    "Debpukur",
+                    "Universal Park & Café"
+                ],
+                "time": "9:15 AM – 9:40 AM",
+                "duration": "25 min"
+            }
+        ],
+        "final_arrival_time": "≈ 9:35 AM – 9:40 AM",
+        "contact_groups": {
+            "group_5": {
+                "routes": [
+                    1,
+                    2,
+                    3
+                ],
+                "contact_person": "Debashmita Paul",
+                "phone": "8961421993"
+            },
+            "group_6": {
+                "routes": [
+                    4,
+                    5,
+                    6,
+                    7
+                ],
+                "contact_person": "Anish Kumar",
+                "phone": "9801929211"
+            },
+            "group_7": {
+                "routes": [
+                    8,
+                    9,
+                    10,
+                    11,
+                    12
+                ],
+                "contact_person": "SK Ariful Alam",
+                "phone": "9663768111"
+            }
+        }
+    }
+}

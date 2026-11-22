@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cashbook – Picnic 2027</title>
+    <!-- Modern Editorial & UI Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ==========================================================
+           Picnic · Cashbook ledger (v2)
+           Visual layer only. No IDs, classes or hooks were changed.
+           ========================================================== */
+
+        :root {
+            --ink: #14253a;
+            --ink-soft: #3c4e66;
+            --muted: #6b7a90;
+            --canvas: #f5f7fc;
+            --surface: #ffffff;
+            --line: #e3e8f2;
+            --line-strong: #cbd4e2;
+
+            --sky: #2563eb;
+            --sky-dark: #1d4fc4;
+            --sky-tint: #e8f0ff;
+            --teal: #0d9488;
+            --teal-dark: #0b7f75;
+            --teal-tint: #e0f7f4;
+            --coral: #f2644f;
+            --coral-tint: #ffe9e5;
+            --sun: #f5a524;
+            --sun-tint: #fff4dc;
+            --violet: #7c5cf0;
+            --violet-tint: #efeafe;
+
+            /* Semantic names the page's own styles already reference */
+            --income-color: var(--teal);
+            --expense-color: var(--coral);
+            --onsite-color: var(--sky);
+            --balance-color: var(--violet);
+
+            --radius-xl: 22px;
+            --radius: 16px;
+            --radius-sm: 11px;
+            --pill: 999px;
+            --shadow-sm: 0 1px 2px rgba(20, 37, 58, 0.06);
+            --shadow: 0 2px 4px rgba(20, 37, 58, 0.04), 0 12px 28px rgba(20, 37, 58, 0.07);
+            --shadow-lift: 0 4px 8px rgba(20, 37, 58, 0.06), 0 18px 36px rgba(20, 37, 58, 0.12);
+            --focus-ring: 0 0 0 4px rgba(37, 99, 235, 0.25);
+
+            --font-display: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--ink);
+            background:
+                radial-gradient(1100px 480px at 95% -10%, rgba(13, 148, 136, 0.08), transparent 60%),
+                radial-gradient(900px 460px at -10% 20%, rgba(37, 99, 235, 0.06), transparent 60%),
+                var(--canvas);
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, .title {
+            font-family: var(--font-display);
+            color: var(--ink);
+            letter-spacing: -0.015em;
+        }
+
+        :focus-visible {
+            outline: none;
+            box-shadow: var(--focus-ring);
+            border-radius: 6px;
+        }
+
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 24px 24px 72px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* ---------- Header ---------- */
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 24px 28px;
+            border-radius: var(--radius-xl);
+            background: linear-gradient(120deg, #14253a 0%, #0b7f75 55%, #0d9488 100%);
+            box-shadow: var(--shadow-lift);
+            color: #ffffff;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .header > div {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .primary-btn,
+        .secondary-btn,
+        .clear-filters-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 44px;
+            padding: 0 20px;
+            border-radius: var(--pill);
+            font: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .primary-btn:hover,
+        .secondary-btn:hover,
+        .clear-filters-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .primary-btn {
+            background: #ffffff;
+            color: var(--teal-dark);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+        }
+
+        .primary-btn:hover {
+            background: var(--teal-tint);
+        }
+
+        .secondary-btn {
+            background: var(--surface);
+            color: var(--sky-dark);
+            border-color: var(--sky);
+        }
+
+        .secondary-btn:hover {
+            background: var(--sky-tint);
+        }
+
+        /* Buttons on the light background */
+        .filter-controls .primary-btn,
+        .modal .primary-btn {
+            background: linear-gradient(135deg, var(--sky) 0%, var(--teal) 100%);
+            color: #ffffff;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+        }
+
+        .filter-controls .primary-btn:hover,
+        .modal .primary-btn:hover {
+            background: linear-gradient(135deg, var(--sky-dark) 0%, var(--teal-dark) 100%);
+        }
+
+        #toggleModeBtn {
+            background: rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+            box-shadow: none;
+        }
+
+        #toggleModeBtn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        #openModalBtn {
+            background: #ffffff;
+            color: var(--teal-dark);
+        }
+
+        /* ---------- Summary cards ---------- */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .summary-card {
+            position: relative;
+            overflow: hidden;
+            padding: 20px 22px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lift);
+        }
+
+        .summary-card::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: var(--sky);
+        }
+
+        .summary-card.income::before { background: var(--income-color); }
+        .summary-card.expense::before { background: var(--expense-color); }
+        .summary-card.onsite::before { background: var(--onsite-color); }
+        .summary-card.balance::before { display: none; }
+
+        .summary-card-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .summary-card-value {
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 800;
+            line-height: 1.15;
+            color: var(--ink);
+            letter-spacing: -0.02em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .summary-card.income .summary-card-value { color: var(--income-color); }
+        .summary-card.expense .summary-card-value { color: var(--expense-color); }
+        .summary-card.onsite .summary-card-value { color: var(--onsite-color); }
+
+        .summary-card.balance {
+            background: linear-gradient(135deg, var(--violet) 0%, var(--sky) 100%);
+            border-color: transparent;
+            box-shadow: 0 14px 30px rgba(124, 92, 240, 0.3);
+        }
+
+        .summary-card.balance .summary-card-label {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .summary-card.balance .summary-card-value {
+            color: #ffffff;
+        }
+
+        /* ---------- Filters ---------- */
+        .filter-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 14px 18px;
+            padding: 18px 20px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ink-soft);
+        }
+
+        .filter-group select {
+            min-height: 42px;
+            padding: 0 40px 0 14px;
+            border: 2px solid var(--line-strong);
+            border-radius: var(--radius-sm);
+            background-color: var(--surface);
+            color: var(--ink);
+            font: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            appearance: none;
+            background-image: linear-gradient(45deg, transparent 50%, var(--sky) 50%),
+                linear-gradient(135deg, var(--sky) 50%, transparent 50%);
+            background-position: calc(100% - 20px) 55%, calc(100% - 14px) 55%;
+            background-size: 6px 6px, 6px 6px;
+            background-repeat: no-repeat;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .filter-group select:hover {
+            border-color: #98a6bb;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--sky);
+            box-shadow: var(--focus-ring);
+        }
+
+        .clear-filters-btn {
+            background: var(--coral-tint);
+            color: var(--coral);
+            min-height: 42px;
+        }
+
+        .clear-filters-btn:hover {
+            background: var(--coral);
+            color: #ffffff;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* ---------- Ledger table ---------- */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+        }
+
+        .ledger-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 14px;
+        }
+
+        .ledger-table th {
+            position: sticky;
+            top: 0;
+            padding: 14px 16px;
+            background: var(--sky-tint);
+            text-align: left;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--sky-dark);
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        .ledger-table th:first-child {
+            border-top-left-radius: var(--radius-xl);
+        }
+
+        .ledger-table th:last-child {
+            border-top-right-radius: var(--radius-xl);
+        }
+
+        .ledger-table th.sortable {
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+
+        .ledger-table th.sortable:hover {
+            background: #d7e5ff;
+        }
+
+        .ledger-table th .sort-indicator {
+            display: inline-block;
+            margin-left: 4px;
+            font-size: 11px;
+            color: var(--coral);
+        }
+
+        .ledger-table td {
+            padding: 14px 16px;
+            border-top: 1px solid var(--line);
+            color: var(--ink);
+            vertical-align: middle;
+        }
+
+        .ledger-table td:nth-child(4) {
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        .ledger-table tbody tr {
+            transition: background-color 0.15s ease;
+        }
+
+        .ledger-table tbody tr:nth-child(even) td {
+            background: #fafbfe;
+        }
+
+        .ledger-table tbody tr:hover td {
+            background: var(--sun-tint);
+        }
+
+        .ledger-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Type and onsite pills, rendered by the page's script */
+        .type-income,
+        .type-expense,
+        .onsite-yes,
+        .onsite-no {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 11px;
+            border-radius: var(--pill);
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .type-income {
+            background: var(--teal-tint);
+            color: var(--teal-dark);
+        }
+
+        .type-expense {
+            background: var(--coral-tint);
+            color: #c2412d;
+        }
+
+        .onsite-yes {
+            background: var(--sky-tint);
+            color: var(--sky-dark);
+        }
+
+        .onsite-no {
+            background: var(--line);
+            color: var(--ink-soft);
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            height: 32px;
+            padding: 0 14px;
+            border-radius: var(--pill);
+            border: none;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .edit-btn {
+            background: var(--sky-tint);
+            color: var(--sky-dark);
+        }
+
+        .edit-btn:hover {
+            background: var(--sky);
+            color: #ffffff;
+        }
+
+        .delete-btn {
+            background: var(--coral-tint);
+            color: #c2412d;
+        }
+
+        .delete-btn:hover {
+            background: var(--coral);
+            color: #ffffff;
+        }
+
+        /* ---------- Modal ---------- */
+        .modal-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(20, 37, 58, 0.55);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .modal {
+            position: relative;
+            width: 100%;
+            max-width: 520px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+            padding: 28px;
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            box-shadow: 0 30px 60px rgba(20, 37, 58, 0.35);
+            border-top: 6px solid var(--teal);
+            animation: modalIn 0.22s ease-out;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(12px) scale(0.98); }
+            to { opacity: 1; transform: none; }
+        }
+
+        .modal-header {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 20px;
+            padding-right: 36px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background: var(--line);
+            color: var(--ink-soft);
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--coral);
+            color: #ffffff;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .error-msg {
+            margin-top: 12px;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            background: var(--coral-tint);
+            color: #b93b27;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* ---------- Form fields inside modal ---------- */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ink-soft);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            min-height: 46px;
+            padding: 10px 14px;
+            border: 2px solid var(--line-strong);
+            border-radius: var(--radius-sm);
+            background: var(--surface);
+            color: var(--ink);
+            font: inherit;
+            font-size: 15px;
+            font-weight: 500;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .form-group input:hover,
+        .form-group select:hover,
+        .form-group textarea:hover {
+            border-color: #98a6bb;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--sky);
+            box-shadow: var(--focus-ring);
+        }
+
+        .form-group textarea {
+            min-height: 88px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        /* Multi-select participants picker */
+        .multiselect {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            min-height: 46px;
+            padding: 8px 10px;
+            border: 2px solid var(--line-strong);
+            border-radius: var(--radius-sm);
+            background: var(--surface);
+            cursor: text;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .multiselect:hover {
+            border-color: #98a6bb;
+        }
+
+        .multiselect:focus {
+            outline: none;
+            border-color: var(--sky);
+            box-shadow: var(--focus-ring);
+        }
+
+        .multiselect-option {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 6px 4px 12px;
+            border-radius: var(--pill);
+            background: var(--violet-tint);
+            color: var(--violet);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .multiselect-remove {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border: none;
+            border-radius: 50%;
+            background: transparent;
+            color: var(--violet);
+            font-size: 15px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .multiselect-remove:hover {
+            background: var(--violet);
+            color: #ffffff;
+        }
+
+        .multiselect-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 60;
+            max-height: 240px;
+            margin-top: 6px;
+            overflow-y: auto;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-sm);
+            box-shadow: 0 18px 40px rgba(20, 37, 58, 0.18);
+        }
+
+        .multiselect-dropdown-option {
+            padding: 11px 14px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ink);
+            cursor: pointer;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .multiselect-dropdown-option:last-child {
+            border-bottom: none;
+        }
+
+        .multiselect-dropdown-option:hover {
+            background: var(--sky-tint);
+        }
+
+        /* Onsite switch inside modal */
+        .switch-container {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 14px 16px;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(90deg, var(--sky-tint), #ffffff 75%);
+            border: 2px solid var(--sky-tint);
+            margin-bottom: 0;
+        }
+
+        .switch-container label:first-child {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            flex-shrink: 0;
+            width: 52px;
+            height: 30px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            inset: 0;
+            background: var(--line-strong);
+            border-radius: var(--pill);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .slider:before {
+            content: "";
+            position: absolute;
+            left: 4px;
+            bottom: 4px;
+            width: 22px;
+            height: 22px;
+            background: #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(20, 37, 58, 0.3);
+            transition: transform 0.2s ease;
+        }
+
+        input:checked + .slider {
+            background: var(--sky);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        /* ---------- Scrollbars ---------- */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--line-strong);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 768px) {
+            .container {
+                padding: 14px 14px 56px;
+                gap: 18px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .title {
+                font-size: 20px;
+                width: 100%;
+            }
+
+            .header > div {
+                width: 100%;
+            }
+
+            .header > div .primary-btn {
+                flex: 1 1 auto;
+            }
+
+            .summary-cards {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .summary-card-value {
+                font-size: 22px;
+            }
+
+            .filter-controls {
+                padding: 16px;
+            }
+
+            .filter-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .filter-group select {
+                flex: 1;
+            }
+
+            .clear-filters-btn {
+                width: 100%;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .modal {
+                padding: 22px 18px;
+            }
+
+            .modal-actions {
+                flex-direction: column-reverse;
+            }
+
+            .modal-actions button {
+                width: 100%;
+            }
+
+            .ledger-table {
+                font-size: 13px;
+            }
+
+            .ledger-table th,
+            .ledger-table td {
+                padding: 11px 12px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">Cashbook – Picnic 2027</div>
+            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                <button class="primary-btn" id="toggleModeBtn">Switch to Edit Mode</button>
+                <button class="primary-btn" id="openModalBtn">Insert Entry</button>
+            </div>
+        </div>
+        <div class="summary-cards">
+            <div class="summary-card income">
+                <div class="summary-card-label">Total Income</div>
+                <div class="summary-card-value" id="totalIncome">₹0.00</div>
+            </div>
+            <div class="summary-card onsite">
+                <div class="summary-card-label">Onsite Collected</div>
+                <div class="summary-card-value" id="totalOnsite">₹0.00</div>
+            </div>
+            <div class="summary-card expense">
+                <div class="summary-card-label">Total Expenses</div>
+                <div class="summary-card-value" id="totalExpense">₹0.00</div>
+            </div>
+            <div class="summary-card balance">
+                <div class="summary-card-label">Balance</div>
+                <div class="summary-card-value" id="balance">₹0.00</div>
+            </div>
+        </div>
+        <div class="filter-controls">
+            <div class="filter-group">
+                <label for="filterType">Filter Type:</label>
+                <select id="filterType">
+                    <option value="all">All</option>
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filterOnsite">From Onsite:</label>
+                <select id="filterOnsite">
+                    <option value="all">All</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+            <button class="clear-filters-btn" id="clearFiltersBtn">Clear Filters</button>
+        </div>
+        <div class="table-wrapper">
+            <table class="ledger-table" id="ledgerTable">
+                <thead>
+                    <tr>
+                        <th class="sortable" data-sort="date">Date <span class="sort-indicator"></span></th>
+                        <th class="sortable" data-sort="payee">Payee <span class="sort-indicator"></span></th>
+                        <th class="sortable" data-sort="receiver">Receiver <span class="sort-indicator"></span></th>
+                        <th class="sortable" data-sort="amount">Amount <span class="sort-indicator"></span></th>
+                        <th class="sortable" data-sort="type">Type <span class="sort-indicator"></span></th>
+                        <th class="sortable" data-sort="onsite">From Onsite <span class="sort-indicator"></span></th>
+                        <th>Participants</th>
+                        <th>Remarks</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ledgerTbody">
+                    <tr><td colspan="9" style="text-align:center;color:#71717A;padding:24px;">No entries yet.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-bg" id="modalBg" style="display:none;">
+        <div class="modal" id="modal">
+            <button class="modal-close" id="closeModalBtn">×</button>
+            <div class="modal-header">Insert Cashbook Entry</div>
+            <form id="entryForm" autocomplete="off">
+                <div class="form-group">
+                    <label for="payee">Payee <span style="color:#DC2626;">*</span></label>
+                    <input type="text" id="payee" required>
+                </div>
+                <div class="form-group">
+                    <label for="receiver">Receiver <span style="color:#DC2626;">*</span></label>
+                    <input type="text" id="receiver" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="type">Type</label>
+                        <select id="type">
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount <span style="color:#DC2626;">*</span></label>
+                        <input type="number" id="amount" min="0.01" step="0.01" required>
+                    </div>
+                </div>
+                <div class="form-group" style="position:relative;">
+                    <label for="participants">Add Participants</label>
+                    <div id="participantsSelect" class="multiselect" tabindex="0"></div>
+                    <div id="participantsDropdown" class="multiselect-dropdown" style="display:none;"></div>
+                </div>
+                <div class="form-group">
+                    <label for="remarks">Remarks <span id="remarksRequired" style="color:#DC2626;display:none;">*</span></label>
+                    <textarea id="remarks"></textarea>
+                </div>
+                <div class="form-group switch-container">
+                    <label for="onsite">From Onsite?</label>
+                    <label class="switch">
+                        <input type="checkbox" id="onsite">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="error-msg" id="formError" style="display:none;"></div>
+                <div class="modal-actions">
+                    <button type="button" class="secondary-btn" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="primary-btn">Save Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script type="module">
+
+    const supabaseUrl = "https://lpvuhqtpkvbmrkhnknaf.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwdnVocXRwa3ZibXJraG5rbmFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3MDQyMDIsImV4cCI6MjA2OTI4MDIwMn0.fmKlgIAY_Yoi3sFk333lRWlxzNlNNGqRZZAuLzGLnmw";
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+    const ADMIN_PASSWORD = "Picnic_2027@#TCS";
+    let participants = [];
+    let ledgerEntries = [];
+    let selectedParticipants = [];
+    let currentAction = null;
+    let currentEntryId = null;
+    let currentSortColumn = null;
+    let currentSortDirection = 'asc';
+    let currentFilters = { type: 'all', onsite: 'all' };
+
+    function getQueryParam(name) {
+        const url = new URL(window.location.href);
+        return url.searchParams.get(name);
+    }
+    function getEditModeFromStorage() {
+        const stored = localStorage.getItem('picnic2026_cashbook_editmode');
+        return stored === 'true';
+    }
+    function setEditModeToStorage(val) {
+        localStorage.setItem('picnic2026_cashbook_editmode', val ? 'true' : 'false');
+    }
+    let isEditMode = false;
+    if (getQueryParam('edit') === '1') {
+        isEditMode = true;
+        setEditModeToStorage(true);
+    } else {
+        isEditMode = getEditModeFromStorage();
+    }
+
+    async function loadParticipants() {
+        try {
+            const { data, error } = await supabaseClient.from('picnic_TCS').select('id, name, phone_number');
+            if (error) throw error;
+            participants = data || [];
+            console.log('Loaded participants:', participants.length);
+        } catch (error) {
+            console.error('Error loading participants:', error);
+            alert('Failed to load participants from database');
+        }
+    }
+
+    async function loadCashbookEntries() {
+        try {
+            const { data, error } = await supabaseClient
+                .from('cashbook_picnic_2026')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+            
+            
+            ledgerEntries = (data || []).map(entry => {
+                let displayParticipants = '-';
+                let displayRemarks = entry.remarks || '-';
+
+                // Check if the remarks string contains our " – Each: " separator
+                if (entry.remarks && entry.remarks.includes(' – Each: ')) {
+                    const parts = entry.remarks.split(' | ');
+                    
+                    // The first part is always the participants string (e.g., "A2 - Each: 200.00")
+                    displayParticipants = parts[0].trim();
+                    
+                    // The second part (if it exists) is the actual remarks string (e.g., "DUE")
+                    displayRemarks = parts.length > 1 ? parts.slice(1).join(' | ').trim() : '-';
+                }
+
+                return {
+                    id: entry.id,
+                    date: new Date(entry.created_at).toLocaleDateString() + ' ' + new Date(entry.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    payee: entry.payee,
+                    receiver: entry.receiver,
+                    amount: parseFloat(entry.amount).toFixed(2),
+                    type: entry.type,
+                    onsite: entry.from_onsite,
+                    remarks: displayRemarks,
+                    participantsDisplay: displayParticipants,
+                    rawRemarks: entry.remarks // Keep the raw string for the edit modal
+                };
+            });
+            
+            renderLedgerTable();
+            console.log('Loaded cashbook entries:', ledgerEntries.length);
+        } catch (error) {
+            console.error('Error loading cashbook entries:', error);
+            alert('Failed to load cashbook entries from database');
+        }
+    }
+
+    async function saveCashbookEntry(entryData) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('cashbook_picnic_2026')
+                .insert([{
+                    payee: entryData.payee,
+                    receiver: entryData.receiver,
+                    amount: entryData.amount,
+                    type: entryData.type,
+                    from_onsite: entryData.onsite,
+                    remarks: entryData.remarks
+                }])
+                .select();
+            
+            if (error) throw error;
+            return data[0];
+        } catch (error) {
+            console.error('Error saving cashbook entry:', error);
+            throw error;
+        }
+    }
+
+    async function updateCashbookEntry(id, entryData) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('cashbook_picnic_2026')
+                .update({
+                    payee: entryData.payee,
+                    receiver: entryData.receiver,
+                    amount: entryData.amount,
+                    type: entryData.type,
+                    from_onsite: entryData.onsite,
+                    remarks: entryData.remarks,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', id)
+                .select();
+            
+            if (error) throw error;
+            return data[0];
+        } catch (error) {
+            console.error('Error updating cashbook entry:', error);
+            throw error;
+        }
+    }
+
+    async function deleteCashbookEntry(id) {
+        try {
+            const { error } = await supabaseClient
+                .from('cashbook_picnic_2026')
+                .delete()
+                .eq('id', id);
+            
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error deleting cashbook entry:', error);
+            throw error;
+        }
+    }
+
+    const openModalBtn = document.getElementById('openModalBtn');
+    const toggleModeBtn = document.getElementById('toggleModeBtn');
+    const modalBg = document.getElementById('modalBg');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const entryForm = document.getElementById('entryForm');
+    const remarksInput = document.getElementById('remarks');
+    const remarksRequired = document.getElementById('remarksRequired');
+    const formError = document.getElementById('formError');
+    const participantsSelect = document.getElementById('participantsSelect');
+    const participantsDropdown = document.getElementById('participantsDropdown');
+
+    function openModal(entry = null) {
+        if (!isEditMode) return;
+        modalBg.style.display = 'flex';
+        if (entry) {
+            currentEntryId = entry.id;
+            document.querySelector('.modal-header').textContent = 'Edit Cashbook Entry';
+            document.getElementById('payee').value = entry.payee;
+            document.getElementById('receiver').value = entry.receiver;
+            document.getElementById('type').value = entry.type;
+            const cleanAmount = parseFloat(entry.amount.toString().replace(/[^0-9.]/g, ''));
+            let participantNames = [];
+            if (entry.participantsDisplay && entry.participantsDisplay !== '-') {
+                const parts = entry.participantsDisplay.split('– Each:');
+                participantNames = parts[0].split(',').map(s => s.trim()).filter(Boolean);
+            }
+            selectedParticipants = participants.filter(p => participantNames.includes(p.name));
+            const participantCount = selectedParticipants.length > 0 ? selectedParticipants.length : 1;
+            document.getElementById('amount').value = participantCount > 1 ? (cleanAmount / participantCount).toFixed(2) : cleanAmount.toFixed(2);
+            let remarksValue = entry.remarks || '';
+            if (participantNames.length > 0) {
+                const regex = new RegExp(`^${participantNames.join(', ')}\s*– Each: [^|]+\s*\|?\s*`);
+                remarksValue = remarksValue.replace(regex, '');
+            }
+            document.getElementById('remarks').value = remarksValue.trim();
+            document.getElementById('onsite').checked = entry.onsite;
+        } else {
+            currentEntryId = null;
+            document.querySelector('.modal-header').textContent = 'Insert Cashbook Entry';
+            entryForm.reset();
+            selectedParticipants = [];
+            document.getElementById('type').value = 'income';
+            document.getElementById('onsite').checked = false;
+        }
+        renderParticipantsSelect();
+        remarksRequired.style.display = 'none';
+        formError.style.display = 'none';
+        updateRemarksRequired();
+    }
+    function closeModal() {
+        modalBg.style.display = 'none';
+    }
+    openModalBtn.onclick = () => { if (isEditMode) openModal(null); };
+    closeModalBtn.onclick = closeModal;
+    cancelBtn.onclick = closeModal;
+    modalBg.onclick = function(e) { if (e.target === modalBg) closeModal(); };
+
+    function renderParticipantsSelect() {
+        participantsSelect.innerHTML = '';
+        if (selectedParticipants.length === 0) {
+            participantsSelect.innerHTML = '<span style="color:#71717A;">Click to add participants</span>';
+        } else {
+            selectedParticipants.forEach(p => {
+                const opt = document.createElement('span');
+                opt.className = 'multiselect-option';
+                opt.textContent = p.name;
+                const remove = document.createElement('span');
+                remove.className = 'multiselect-remove';
+                remove.textContent = '×';
+                remove.onclick = (e) => {
+                    e.stopPropagation();
+                    selectedParticipants = selectedParticipants.filter(sp => sp.id !== p.id);
+                    renderParticipantsSelect();
+                    updateRemarksRequired();
+                };
+                opt.appendChild(remove);
+                participantsSelect.appendChild(opt);
+            });
+        }
+    }
+    participantsSelect.onclick = function() {
+        participantsDropdown.style.display = 'block';
+        participantsDropdown.innerHTML = '';
+        participants.forEach(p => {
+            if (!selectedParticipants.some(sp => sp.id === p.id)) {
+                const opt = document.createElement('div');
+                opt.className = 'multiselect-dropdown-option';
+                opt.textContent = p.name;
+                opt.onclick = function(e) {
+                    e.stopPropagation();
+                    selectedParticipants.push(p);
+                    renderParticipantsSelect();
+                    participantsDropdown.style.display = 'none';
+                    updateRemarksRequired();
+                };
+                participantsDropdown.appendChild(opt);
+            }
+        });
+        if (participantsDropdown.innerHTML === '') {
+            participantsDropdown.innerHTML = '<div style="color:#71717A;padding:0.7rem 1rem;">All selected</div>';
+        }
+    };
+    document.addEventListener('click', function(e) {
+        if (!participantsSelect.contains(e.target) && !participantsDropdown.contains(e.target)) {
+            participantsDropdown.style.display = 'none';
+        }
+    });
+
+    function updateRemarksRequired() {
+        if (selectedParticipants.length === 0) {
+            remarksRequired.style.display = 'inline';
+            remarksInput.required = true;
+        } else {
+            remarksRequired.style.display = 'none';
+            remarksInput.required = false;
+        }
+    }
+
+    entryForm.onsubmit = async function(e) {
+        e.preventDefault();
+        formError.style.display = 'none';
+        const payee = document.getElementById('payee').value.trim();
+        const receiver = document.getElementById('receiver').value.trim();
+        const type = document.getElementById('type').value;
+        const amount = parseFloat(document.getElementById('amount').value);
+        const remarks = remarksInput.value.trim();
+        const onsite = document.getElementById('onsite').checked;
+        updateRemarksRequired();
+        if (!payee) { showError('Payee is required.'); return; }
+        if (!receiver) { showError('Receiver is required.'); return; }
+        if (!amount || amount <= 0) { showError('Amount must be greater than 0.'); return; }
+        if (selectedParticipants.length === 0 && !remarks) { showError('Remarks required if no participants.'); return; }
+        
+        let finalRemarks = remarks;
+        if (selectedParticipants.length > 0) {
+            const participantNames = selectedParticipants.map(p => p.name).join(', ');
+            finalRemarks = `${participantNames} – Each: ${amount.toFixed(2)}${remarks ? ' | ' + remarks : ''}`;
+        }
+        
+        try {
+            if (currentEntryId) {
+                await updateCashbookEntry(currentEntryId, {
+                    payee,
+                    receiver,
+                    amount: selectedParticipants.length > 0 ? amount * selectedParticipants.length : amount,
+                    type,
+                    onsite,
+                    remarks: finalRemarks
+                });
+                await loadCashbookEntries();
+            } else {
+                const savedEntry = await saveCashbookEntry({
+                    payee,
+                    receiver,
+                    amount: selectedParticipants.length > 0 ? amount * selectedParticipants.length : amount,
+                    type,
+                    onsite,
+                    remarks: finalRemarks
+                });
+                
+                const now = new Date();
+                const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                let displayAmount = selectedParticipants.length > 0 
+                    ? amount.toFixed(2) + ' × ' + selectedParticipants.length 
+                    : amount.toFixed(2);
+                
+                ledgerEntries.unshift({
+                    id: savedEntry.id,
+                    date: dateStr,
+                    payee,
+                    receiver,
+                    amount: displayAmount,
+                    type,
+                    onsite,
+                    // Just show the raw remarks the user typed in the Remarks column
+                    remarks: remarks || '-',
+                    // Show the participant string in the Participants column
+                    participantsDisplay: selectedParticipants.length > 0 
+                        ? selectedParticipants.map(p => p.name).join(', ') + ' – Each: ' + amount.toFixed(2)
+                        : '-',
+                    rawRemarks: finalRemarks
+                });
+                
+                renderLedgerTable();
+            }
+            closeModal();
+        } catch (error) {
+            showError('Failed to save entry. Please try again.');
+        }
+    };
+    function showError(msg) {
+        formError.textContent = msg;
+        formError.style.display = 'block';
+    }
+    
+    function sortEntries(entries, column, direction) {
+        return [...entries].sort((a, b) => {
+            let aVal, bVal;
+            
+            switch(column) {
+                case 'date':
+                    aVal = new Date(a.date);
+                    bVal = new Date(b.date);
+                    break;
+                case 'amount':
+                    aVal = parseFloat(a.amount.toString().replace(/[^0-9.]/g, ''));
+                    bVal = parseFloat(b.amount.toString().replace(/[^0-9.]/g, ''));
+                    break;
+                case 'type':
+                    aVal = a.type;
+                    bVal = b.type;
+                    break;
+                case 'onsite':
+                    aVal = a.onsite ? 1 : 0;
+                    bVal = b.onsite ? 1 : 0;
+                    break;
+                case 'payee':
+                    aVal = a.payee.toLowerCase();
+                    bVal = b.payee.toLowerCase();
+                    break;
+                case 'receiver':
+                    aVal = a.receiver.toLowerCase();
+                    bVal = b.receiver.toLowerCase();
+                    break;
+                default:
+                    return 0;
+            }
+            
+            if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+            if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }
+    
+    function filterEntries(entries, filters) {
+        return entries.filter(entry => {
+            if (filters.type !== 'all' && entry.type !== filters.type) {
+                return false;
+            }
+            if (filters.onsite !== 'all') {
+                const onsiteMatch = filters.onsite === 'yes' ? entry.onsite : !entry.onsite;
+                if (!onsiteMatch) return false;
+            }
+            return true;
+        });
+    }
+    
+    function getDisplayEntries() {
+        let entries = [...ledgerEntries];
+        entries = filterEntries(entries, currentFilters);
+        if (currentSortColumn) {
+            entries = sortEntries(entries, currentSortColumn, currentSortDirection);
+        }
+        return entries;
+    }
+    
+    function updateSortIndicators() {
+        document.querySelectorAll('.ledger-table th .sort-indicator').forEach(indicator => {
+            indicator.textContent = '';
+        });
+        
+        if (currentSortColumn) {
+            const th = document.querySelector(`th[data-sort="${currentSortColumn}"] .sort-indicator`);
+            if (th) {
+                th.textContent = currentSortDirection === 'asc' ? '▲' : '▼';
+            }
+        }
+    }
+    
+    function renderLedgerTable() {
+        const tbody = document.getElementById('ledgerTbody');
+        const displayEntries = getDisplayEntries();
+        
+        if (displayEntries.length === 0) {
+            const message = ledgerEntries.length === 0 ? 'No entries yet.' : 'No entries match the current filters.';
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:#71717A;padding:24px;">${message}</td></tr>`;
+            updateSortIndicators();
+            return;
+        }
+        tbody.innerHTML = '';
+        displayEntries.forEach(entry => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${entry.date}</td>
+                <td>${entry.payee}</td>
+                <td>${entry.receiver}</td>
+                <td>${entry.amount}</td>
+                <td><span class="type-${entry.type}">${entry.type.charAt(0).toUpperCase() + entry.type.slice(1)}</span></td>
+                <td><span class="onsite-${entry.onsite ? 'yes' : 'no'}">${entry.onsite ? 'Yes' : 'No'}</span></td>
+                <td>${entry.participantsDisplay}</td>
+                <td>${entry.remarks || '-'}</td>
+                <td>
+                    <div class="action-buttons" style="display: flex; gap: 8px; flex-wrap: nowrap; flex-direction:column">
+                        ${isEditMode ? `<button class="action-btn edit-btn" data-action="edit" data-entry-id="${entry.id}">Edit</button>
+                        <button class="action-btn delete-btn" data-action="delete" data-entry-id="${entry.id}">Delete</button>` : ''}
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        updateSortIndicators();
+        updateSummaryCards();
+    }
+
+    function updateSummaryCards() {
+        let totalIncome = 0;
+        let totalOnsite = 0;
+        let totalExpense = 0;
+
+        ledgerEntries.forEach(entry => {
+            const amount = parseFloat(entry.amount.toString().replace(/[^0-9.]/g, ''));
+            if (entry.type === 'income') {
+                totalIncome += amount;
+                if (entry.onsite) {
+                    totalOnsite += amount;
+                }
+            } else if (entry.type === 'expense') {
+                totalExpense += amount;
+            }
+        });
+
+        const balance = totalIncome - totalExpense;
+        document.getElementById('totalIncome').textContent = '₹' + totalIncome.toFixed(2);
+        document.getElementById('totalOnsite').textContent = '₹' + totalOnsite.toFixed(2);
+        document.getElementById('totalExpense').textContent = '₹' + totalExpense.toFixed(2);
+        document.getElementById('balance').textContent = '₹' + balance.toFixed(2);
+    }
+
+    document.getElementById('ledgerTbody').addEventListener('click', async function(e) {
+        if (!isEditMode) return;
+        const button = e.target.closest('.action-btn');
+        if (button) {
+            const action = button.getAttribute('data-action');
+            const entryId = button.getAttribute('data-entry-id');
+            const password = prompt('Enter password to ' + (action === 'edit' ? 'edit' : 'delete') + ' this entry:');
+            if (password !== ADMIN_PASSWORD) {
+                alert('Incorrect password!');
+                return;
+            }
+            if (action === 'edit') {
+                if (!participants || participants.length === 0) {
+                    await loadParticipants();
+                }
+                const entry = ledgerEntries.find(e => (e.id + '').trim() === (entryId + '').trim());
+                if (entry) {
+                    openModal(entry);
+                } else {
+                    alert('Entry not found for editing.');
+                }
+            } else if (action === 'delete') {
+                if (confirm('Are you sure you want to delete this entry?')) {
+                    try {
+                        await deleteCashbookEntry(entryId);
+                        await loadCashbookEntries();
+                    } catch (error) {
+                        alert('Failed to delete entry. Please try again.');
+                    }
+                }
+            }
+        }
+    });
+
+    function updateModeUI() {
+        openModalBtn.style.display = isEditMode ? '' : 'none';
+        renderLedgerTable();
+        toggleModeBtn.textContent = isEditMode ? 'Switch to View Only' : 'Switch to Edit Mode';
+    }
+
+    toggleModeBtn.onclick = function() {
+        if (!isEditMode) {
+            const pwd = prompt('Enter password to switch to Edit Mode:');
+            if (pwd !== ADMIN_PASSWORD) {
+                alert('Incorrect password!');
+                return;
+            }
+            isEditMode = true;
+            setEditModeToStorage(true);
+        } else {
+            isEditMode = false;
+            setEditModeToStorage(false);
+        }
+        updateModeUI();
+    };
+
+    document.querySelectorAll('.ledger-table th.sortable').forEach(th => {
+        th.addEventListener('click', function() {
+            const column = this.getAttribute('data-sort');
+            
+            if (currentSortColumn === column) {
+                currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSortColumn = column;
+                currentSortDirection = 'asc';
+            }
+            
+            renderLedgerTable();
+        });
+    });
+    
+    document.getElementById('filterType').addEventListener('change', function(e) {
+        currentFilters.type = e.target.value;
+        renderLedgerTable();
+    });
+    
+    document.getElementById('filterOnsite').addEventListener('change', function(e) {
+        currentFilters.onsite = e.target.value;
+        renderLedgerTable();
+    });
+    
+    document.getElementById('clearFiltersBtn').addEventListener('click', function() {
+        currentFilters = { type: 'all', onsite: 'all' };
+        document.getElementById('filterType').value = 'all';
+        document.getElementById('filterOnsite').value = 'all';
+        currentSortColumn = null;
+        currentSortDirection = 'asc';
+        renderLedgerTable();
+    });
+    
+    async function init() {
+        await loadParticipants();
+        await loadCashbookEntries();
+        updateModeUI();
+    }
+
+    init();
+  </script>
+</body>
+</html>
