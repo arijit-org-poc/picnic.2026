@@ -9,18 +9,16 @@ on:
   workflow_dispatch:
 
   # 2. Trigger ONLY when a PR targeting main is closed
-  pull_request:
+  push:
     branches:
-      - main
-    types:
-      - closed
+      - V2/Feature
 
 jobs:
   Deploy-Production:
     # Run ONLY if: (Manual click on main) OR (PR was successfully merged into main)
-    if: >
-      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
-      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    # if: >
+    #   (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+    #   (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
