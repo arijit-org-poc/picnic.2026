@@ -92,7 +92,12 @@
             min-height: 100vh;
         }
 
-        h1, h2, h3, .page-title, .destination-name, .route-title {
+        h1,
+        h2,
+        h3,
+        .page-title,
+        .destination-name,
+        .route-title {
             font-family: var(--font-display);
             color: var(--ink);
             letter-spacing: -0.015em;
@@ -130,8 +135,13 @@
         }
 
         @keyframes marquee-scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-100%); }
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
         }
 
         /* ---------- Loading overlay ---------- */
@@ -160,7 +170,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .loading-text {
@@ -180,7 +192,7 @@
             gap: 26px;
         }
 
-        .container > * {
+        .container>* {
             grid-column: 1 / -1;
             min-width: 0;
         }
@@ -238,8 +250,15 @@
         }
 
         @keyframes hero-in {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: none; }
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
         }
 
         .hero-art {
@@ -313,20 +332,40 @@
             box-shadow: var(--shadow);
         }
 
-        .info-section { --section-accent: var(--sky); }
-        .form-container { --section-accent: var(--teal); }
-        .totals-container { --section-accent: var(--coral); }
-        .route-section { --section-accent: var(--sun); }
-        .card-style { --section-accent: var(--violet); }
-        .menu-section { --section-accent: var(--sun); }
-        .contact-card { --section-accent: var(--teal); }
+        .info-section {
+            --section-accent: var(--sky);
+        }
+
+        .form-container {
+            --section-accent: var(--teal);
+        }
+
+        .totals-container {
+            --section-accent: var(--coral);
+        }
+
+        .route-section {
+            --section-accent: var(--sun);
+        }
+
+        .card-style {
+            --section-accent: var(--violet);
+        }
+
+        .menu-section {
+            --section-accent: var(--sun);
+        }
+
+        .contact-card {
+            --section-accent: var(--teal);
+        }
 
         .section-heading,
         .form-container h2,
         .totals-container h2,
-        .route-section > .route-header,
-        .menu-section > h2,
-        .card-style > h2 {
+        .route-section>.route-header,
+        .menu-section>h2,
+        .card-style>h2 {
             font-size: 20px;
             font-weight: 700;
             line-height: 1.3;
@@ -522,15 +561,15 @@
             transition: transform 0.2s ease;
         }
 
-        input:checked + .slider {
+        input:checked+.slider {
             background: var(--teal);
         }
 
-        input:checked + .slider:before {
+        input:checked+.slider:before {
             transform: translateX(22px);
         }
 
-        .switch input:focus-visible + .slider {
+        .switch input:focus-visible+.slider {
             box-shadow: var(--focus-ring);
         }
 
@@ -686,10 +725,25 @@
             border-left: 5px solid var(--kpi);
         }
 
-        .totals-container .total-item:nth-child(2) { --kpi: var(--teal); --kpi-tint: var(--teal-tint); }
-        .totals-container .total-item:nth-child(3) { --kpi: var(--violet); --kpi-tint: var(--violet-tint); }
-        .totals-container .total-item:nth-child(4) { --kpi: var(--sun); --kpi-tint: var(--sun-tint); }
-        .totals-container .total-item:nth-child(5) { --kpi: var(--coral); --kpi-tint: var(--coral-tint); }
+        .totals-container .total-item:nth-child(2) {
+            --kpi: var(--teal);
+            --kpi-tint: var(--teal-tint);
+        }
+
+        .totals-container .total-item:nth-child(3) {
+            --kpi: var(--violet);
+            --kpi-tint: var(--violet-tint);
+        }
+
+        .totals-container .total-item:nth-child(4) {
+            --kpi: var(--sun);
+            --kpi-tint: var(--sun-tint);
+        }
+
+        .totals-container .total-item:nth-child(5) {
+            --kpi: var(--coral);
+            --kpi-tint: var(--coral-tint);
+        }
 
         .totals-container .total-item span:first-child {
             color: var(--ink-soft);
@@ -818,9 +872,17 @@
             transition: transform 0.15s ease;
         }
 
-        .segment:nth-child(4n+2) { border-left-color: var(--teal); }
-        .segment:nth-child(4n+3) { border-left-color: var(--coral); }
-        .segment:nth-child(4n+4) { border-left-color: var(--sun); }
+        .segment:nth-child(4n+2) {
+            border-left-color: var(--teal);
+        }
+
+        .segment:nth-child(4n+3) {
+            border-left-color: var(--coral);
+        }
+
+        .segment:nth-child(4n+4) {
+            border-left-color: var(--sun);
+        }
 
         .segment:hover {
             transform: translateX(3px);
@@ -901,7 +963,7 @@
         }
 
         /* ---------- Locations table ---------- */
-        .route-section > .route-header {
+        .route-section>.route-header {
             display: block;
         }
 
@@ -1355,6 +1417,7 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
+
             *,
             *::before,
             *::after {
@@ -1364,6 +1427,7 @@
                 scroll-behavior: auto !important;
             }
         }
+
         /* ---------- Image Gallery & Carousel ---------- */
         .gallery-tabs {
             display: flex;
@@ -1372,6 +1436,7 @@
             padding: 4px;
             border-radius: var(--pill);
         }
+
         .gallery-tab {
             padding: 8px 16px;
             border: none;
@@ -1383,43 +1448,69 @@
             cursor: pointer;
             transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
         }
+
         .gallery-tab.active {
             background: #ffffff;
             color: var(--sky);
             box-shadow: var(--shadow-sm);
         }
+
         .carousel-section {
             padding: 24px 30px;
         }
+
         .carousel-container {
             position: relative;
             display: flex;
             align-items: center;
         }
+
         .carousel-track {
             display: flex;
             gap: 16px;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
+            overflow-x: hidden;
+            /* Prevents users from manually scrolling it out of alignment; relies on your buttons and auto-scroll */
             scroll-behavior: smooth;
             padding: 10px 0;
-            -ms-overflow-style: none;  
-            scrollbar-width: none;  
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
+
         .carousel-track::-webkit-scrollbar {
             display: none;
         }
+
         .carousel-slide {
-            scroll-snap-align: center;
-            flex: 0 0 auto;
-            width: 100%;
+            flex: 0 0 85%;
+            /* Make the main image take up 85% of the container */
             max-width: 600px;
             height: 380px;
             object-fit: cover;
             border-radius: var(--radius);
             box-shadow: var(--shadow-sm);
             background-color: var(--line);
+
+            /* New properties for the peeking effect */
+            transition: transform 0.5s ease, opacity 0.5s ease;
+            opacity: 1;
+            /* Dims the adjacent peeking images */
+            transform: scale(0.9);
+            /* Shrinks the adjacent peeking images */
         }
+
+        carousel-slide.active-slide {
+            opacity: 1;
+            transform: scale(1);
+            box-shadow: var(--shadow-lift);
+        }
+
+        .carousel-track::before,
+        .carousel-track::after {
+            content: '';
+            flex: 0 0 20.0%;
+            /* (100% - 85%) / 2 = 7.5% padding on each side */
+        }
+
         .carousel-btn {
             position: absolute;
             z-index: 10;
@@ -1439,27 +1530,49 @@
             align-items: center;
             justify-content: center;
         }
+
         .carousel-btn:hover {
             background: var(--surface);
             border-color: var(--sky);
             transform: translateY(-50%) scale(1.05);
         }
-        .prev-btn { left: -15px; }
-        .next-btn { right: -15px; }
+
+        .prev-btn {
+            left: -15px;
+        }
+
+        .next-btn {
+            right: -15px;
+        }
 
         @media (max-width: 768px) {
             .carousel-slide {
                 height: 250px;
             }
-            .prev-btn { left: 5px; }
-            .next-btn { right: 5px; }
+
+            .prev-btn {
+                left: 5px;
+            }
+
+            .next-btn {
+                right: 5px;
+            }
+
             .gallery-tabs {
                 width: 100%;
                 justify-content: space-between;
             }
+
             .gallery-tab {
                 flex: 1;
                 text-align: center;
+            }
+
+            .carousel-track::before,
+            .carousel-track::after {
+                content: '';
+                flex: 0 0 1.0%;
+                /* (100% - 85%) / 2 = 7.5% padding on each side */
             }
         }
     </style>
@@ -1469,7 +1582,8 @@
     <!-- Top marquee banner -->
     <div class="marquee-banner" role="status" aria-live="polite">
         <div class="marquee-inner" id="topMarqueeText">
-            🚍 Picnic 2027 &nbsp;•&nbsp; <strong style="color: #fde68a;">The Picnic Spot is in search </strong> &nbsp;•&nbsp; Welcome everyone! &nbsp;•&nbsp; Register Yourself
+            🚍 Picnic 2027 &nbsp;•&nbsp; <strong style="color: #fde68a;">The Picnic Spot is in search </strong>
+            &nbsp;•&nbsp; Welcome everyone! &nbsp;•&nbsp; Register Yourself
         </div>
     </div>
 
@@ -1488,7 +1602,22 @@
 
         <!-- Hero Destination Banner -->
         <section class="destination-info">
-            <svg class="hero-art" viewBox="0 0 260 170" aria-hidden="true" focusable="false"><circle cx="206" cy="46" r="26" fill="#ffd37a"/><circle cx="206" cy="46" r="38" fill="#ffd37a" opacity=".25"/><path d="M0 132 Q60 92 130 118 T260 110 V170 H0Z" fill="#0d9488" opacity=".55"/><path d="M0 150 Q80 120 160 144 T260 138 V170 H0Z" fill="#0b7f75"/><rect x="48" y="66" width="142" height="62" rx="12" fill="#f2644f"/><rect x="60" y="76" width="34" height="22" rx="4" fill="#ffffff" opacity=".9"/><rect x="100" y="76" width="34" height="22" rx="4" fill="#ffffff" opacity=".9"/><rect x="140" y="76" width="34" height="22" rx="4" fill="#ffffff" opacity=".9"/><rect x="48" y="112" width="142" height="8" fill="#c94433"/><rect x="186" y="82" width="26" height="30" rx="5" fill="#ffffff" opacity=".9"/><circle cx="74" cy="132" r="12" fill="#14253a"/><circle cx="74" cy="132" r="5" fill="#cbd4e2"/><circle cx="164" cy="132" r="12" fill="#14253a"/><circle cx="164" cy="132" r="5" fill="#cbd4e2"/></svg>
+            <svg class="hero-art" viewBox="0 0 260 170" aria-hidden="true" focusable="false">
+                <circle cx="206" cy="46" r="26" fill="#ffd37a" />
+                <circle cx="206" cy="46" r="38" fill="#ffd37a" opacity=".25" />
+                <path d="M0 132 Q60 92 130 118 T260 110 V170 H0Z" fill="#0d9488" opacity=".55" />
+                <path d="M0 150 Q80 120 160 144 T260 138 V170 H0Z" fill="#0b7f75" />
+                <rect x="48" y="66" width="142" height="62" rx="12" fill="#f2644f" />
+                <rect x="60" y="76" width="34" height="22" rx="4" fill="#ffffff" opacity=".9" />
+                <rect x="100" y="76" width="34" height="22" rx="4" fill="#ffffff" opacity=".9" />
+                <rect x="140" y="76" width="34" height="22" rx="4" fill="#ffffff" opacity=".9" />
+                <rect x="48" y="112" width="142" height="8" fill="#c94433" />
+                <rect x="186" y="82" width="26" height="30" rx="5" fill="#ffffff" opacity=".9" />
+                <circle cx="74" cy="132" r="12" fill="#14253a" />
+                <circle cx="74" cy="132" r="5" fill="#cbd4e2" />
+                <circle cx="164" cy="132" r="12" fill="#14253a" />
+                <circle cx="164" cy="132" r="5" fill="#cbd4e2" />
+            </svg>
             <div class="destination-label">📍 Picnic Destination</div>
             <div class="destination-name" onclick="openInGoogleMaps(END_POINT.lat, END_POINT.lng)"
                 style="cursor: pointer;" title="Click to open destination in Google Maps">
@@ -1500,10 +1629,12 @@
         </section>
         <!-- Image Carasoul -->
         <section class="carousel-section card-style" style="--section-accent: var(--sky);">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px; gap: 12px;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px; gap: 12px;">
                 <h2 class="section-heading" style="margin-bottom: 0;">📸 Picnic Gallery</h2>
                 <div class="gallery-tabs">
-                    <button class="gallery-tab active" onclick="loadGallery('current_location', this)">This Year's Spot</button>
+                    <button class="gallery-tab active" onclick="loadGallery('current_location', this)">This Year's
+                        Spot</button>
                     <button class="gallery-tab" onclick="loadGallery('last_year', this)">Last Year's Memories</button>
                 </div>
             </div>
@@ -1555,7 +1686,9 @@
 
                     <div class="form-group">
                         <label for="headCount">Total Head Count</label>
-                        <input type="number" id="headCount" readonly style="background-color: var(--border-light); cursor: not-allowed;" placeholder="0" required>
+                        <input type="number" id="headCount" readonly
+                            style="background-color: var(--border-light); cursor: not-allowed;" placeholder="0"
+                            required>
                     </div>
 
                     <div class="form-group">
@@ -1645,7 +1778,7 @@
             <h2 class="section-heading">🍽️ Picnic Menu (Buffet) 2027</h2>
 
             <div class="menu-grid">
-                
+
                 <div class="menu-card breakfast">
                     <h3><span class="menu-icon">🌅</span> Breakfast</h3>
                     <ul class="menu-list">
@@ -1655,7 +1788,7 @@
                     </ul>
                 </div>
 
-                
+
                 <div class="menu-card snacks">
                     <h3><span class="menu-icon">☕</span> Snacks</h3>
                     <ul class="menu-list">
@@ -1667,7 +1800,7 @@
                     </ul>
                 </div>
 
-                
+
                 <div class="menu-card lunch">
                     <h3><span class="menu-icon">🍛</span> Lunch</h3>
                     <ul class="menu-list">
@@ -1705,7 +1838,8 @@
                             </th>
                             <th class="sortable" data-sort="kidsCount">Kids Count <span class="sort-indicator"></span>
                             </th>
-                            <th class="sortable" data-sort="food">Food (Veg / Non-Veg) <span class="sort-indicator"></span></th>
+                            <th class="sortable" data-sort="food">Food (Veg / Non-Veg) <span
+                                    class="sort-indicator"></span></th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -1756,7 +1890,7 @@
         let tempMarker = null;
         let START_POINT = { lat: 22.586254779481745, lng: 88.48916972873252 }; // fallback Ecospace : 22.586254779481745, 88.48916972873252
         let END_POINT = { lat: 22.586254779481745, lng: 88.48916972873252 }; // fallback Ecospace : 22.586254779481745, 88.48916972873252
-        
+
 
         let PICNIC_SPOT_NAME = '';
         let BUS_ASSIGNMENTS = {}; // participantId -> busId
@@ -2887,82 +3021,117 @@
                 loadingOverlay.style.display = show ? 'flex' : 'none';
             }
         }
-        // Setup image arrays (adjust file names/extensions as needed to match your folders)
-        // Setup image arrays (adjust file names/extensions as needed to match your folders)
+        // Setup image arrays
         const galleryImages = {
-            current_location: Array.from({length: 8}, (_, i) => `images/current_location/img${i + 1}.jpg`),
-            last_year: Array.from({length: 8}, (_, i) => `images/last_year/img${i + 1}.jpg`)
+            current_location: Array.from({ length: 8 }, (_, i) => `images/current_location/img${i + 1}.jpg`),
+            last_year: Array.from({ length: 8 }, (_, i) => `images/last_year/img${i + 1}.jpg`)
         };
 
         let autoScrollTimer;
+        let isTransitioning = false; // Prevents overlapping animations
 
-        // Auto-scroll logic
         function startAutoScroll() {
             clearInterval(autoScrollTimer);
-            // 1000 milliseconds = 1 second
             autoScrollTimer = setInterval(() => {
-                const track = document.getElementById('imageCarousel');
-                const slide = track.querySelector('.carousel-slide');
-                
-                if (slide) {
-                    const slideWidth = slide.clientWidth + 16; 
-                    
-                    // If we've reached the right edge, loop back to the beginning
-                    if (track.scrollLeft + track.clientWidth >= track.scrollWidth - 10) {
-                        track.scrollTo({ left: 0, behavior: 'smooth' });
-                    } else {
-                        // Otherwise, scroll one slide to the right
-                        track.scrollBy({ left: slideWidth, behavior: 'smooth' });
-                    }
-                }
-            }, 2500); 
+                scrollCarousel(1, true);
+            }, 2500);
         }
 
         function loadGallery(folder, btnElement = null) {
-            // Update active tab styling
             if (btnElement) {
                 document.querySelectorAll('.gallery-tab').forEach(btn => btn.classList.remove('active'));
                 btnElement.classList.add('active');
             }
 
             const track = document.getElementById('imageCarousel');
-            track.innerHTML = ''; // Clear current images
+            track.innerHTML = '';
 
             const images = galleryImages[folder] || [];
-            
+
             images.forEach((src, index) => {
                 const img = document.createElement('img');
                 img.src = src;
                 img.alt = `Gallery Image ${index + 1}`;
                 img.className = 'carousel-slide';
-                // Fallback graphic if an image file doesn't exist
-                img.onerror = function() {
-                    this.style.display = 'none'; 
-                };
+                img.onerror = function () { this.style.display = 'none'; };
                 track.appendChild(img);
             });
-            
-            // Reset scroll position
+
             track.scrollLeft = 0;
-            
-            // Start the auto-scroll whenever a gallery loads
+
+            // Observer for the scaling effect
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active-slide');
+                    } else {
+                        entry.target.classList.remove('active-slide');
+                    }
+                });
+            }, {
+                root: track,
+                threshold: 1
+            });
+
+            track.querySelectorAll('.carousel-slide').forEach(slide => observer.observe(slide));
+
             startAutoScroll();
 
-            // Optional UX: Pause auto-scroll when user hovers over the images
             track.onmouseenter = () => clearInterval(autoScrollTimer);
             track.onmouseleave = () => startAutoScroll();
         }
 
-        function scrollCarousel(direction) {
+        // True Infinite Loop + CSS Snapping Fix
+        // True Infinite Loop Without CSS Snapping
+        // True Infinite Loop Without CSS Snapping
+        function scrollCarousel(direction, isAuto = false) {
+            if (isTransitioning) return;
+
             const track = document.getElementById('imageCarousel');
-            const slide = track.querySelector('.carousel-slide');
-            if (slide) {
-                const slideWidth = slide.clientWidth + 16; 
-                track.scrollBy({ left: direction * slideWidth, behavior: 'smooth' });
+            if (!track.firstElementChild) return;
+
+            const slideWidth = track.firstElementChild.clientWidth + 16; // width + gap
+            isTransitioning = true;
+
+            if (direction === 1) {
+                // Moving Next
+                track.scrollBy({ left: slideWidth, behavior: 'smooth' });
+
+                setTimeout(() => {
+                    // Only move the first element to the back if it is COMPLETELY off-screen.
+                    // (slideWidth * 1.5 ensures the peeking image is left strictly alone)
+                    if (track.scrollLeft >= slideWidth * 2) {
+                        track.style.scrollBehavior = 'auto'; // Turn off smooth scroll temporarily
+                        track.appendChild(track.firstElementChild);
+                        track.scrollLeft -= slideWidth; // Adjust scroll to hold the exact visual position
+                        void track.offsetWidth; // Force browser refresh
+                    }
+
+                    track.style.scrollBehavior = 'smooth';
+                    isTransitioning = false;
+                }, 500); // Match this timeout to your CSS transition duration
+
+            } else {
+                // Moving Prev
+                // If we are at the very beginning, bring an image from the back to the front
+                // BEFORE scrolling so we don't scroll into empty space.
+                if (track.scrollLeft < slideWidth * .25) {
+                    track.style.scrollBehavior = 'auto';
+                    track.prepend(track.lastElementChild);
+                    track.scrollLeft += slideWidth;
+                    void track.offsetWidth;
+                }
+
+                track.style.scrollBehavior = 'smooth';
+
+                // Animate backward smoothly
+                requestAnimationFrame(() => {
+                    track.scrollBy({ left: -slideWidth, behavior: 'smooth' });
+                    setTimeout(() => { isTransitioning = false; }, 500);
+                });
             }
-            
-            // Reset the auto-scroll timer so it doesn't aggressively jump right after a manual click
-            startAutoScroll();
+
+            if (!isAuto) startAutoScroll();
         }
     </script>
     <script type="module">
