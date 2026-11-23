@@ -1364,6 +1364,104 @@
                 scroll-behavior: auto !important;
             }
         }
+        /* ---------- Image Gallery & Carousel ---------- */
+        .gallery-tabs {
+            display: flex;
+            gap: 8px;
+            background: var(--sky-tint);
+            padding: 4px;
+            border-radius: var(--pill);
+        }
+        .gallery-tab {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            border-radius: var(--pill);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--sky-dark);
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .gallery-tab.active {
+            background: #ffffff;
+            color: var(--sky);
+            box-shadow: var(--shadow-sm);
+        }
+        .carousel-section {
+            padding: 24px 30px;
+        }
+        .carousel-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .carousel-track {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            padding: 10px 0;
+            -ms-overflow-style: none;  
+            scrollbar-width: none;  
+        }
+        .carousel-track::-webkit-scrollbar {
+            display: none;
+        }
+        .carousel-slide {
+            scroll-snap-align: center;
+            flex: 0 0 auto;
+            width: 100%;
+            max-width: 600px;
+            height: 380px;
+            object-fit: cover;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            background-color: var(--line);
+        }
+        .carousel-btn {
+            position: absolute;
+            z-index: 10;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid var(--line);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 18px;
+            color: var(--sky-dark);
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: background 0.2s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .carousel-btn:hover {
+            background: var(--surface);
+            border-color: var(--sky);
+            transform: translateY(-50%) scale(1.05);
+        }
+        .prev-btn { left: -15px; }
+        .next-btn { right: -15px; }
+
+        @media (max-width: 768px) {
+            .carousel-slide {
+                height: 250px;
+            }
+            .prev-btn { left: 5px; }
+            .next-btn { right: 5px; }
+            .gallery-tabs {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .gallery-tab {
+                flex: 1;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 
@@ -1398,6 +1496,23 @@
             </div>
             <div class="destination-coords" onclick="openInGoogleMaps(END_POINT.lat, END_POINT.lng)">
                 Click location title to view on Google Maps ↗
+            </div>
+        </section>
+        <!-- Image Carasoul -->
+        <section class="carousel-section card-style" style="--section-accent: var(--sky);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px; gap: 12px;">
+                <h2 class="section-heading" style="margin-bottom: 0;">📸 Picnic Gallery</h2>
+                <div class="gallery-tabs">
+                    <button class="gallery-tab active" onclick="loadGallery('current_location', this)">This Year's Spot</button>
+                    <button class="gallery-tab" onclick="loadGallery('last_year', this)">Last Year's Memories</button>
+                </div>
+            </div>
+            <div class="carousel-container">
+                <button class="carousel-btn prev-btn" onclick="scrollCarousel(-1)">❮</button>
+                <div class="carousel-track" id="imageCarousel">
+                    <!-- Images will be injected here by JavaScript -->
+                </div>
+                <button class="carousel-btn next-btn" onclick="scrollCarousel(1)">❯</button>
             </div>
         </section>
 
@@ -1648,6 +1763,9 @@
         let BUS_COLORS = {}; // busId -> color
         let currentSortColumn = null;
         let currentSortDirection = 'asc';
+
+        let current_location = []
+        let last_year = []
 
 
         function autoCalcHeadCount() {
@@ -2567,6 +2685,7 @@
             await loadUIEnablerState();
             await loadRoutePlan();
             await loadBusAssignments();
+            loadGallery('current_location');
             // Update top banner and destination info with picnic spot name
             if (PICNIC_SPOT_NAME) {
                 // Update destination info section
@@ -2767,6 +2886,83 @@
             if (loadingOverlay) {
                 loadingOverlay.style.display = show ? 'flex' : 'none';
             }
+        }
+        // Setup image arrays (adjust file names/extensions as needed to match your folders)
+        // Setup image arrays (adjust file names/extensions as needed to match your folders)
+        const galleryImages = {
+            current_location: Array.from({length: 8}, (_, i) => `images/current_location/img${i + 1}.jpg`),
+            last_year: Array.from({length: 8}, (_, i) => `images/last_year/img${i + 1}.jpg`)
+        };
+
+        let autoScrollTimer;
+
+        // Auto-scroll logic
+        function startAutoScroll() {
+            clearInterval(autoScrollTimer);
+            // 1000 milliseconds = 1 second
+            autoScrollTimer = setInterval(() => {
+                const track = document.getElementById('imageCarousel');
+                const slide = track.querySelector('.carousel-slide');
+                
+                if (slide) {
+                    const slideWidth = slide.clientWidth + 16; 
+                    
+                    // If we've reached the right edge, loop back to the beginning
+                    if (track.scrollLeft + track.clientWidth >= track.scrollWidth - 10) {
+                        track.scrollTo({ left: 0, behavior: 'smooth' });
+                    } else {
+                        // Otherwise, scroll one slide to the right
+                        track.scrollBy({ left: slideWidth, behavior: 'smooth' });
+                    }
+                }
+            }, 2500); 
+        }
+
+        function loadGallery(folder, btnElement = null) {
+            // Update active tab styling
+            if (btnElement) {
+                document.querySelectorAll('.gallery-tab').forEach(btn => btn.classList.remove('active'));
+                btnElement.classList.add('active');
+            }
+
+            const track = document.getElementById('imageCarousel');
+            track.innerHTML = ''; // Clear current images
+
+            const images = galleryImages[folder] || [];
+            
+            images.forEach((src, index) => {
+                const img = document.createElement('img');
+                img.src = src;
+                img.alt = `Gallery Image ${index + 1}`;
+                img.className = 'carousel-slide';
+                // Fallback graphic if an image file doesn't exist
+                img.onerror = function() {
+                    this.style.display = 'none'; 
+                };
+                track.appendChild(img);
+            });
+            
+            // Reset scroll position
+            track.scrollLeft = 0;
+            
+            // Start the auto-scroll whenever a gallery loads
+            startAutoScroll();
+
+            // Optional UX: Pause auto-scroll when user hovers over the images
+            track.onmouseenter = () => clearInterval(autoScrollTimer);
+            track.onmouseleave = () => startAutoScroll();
+        }
+
+        function scrollCarousel(direction) {
+            const track = document.getElementById('imageCarousel');
+            const slide = track.querySelector('.carousel-slide');
+            if (slide) {
+                const slideWidth = slide.clientWidth + 16; 
+                track.scrollBy({ left: direction * slideWidth, behavior: 'smooth' });
+            }
+            
+            // Reset the auto-scroll timer so it doesn't aggressively jump right after a manual click
+            startAutoScroll();
         }
     </script>
     <script type="module">
