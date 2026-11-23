@@ -1322,16 +1322,16 @@
                 
                 const now = new Date();
                 const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                let displayAmount = selectedParticipants.length > 0 
-                    ? amount.toFixed(2) + ' × ' + selectedParticipants.length 
-                    : amount.toFixed(2);
+                let totalAmount = selectedParticipants.length > 0 
+                    ? amount * selectedParticipants.length 
+                    : amount;
                 
                 ledgerEntries.unshift({
                     id: savedEntry.id,
                     date: dateStr,
                     payee,
                     receiver,
-                    amount: displayAmount,
+                    amount: totalAmount.toFixed(2),
                     type,
                     onsite,
                     // Just show the raw remarks the user typed in the Remarks column

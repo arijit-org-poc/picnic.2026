@@ -1526,7 +1526,7 @@
         </section>
 
         <!-- Picnic Menu Section -->
-        <!-- <section class="menu-section card-style" style="grid-column: 1 / -1;">
+        <section class="menu-section card-style" style="grid-column: 1 / -1;">
             <h2 class="section-heading">🍽️ Picnic Menu (Buffet) 2027</h2>
 
             <div class="menu-grid">
@@ -1535,8 +1535,8 @@
                     <h3><span class="menu-icon">🌅</span> Breakfast</h3>
                     <ul class="menu-list">
                         <li><span>🥟</span> Koraisutir kachuri</li>
-                        <li><span>🥔</span> Aloor dam</li>
-                        <li><span>🍬</span> Moya / Misti</li>
+                        <li><span>🥔</span> Chana Masala</li>
+                        <li><span>🍬</span> White Roshogolla</li>
                     </ul>
                 </div>
 
@@ -1546,7 +1546,7 @@
                     <ul class="menu-list">
                         <li><span>🥬</span> Veg Pakora</li>
                         <li><span>🌽</span> Crispy chilli baby corn</li>
-                        <li><span>🍗</span> Dry chilli Chicken / Chicken sutey</li>
+                        <li><span>🍗</span> Dry chilli Chicken</li>
                         <li><span>☕</span> Coffee & Tea</li>
                         <li><span>🍟</span> French fries</li>
                     </ul>
@@ -1556,21 +1556,22 @@
                 <div class="menu-card lunch">
                     <h3><span class="menu-icon">🍛</span> Lunch</h3>
                     <ul class="menu-list">
-                        <li><span>🐟</span> Fish fry / Paneer Pasanda</li>
+                        <li><span>🐟</span> Bhetki Batter Fry / Paneer Pasinda</li>
+                        <li><span>🥗</span> Salad , Sauce</li>
                         <li><span>🍚</span> Dehradun Rice</li>
-                        <li><span>🥔</span> Jhuri Aloo Vaja</li>
                         <li><span>🥘</span> Veg Dal</li>
+                        <li><span>🥔</span> Jhuri Aloo Vaja</li>
+                        <li><span>🐡</span> Doi Katla / Fulkopir Roast</li>
                         <li><span>🍛</span> Polao</li>
-                        <li><span>🐡</span> Gondhoraj Katla / Fulkopir Roast</li>
                         <li><span>🍖</span> Mutton / Chanar Kofta Kari</li>
                         <li><span>🥗</span> Chatni & Papad</li>
                         <li><span>🍡</span> Nolengurer Rasogolla</li>
-                        <li><span>🍰</span> Sondesh</li>
-                        <li><span>🍃</span> Mitha Pan</li>
+                        <li><span>🍰</span> Kalakand</li>
+                        <li><span>🍃</span> Misti Pan</li>
                     </ul>
                 </div>
             </div>
-        </section> -->
+        </section>
 
         <!-- Pickup Locations Table -->
         <section class="route-section">
@@ -2178,12 +2179,12 @@
                 });
 
                 if (waypoints.length > 1) {
-                    routeLine = L.polyline(waypoints, {
-                        color: '#4285f4',
-                        weight: 4,
-                        opacity: 0.7,
-                        smoothFactor: 1
-                    }).addTo(map);
+                    // routeLine = L.polyline(waypoints, {
+                    //     color: '#4285f4',
+                    //     weight: 4,
+                    //     opacity: 0.7,
+                    //     smoothFactor: 1
+                    // }).addTo(map);
                     map.fitBounds(bounds, { padding: [50, 50] });
                 }
             } catch (error) {
