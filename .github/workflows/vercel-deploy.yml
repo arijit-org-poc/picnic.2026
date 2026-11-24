@@ -12,6 +12,7 @@ on:
   push:
     branches:
       - V2/Feature
+      - Revamp_V2
 
 jobs:
   Deploy-Production:

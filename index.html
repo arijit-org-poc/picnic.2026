@@ -1104,6 +1104,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
             gap: 16px;
+            margin-top: 12px;
         }
 
         .contact-item {
@@ -1832,7 +1833,7 @@
                             <th class="sortable" data-sort="transport">Transport <span class="sort-indicator"></span>
                             </th>
                             <th class="sortable" data-sort="location">Location <span class="sort-indicator"></span></th>
-                            <th>Coordinates</th>
+                            <!-- <th>Coordinates</th> -->
                             <th>Phone Number</th>
                             <th class="sortable" data-sort="headCount">Head Count <span class="sort-indicator"></span>
                             </th>
@@ -1859,6 +1860,12 @@
                 <div class="total-item contact-item">
                     <span>Avinaba</span>
                     <span><a href="tel:+918016941498">+91 80169 41498</a></span>
+                </div>
+            </div>
+            <div class="contact-grid">
+                <div class="total-item contact-item">
+                    <span>Sk. Ariful</span>
+                    <span><a href="tel:+919663768111">+91 96637 68111</a></span>
                 </div>
                 <div class="total-item contact-item">
                     <span>Kowsik</span>
@@ -2538,7 +2545,11 @@
                     '<span style="color: #6b7280; font-weight: 600;">✗ No</span>';
 
                 // Show location and coords only if transport is required
-                const locationDisplay = loc.transportRequired && loc.location ? loc.location : '-';
+                const locationDisplay = loc.transportRequired && loc.location ? `<a class="coordinate-link" 
+                       onclick="openInGoogleMaps(${loc.lat}, ${loc.lng})" 
+                       title="Click to open in Google Maps">
+                        ${loc.location}
+                    </a>` : '-';
                 const coordsDisplay = loc.transportRequired && loc.coords && loc.lat && loc.lng ? `
                     <a class="coordinate-link" 
                        onclick="openInGoogleMaps(${loc.lat}, ${loc.lng})" 
@@ -2551,7 +2562,7 @@
                     <td>${loc.name}</td>
                     <td>${transportBadge}</td>
                     <td>${locationDisplay}</td>
-                    <td>${coordsDisplay}</td>
+                    <!-- <td>${coordsDisplay}</td> -->
                     <td>${maskedPhone}</td>
                     <td>${loc.headCount}</td>
                     <td>${loc.kidsCount}</td>
