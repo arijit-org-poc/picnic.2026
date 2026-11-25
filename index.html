@@ -2857,12 +2857,16 @@
 
             document.getElementById('phone').addEventListener('input', function (e) {
                 let value = e.target.value.replace(/\D/g, '');
-                if (value.startsWith('91')) {
+                
+                // Only strip leading '91' if the number is longer than 10 digits (e.g., pasted +919123436344)
+                if (value.length > 10 && value.startsWith('91')) {
                     value = value.substring(2);
                 }
+                
                 if (value.length > 10) {
                     value = value.slice(0, 10);
                 }
+                
                 e.target.value = value;
             });
 
